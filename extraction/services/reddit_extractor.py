@@ -1,16 +1,28 @@
 """
 Reddit extraction module for fetching and processing crypto-related posts and comments
 """
-import os
-import csv
+import sys
+from pathlib import Path
+
+# Add parent directory to sys.path to allow direct script execution
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
 import logging
 import json
+import time
 from datetime import datetime
-from pathlib import Path
-from typing import Set
+from typing import Set, Optional
 from dotenv import load_dotenv
 import praw
+from prawcore.exceptions import ResponseException, RequestException
 import pandas as pd
+
+# Import from extraction.models
+from extraction.models.validators import RedditDataValidator
+from extraction.models.exceptions import RedditValidationError
+from extraction.models.config import RedditConfig
+from extraction.models.exceptions import RedditConfigError
+from extraction.models.exceptions import RedditAPIError
 
 # Load environment variables
 load_dotenv()
@@ -31,37 +43,34 @@ logger = logging.getLogger(__name__)
 class RedditExtractor:
     """Service to extract cryptocurrency data from Reddit"""
 
-    def __init__(self):
-        """Initialize Reddit API connection"""
+    def __init__(self, config: Optional[RedditConfig] = None):
+        """
+        Initialize Reddit API connection
+
+        Args:
+            config: RedditConfig instance (if None, creates default from .env)
+        """
         logger.info("Initializing Reddit API client...")
 
-        self.client_id = os.getenv('CLIENT_ID')
-        self.client_secret = os.getenv('CLIENT_SECRET')
-        self.username = os.getenv('REDDIT_USERNAME')
-        self.password = os.getenv('REDDIT_SECRET')
-        self.user_agent = "crypto_analysis_bot/1.0"
+        # Use provided config or create default
+        self.config = config if config is not None else RedditConfig()
 
-        # Checkpoint file path (simple JSON file to track extracted post IDs)
-        self.checkpoint_file = Path("data/bronze/reddit/.checkpoint.json")
-
-        # Validate credentials
-        if not all([self.client_id, self.client_secret, self.username, self.password]):
-            logger.error("[ERROR] Missing Reddit API credentials in .env file")
-            raise ValueError("Reddit API credentials are missing")
+        # Set checkpoint file from config
+        self.checkpoint_file = self.config.checkpoint_file
 
         try:
             # Authenticate using OAuth2
             self.reddit = praw.Reddit(
-                client_id=self.client_id,
-                client_secret=self.client_secret,
-                password=self.password,
-                user_agent=self.user_agent,
-                username=self.username,
+                client_id=self.config.client_id,
+                client_secret=self.config.client_secret,
+                password=self.config.password,
+                user_agent=self.config.user_agent,
+                username=self.config.username,
             )
             logger.info("[OK] Reddit API client initialized successfully")
         except Exception as e:
             logger.error(f"[ERROR] Failed to initialize Reddit API client: {e}")
-            raise
+            raise RedditConfigError(f"Failed to authenticate with Reddit API: {e}")
 
     def _load_checkpoint(self) -> Set[str]:
         """Load checkpoint file with already extracted post IDs"""
@@ -98,22 +107,25 @@ class RedditExtractor:
         except Exception as e:
             logger.error(f"Failed to save checkpoint: {e}")
 
-    def fetch_posts(self, 
+    def fetch_posts(self,
                    subreddit_name: str = "CryptoCurrency",
-                   query: str = "bitcoin", 
+                   query: str = "bitcoin",
                    limit: int = 100,
                    sort: str = "new") -> pd.DataFrame:
         """
-        Fetch posts from a subreddit matching the query
-        
+        Fetch posts from a subreddit matching the query with retry logic
+
         Args:
             subreddit_name: Name of the subreddit (e.g., "CryptoCurrency")
             query: Search query (e.g., "bitcoin", "ethereum")
             limit: Maximum number of posts to fetch
             sort: Sort method ("new", "hot", "top")
-        
+
         Returns:
             DataFrame containing posts and comments
+
+        Raises:
+            RedditAPIError: If API request fails after all retries
         """
         logger.info(f"Fetching Reddit posts...")
         logger.info(f"  Subreddit: r/{subreddit_name}")
@@ -121,6 +133,30 @@ class RedditExtractor:
         logger.info(f"  Limit: {limit}")
         logger.info(f"  Sort: {sort}")
 
+        # Retry logic
+        for attempt in range(self.config.retry_attempts):
+            try:
+                return self._fetch_posts_with_retry(subreddit_name, query, limit, sort, attempt)
+            except RedditAPIError as e:
+                if attempt < self.config.retry_attempts - 1:
+                    wait_time = self.config.retry_backoff ** attempt
+                    logger.warning(f"API error (attempt {attempt + 1}/{self.config.retry_attempts}): {e}")
+                    logger.info(f"Retrying in {wait_time} seconds...")
+                    time.sleep(wait_time)
+                else:
+                    logger.error(f"Failed after {self.config.retry_attempts} attempts")
+                    raise
+            except RedditConfigError as e:
+                # Fatal error - don't retry
+                logger.error(f"Configuration error (fatal): {e}")
+                raise
+
+        return pd.DataFrame()
+
+    def _fetch_posts_with_retry(self, subreddit_name: str, query: str, limit: int, sort: str, attempt: int) -> pd.DataFrame:
+        """
+        Internal method to fetch posts (called by fetch_posts with retry logic)
+        """
         # Load checkpoint to skip already extracted posts
         extracted_ids = self._load_checkpoint()
 
@@ -216,40 +252,40 @@ class RedditExtractor:
             df = self._clean_data(df)
 
             return df
-            
+
+        except ResponseException as e:
+            # Reddit API returned an error (rate limit, server error, etc.) - Recoverable
+            logger.error(f"[ERROR] Reddit API error: {e}")
+            raise RedditAPIError(f"Reddit API returned error: {e}")
+
+        except RequestException as e:
+            # Network/connection error - Recoverable
+            logger.error(f"[ERROR] Network error: {e}")
+            raise RedditAPIError(f"Network error occurred: {e}")
+
+        except RedditValidationError as e:
+            # Data validation failed - Fatal (bad data quality)
+            logger.error(f"[ERROR] Data validation failed: {e}")
+            raise
+
         except Exception as e:
-            logger.error(f"[ERROR] Error during Reddit extraction: {e}")
-            return pd.DataFrame()
+            # Unknown error - treat as recoverable for now
+            logger.error(f"[ERROR] Unexpected error during extraction: {e}")
+            raise RedditAPIError(f"Unexpected error: {e}")
     
     def _clean_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Clean the fetched Reddit data
-        
+        Clean and validate the fetched Reddit data
+
+        Uses RedditDataValidator for cleaning and schema validation
+
         Args:
             df: Raw DataFrame from Reddit
-            
+
         Returns:
-            Cleaned DataFrame
+            Cleaned and validated DataFrame
         """
-        if df.empty:
-            return df
-            
-        logger.info("Cleaning Reddit data...")
-        
-        # Drop rows with missing titles or text
-        initial_count = len(df)
-        
-        # Drop empty comments
-        if 'body' in df.columns:
-            df = df[df['body'].notna() & (df['body'] != "")]
-        
-        # Drop duplicate posts
-        df = df.drop_duplicates(subset=['submission_id', 'comment_id'], keep='first')
-        
-        final_count = len(df)
-        logger.info(f"[OK] Cleaned data: {initial_count} -> {final_count} records")
-        
-        return df
+        return RedditDataValidator.validate_and_clean(df)
     
     def save_to_bronze(self, df: pd.DataFrame, filename: str = "reddit_posts", execution_date: datetime = None):
         """
@@ -314,26 +350,19 @@ def main():
     logger.info("=" * 60)
     logger.info("Starting Reddit Extraction Service")
     logger.info("=" * 60)
-    
-    # Configuration
-    subreddit = os.getenv('REDDIT_SUBREDDIT', 'CryptoCurrency')
-    query = os.getenv('CRYPTO_KEYWORDS', 'bitcoin').split(',')[0]  # Use first keyword
-    limit = int(os.getenv('MAX_POSTS', '100'))
-    
-    logger.info(f"Configuration:")
-    logger.info(f"  Subreddit: r/{subreddit}")
-    logger.info(f"  Query: {query}")
-    logger.info(f"  Limit: {limit}")
-    
+
     try:
-        # Initialize extractor
-        extractor = RedditExtractor()
-        
-        # Fetch posts
+        # Load configuration
+        config = RedditConfig()
+
+        # Initialize extractor with config
+        extractor = RedditExtractor(config)
+
+        # Fetch posts using config parameters
         df = extractor.fetch_posts(
-            subreddit_name=subreddit,
-            query=query,
-            limit=limit,
+            subreddit_name=config.subreddit,
+            query=config.query,
+            limit=config.max_posts,
             sort="new"
         )
         
@@ -345,9 +374,28 @@ def main():
             logger.info("=" * 60)
         else:
             logger.warning("[WARN] No Reddit posts extracted")
-            
+
+    except RedditConfigError as e:
+        # Fatal configuration error - cannot proceed
+        logger.error(f"[FATAL] Configuration error: {e}")
+        logger.error("Please check your .env file and configuration")
+        raise
+
+    except RedditAPIError as e:
+        # API error after all retries
+        logger.error(f"[ERROR] Reddit API error after retries: {e}")
+        logger.error("The extraction failed. Please try again later.")
+        raise
+
+    except RedditValidationError as e:
+        # Data validation failed
+        logger.error(f"[ERROR] Data validation failed: {e}")
+        logger.error("Data quality issues detected. Check the logs for details.")
+        raise
+
     except Exception as e:
-        logger.error(f"[ERROR] Fatal error: {e}")
+        # Unexpected error
+        logger.error(f"[ERROR] Unexpected fatal error: {e}")
         raise
 
 
