@@ -1,0 +1,19 @@
+# Extraction
+tweepy
+praw
+
+# Configuration
+python-dotenv
+
+# Data Processing
+pandas
+numpy
+
+# NLP
+nltk
+transformers
+
+# Visualisation
+matplotlib
+seaborn
+
