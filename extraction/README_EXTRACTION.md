@@ -1,105 +1,130 @@
-# Extraction de Données Cryptomonnaies
+# Cryptocurrency Data Extraction
 
-## 📊 Sources de Données
+## 📊 Data Sources
 
-Ce module permet l'extraction de données sur les cryptomonnaies depuis plusieurs sources.
+This module enables data extraction from multiple cryptocurrency sources.
 
-### ✅ Reddit (Fonctionnel)
-- **Source** : Subreddits cryptomonnaies (r/CryptoCurrency)
-- **Type de données** : Posts, commentaires, métriques d'engagement
-- **Format** : CSV
-- **Localisation** : `data/bronze/reddit/`
+### ✅ Reddit (Operational)
+- **Source**: Cryptocurrency subreddits (r/CryptoCurrency)
+- **Data Type**: Posts, comments, engagement metrics
+- **Format**: CSV
+- **Location**: `data/bronze/reddit/year=YYYY/month=MM/day=DD/`
+- **Features**:
+  - Date partitioning for efficient data organization
+  - Checkpoint system to prevent duplicate extractions
+  - Idempotent execution (safe for Airflow DAG retries)
 
-### ⚠️ Twitter (Non Fonctionnel)
-- **Statut** : API Twitter nécessite un accès payant (API v2)
-- **Problème** : Erreur 401 Unauthorized - Credentials invalides
-- **Solution Alternative** : Données de test disponibles
-- **Localisation** : `data/bronze/twitter/`
+### ⚠️ Twitter (Non-Functional)
+- **Status**: Twitter API requires paid access (API v2)
+- **Issue**: 401 Unauthorized - Invalid credentials
+- **Alternative Solution**: Test data available
+- **Location**: `data/bronze/twitter/`
 
-## 🏗️ Architecture des Données (Medallion)
+## 🏗️ Data Architecture (Medallion)
 
 ```
 data/
-├── bronze/              # Couche Bronze : Données brutes
-│   ├── reddit/         # Données Reddit (CSV)
-│   └── twitter/        # Données Twitter (CSV)
-├── silver/             # Couche Silver : Données nettoyées (à venir)
+├── bronze/              # Bronze Layer: Raw data
+│   ├── reddit/         # Reddit data (CSV) with date partitioning
+│   │   └── year=YYYY/
+│   │       └── month=MM/
+│   │           └── day=DD/
+│   │               └── reddit_posts_*.csv
+│   └── twitter/        # Twitter data (CSV)
+├── silver/             # Silver Layer: Cleaned data (to be implemented)
 │   ├── reddit/
 │   └── twitter/
-└── gold/               # Couche Gold : Données enrichies (à venir)
+└── gold/               # Gold Layer: Enriched data (to be implemented)
 ```
 
 ### Bronze Layer
-- **Contenu** : Données brutes extraites des APIs
-- **Format** : CSV
-- **Pas de transformation** : Données telles quelles
+- **Content**: Raw data extracted from APIs
+- **Format**: CSV with date partitioning (`year=YYYY/month=MM/day=DD/`)
+- **No transformation**: Data as-is from source
+- **Checkpoint**: `.checkpoint.json` tracks extracted post IDs
 
 ### Silver Layer
-- **Contenu** : Données nettoyées et validées (à implémenter)
-- **Format** : CSV/Parquet
-- **Transformations** : Nettoyage, déduplication
+- **Content**: Cleaned and validated data (to be implemented)
+- **Format**: CSV/Parquet
+- **Transformations**: Cleaning, deduplication, validation
 
 ### Gold Layer
-- **Contenu** : Données enrichies et agrégées (à implémenter)
-- **Format** : Parquet optimisé
-- **Usage** : Prêt pour visualisation et ML
+- **Content**: Enriched and aggregated data (to be implemented)
+- **Format**: Optimized Parquet
+- **Usage**: Ready for visualization and ML
 
-## 🚀 Utilisation
+## 🚀 Usage
 
-### Extraction Reddit
+### Reddit Extraction
 
 ```powershell
-# Activer l'environnement virtuel
+# Activate virtual environment
 .\venv\Scripts\Activate.ps1
 
-# Lancer l'extraction
+# Run extraction
 python extraction/services/reddit_extractor.py
 ```
 
-**Configuration dans `.env`** :
+**Configuration in `.env`**:
 ```env
 # Reddit API
-CLIENT_ID=votre_client_id
-CLIENT_SECRET=votre_client_secret
-REDDIT_USERNAME=votre_username
-REDDIT_SECRET=votre_password
+CLIENT_ID=your_client_id
+CLIENT_SECRET=your_client_secret
+REDDIT_USERNAME=your_username
+REDDIT_SECRET=your_password
 
 # Configuration
 REDDIT_SUBREDDIT=CryptoCurrency
 MAX_POSTS=100
+CRYPTO_KEYWORDS=bitcoin,ethereum
 ```
 
-### Extraction Twitter (Non Fonctionnel)
+### Twitter Extraction (Non-Functional)
 
 ```powershell
-# Note: Nécessite des credentials API valides
+# Note: Requires valid API credentials
 python extraction/services/twitter_extractor.py
 ```
 
-**Problème** : L'API Twitter nécessite un accès payant et les credentials fournis sont invalides (erreur 401).
+**Issue**: Twitter API requires paid access and provided credentials are invalid (401 error).
 
-**Solution Alternative** : Utiliser des données de test si disponibles.
+**Alternative Solution**: Use test data if available.
 
-## 📁 Structure des Fichiers Extraits
+## 📁 Extracted Files Structure
 
 ### Reddit
+
+**Partitioned Structure** (New):
 ```
-data/bronze/reddit/reddit_posts_YYYYMMDD_HHMMSS.csv
-data/bronze/reddit/reddit_posts_YYYYMMDD_HHMMSS_summary.json
+data/bronze/reddit/year=2025/month=10/day=27/reddit_posts_20251027_163945.csv
+data/bronze/reddit/year=2025/month=10/day=27/reddit_posts_20251027_163945_summary.json
+data/bronze/reddit/.checkpoint.json  # Tracks extracted post IDs
 ```
 
-**Colonnes du CSV** :
-- `submission_id` : ID du post
-- `title` : Titre du post
-- `text` : Contenu du post
-- `body` : Contenu du commentaire
-- `score` : Score du post
-- `num_comments` : Nombre de commentaires
-- `upvote_ratio` : Ratio de votes positifs
-- `author` : Auteur
-- `subreddit` : Subreddit
-- `created_datetime` : Date de création
-- `source` : Source des données
+**CSV Columns**:
+- `submission_id`: Post ID
+- `title`: Post title
+- `text`: Post content
+- `body`: Comment content
+- `score`: Post score
+- `num_comments`: Number of comments
+- `upvote_ratio`: Upvote ratio
+- `author`: Author
+- `subreddit`: Subreddit name
+- `created_datetime`: Creation date
+- `source`: Data source
+- `comment_id`: Comment ID
+- `comment_score`: Comment score
+- `parent_id`: Parent comment/post ID
+- `comment_created_utc`: Comment creation timestamp
+
+**Checkpoint File** (`.checkpoint.json`):
+```json
+{
+  "extracted_post_ids": ["id1", "id2", "..."],
+  "last_updated": "2025-10-27T16:00:00"
+}
+```
 
 ### Twitter
 ```
@@ -107,62 +132,137 @@ data/bronze/twitter/twitter_tweets_YYYYMMDD_HHMMSS.csv
 data/bronze/twitter/twitter_tweets_YYYYMMDD_HHMMSS_summary.json
 ```
 
-**Note** : Twitter extraction actuellement indisponible.
+**Note**: Twitter extraction currently unavailable.
 
-## 🛠️ Services Disponibles
+## 🛠️ Available Services
 
 ### `reddit_extractor.py`
-- ✅ Extraction de posts et commentaires Reddit
-- ✅ Nettoyage automatique des données
-- ✅ Sauvegarde CSV dans bronze/reddit
-- ✅ Logs détaillés
+- ✅ Extract Reddit posts and comments
+- ✅ Automatic data cleaning
+- ✅ Date partitioning (year/month/day)
+- ✅ Checkpoint system for idempotent execution
+- ✅ CSV save to bronze/reddit with partitions
+- ✅ Detailed logging
+- ✅ Skip already extracted posts (prevents duplicates)
+
+**Key Features**:
+- **Partitioning**: Data organized by `year=YYYY/month=MM/day=DD/`
+- **Checkpointing**: Tracks extracted `submission_id` to avoid re-extraction
+- **Idempotent**: Safe to re-run without creating duplicates
+- **Airflow-Ready**: Supports DAG retries and backfills
 
 ### `twitter_extractor.py`
-- ⚠️ Nécessite credentials API valides
-- ⚠️ Actuellement non fonctionnel (401 Unauthorized)
-- Format CSV dans bronze/twitter
+- ⚠️ Requires valid API credentials
+- ⚠️ Currently non-functional (401 Unauthorized)
+- CSV format in bronze/twitter
 
-## 📊 Statistiques d'Extraction
+## 📊 Extraction Statistics
 
-Les fichiers `_summary.json` contiennent :
-- Nombre total de posts/tweets
-- Date d'extraction
-- Statistiques agrégées (likes, retweets, etc.)
-- Métadonnées de fichier
+The `_summary.json` files contain:
+- Total number of posts/tweets
+- Extraction date
+- Aggregated statistics (likes, retweets, etc.)
+- File metadata
+- Unique submissions count
+- Average score
+- Total comments
 
-## 🔧 Dépendances
+## 🔧 Dependencies
 
 ```
-tweepy          # Twitter API (si fonctionnel)
+tweepy          # Twitter API (if functional)
 praw            # Reddit API
 pandas          # Data processing
 python-dotenv   # Configuration
 ```
 
+## 🔄 Checkpoint System
+
+The checkpoint system ensures idempotent extractions:
+
+1. **Before extraction**: Load `.checkpoint.json` to get already extracted post IDs
+2. **During extraction**: Skip posts that are already in checkpoint
+3. **After extraction**: Save new post IDs to checkpoint
+4. **Benefits**:
+   - Prevents duplicate data
+   - Safe for Airflow DAG retries
+   - Efficient incremental loading
+   - Reduces API calls
+
+**Example Log Output**:
+```
+[OK] Loaded checkpoint: 150 posts already extracted
+Progress: 25 posts processed
+[INFO] Skipped 15 already extracted posts
+[OK] Checkpoint saved: 165 total posts tracked
+```
+
+## 📅 Date Partitioning
+
+Data is partitioned using Hive-style partitioning:
+
+**Benefits**:
+- Efficient data queries (filter by date)
+- Easy data lifecycle management
+- Compatible with Spark/Hive
+- Supports incremental processing
+- Ready for Apache Airflow scheduling
+
+**Partition Format**: `year=YYYY/month=MM/day=DD/`
+
+**Example**:
+```python
+# Save with specific execution date
+extractor.save_to_bronze(df, 'reddit_posts', execution_date=datetime(2025, 10, 27))
+# Creates: data/bronze/reddit/year=2025/month=10/day=27/reddit_posts_*.csv
+```
+
 ## ⚠️ Limitations
 
-1. **Twitter API** : Nécessite un abonnement payant pour l'accès à l'API v2
-2. **Rate Limits** : 
-   - Reddit : 60 requêtes/minute
-   - Twitter : Limité par le plan d'abonnement
-3. **Données** : Seulement les données récentes disponibles
+1. **Twitter API**: Requires paid subscription for API v2 access
+2. **Rate Limits**:
+   - Reddit: 60 requests/minute
+   - Twitter: Limited by subscription plan
+3. **Data**: Only recent data available
+4. **Checkpoint**: Uses local JSON file (not distributed)
 
 ## 📝 Logs
 
-Toutes les opérations sont loguées dans :
-- **Console** : Affichage en temps réel
-- **Fichier** : `extraction.log`
+All operations are logged to:
+- **Console**: Real-time display
+- **File**: `extraction.log`
 
-## 🎯 Prochaines Étapes
+**Log Levels**:
+- `INFO`: Normal operations
+- `WARNING`: Skipped/failed posts
+- `ERROR`: Critical errors
 
-1. ✅ Extraction Reddit opérationnelle
-2. ⏳ Implémenter le traitement Silver layer
-3. ⏳ Implémenter l'enrichissement Gold layer
-4. ⏳ Fixer l'authentification Twitter ou trouver alternative
-5. ⏳ Ajouter d'autres sources de données
+## 🎯 Next Steps
+
+1. ✅ Reddit extraction operational
+2. ✅ Date partitioning implemented
+3. ✅ Checkpoint system implemented
+4. ⏳ Implement Silver layer processing
+5. ⏳ Implement Gold layer enrichment
+6. ⏳ Fix Twitter authentication or find alternative
+7. ⏳ Add more data sources
+8. ⏳ Add data validation (Pydantic/Pandera)
+9. ⏳ Add retry logic and error handling
+10. ⏳ Create Airflow DAG configuration
+
+## 🚀 Ready for Apache Airflow
+
+This extraction service is designed for Apache Airflow:
+
+- ✅ **Idempotent**: Safe to re-run with checkpoint system
+- ✅ **Partitioned**: Date-based partitioning for scheduling
+- ✅ **Logging**: Detailed logs for monitoring
+- ✅ **Execution Date**: Supports custom execution dates
+- ⏳ **Configuration**: Centralized config (to be implemented)
+- ⏳ **Metrics**: Export metrics (to be implemented)
+- ⏳ **Retry Logic**: Custom retry mechanism (to be implemented)
 
 ## 👥 Contribution
 
-Branche : `feature/zakariae-twitter-extraction`
-Phase : Extraction (Bronze layer)
-
+Branch: `feature/zakariae-twitter-extraction`
+Phase: Extraction (Bronze layer with partitioning & checkpointing)
