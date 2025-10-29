@@ -289,7 +289,8 @@ class RedditExtractor:
     
     def save_to_bronze(self, df: pd.DataFrame, filename: str = "reddit_posts", execution_date: datetime = None):
         """
-        Save Reddit data to bronze layer as CSV with date partitioning
+        Save Reddit data to Bronze layer (one single CSV per day).
+        If the file already exists for today, append new data instead of creating a new file.
 
         Args:
             df: DataFrame with Reddit data
@@ -303,25 +304,49 @@ class RedditExtractor:
         year = execution_date.strftime('%Y')
         month = execution_date.strftime('%m')
         day = execution_date.strftime('%d')
+        date_str = execution_date.strftime('%Y%m%d')
 
         partition_path = Path(f'data/bronze/reddit/year={year}/month={month}/day={day}')
         partition_path.mkdir(parents=True, exist_ok=True)
 
-        # Generate filename with timestamp
-        timestamp = execution_date.strftime('%Y%m%d_%H%M%S')
-        filepath = partition_path / f'{filename}_{timestamp}.csv'
+        # Fixed filename per day (one single file per day)
+        csv_path = partition_path / f'{filename}_{date_str}.csv'
+        summary_path = partition_path / f'{filename}_{date_str}_summary.json'
 
         try:
-            # Save as CSV
-            df.to_csv(filepath, index=False, encoding='utf-8')
+            # Check if file already exists for today
+            file_exists = csv_path.exists()
 
-            logger.info(f"[OK] Saved {len(df)} Reddit posts to {filepath}")
+            # Append new rows to the same CSV file
+            df.to_csv(
+                csv_path,
+                mode='a' if file_exists else 'w',   # append if exists
+                index=False,
+                header=not file_exists,             # no header if appending
+                encoding='utf-8'
+            )
 
-            # Save summary
-            self._save_summary(df, str(filepath))
+            logger.info(f"[OK] {len(df)} rows {'appended to' if file_exists else 'written to new'} {csv_path}")
+
+            # Read full daily file to recalculate global summary
+            full_df = pd.read_csv(csv_path)
+
+            summary = {
+                'total_rows': len(full_df),
+                'extraction_date': datetime.now().isoformat(),
+                'file_location': str(csv_path),
+                'unique_submissions': full_df['submission_id'].nunique() if 'submission_id' in full_df.columns else 0,
+                'average_score': full_df['score'].mean() if 'score' in full_df.columns else 0,
+                'total_comments': len(full_df[full_df['body'] != ""]) if 'body' in full_df.columns else 0
+            }
+
+            with open(summary_path, 'w', encoding='utf-8') as f:
+                json.dump(summary, f, indent=2)
+
+            logger.info(f"[OK] Daily summary refreshed: {summary_path}")
 
         except Exception as e:
-            logger.error(f"[ERROR] Failed to save Reddit data: {e}")
+            logger.error(f"[ERROR] Failed to save daily Reddit data: {e}")
     
     def _save_summary(self, df: pd.DataFrame, filepath: str):
         """Save extraction summary"""
