@@ -1,38 +1,67 @@
-# Crypto Analysis - Extraction de Tweets
+# Crypto Reddit Scraper 🚀
 
-Projet d'extraction et d'analyse de tweets sur les cryptomonnaies.
+A Python-based tool for scraping posts and comments from cryptocurrency-related subreddits using the Reddit API (PRAW). Perfect for sentiment analysis, trend detection, and market research.
 
-## 🚀 Démarrage Rapide
+## 📊 Latest Scraping Results
 
-### 1. Activation du venv
-```powershell
-.\venv\Scripts\Activate.ps1
-```
+**Last Run:** October 29, 2024
 
-### 2. Installation des dépendances
-```powershell
-pip install -r requirements.txt
-```
+| Metric | Value |
+|--------|-------|
+| **Total Posts** | 831 |
+| **Total Comments** | 12,752 |
+| **Average Post Score** | 630.52 |
+| **Average Comment Score** | 16.54 |
 
-### 3. Configuration
-Créez un fichier `.env` avec vos identifiants Twitter API (voir `.env.example`)
+### Posts by Subreddit
+- **r/cryptocurrency**: 242 posts
+- **r/bitcoin**: 242 posts
+- **r/solana**: 233 posts
+- **r/ethereum**: 114 posts
 
-### 4. Extraction
-```powershell
-python extraction/services/twitter_extractor.py
-```
+## 🎯 Features
 
-## 📁 Structure
+- ✅ Scrapes top posts from the last 30 days
+- ✅ Collects comments from popular threads
+- ✅ Supports multiple cryptocurrency subreddits
+- ✅ Exports data in both JSON and CSV formats
+- ✅ Built-in rate limiting to respect Reddit API
+- ✅ Detailed logging and statistics
+- ✅ Secure credential management with `.env`
+- ✅ Organized data structure for easy analysis
 
-- `extraction/` : Code d'extraction de tweets
-- `data/bronze/` : Données brutes extraites
-- `data/silver/` : Données nettoyées (à venir)
-- `data/gold/` : Données enrichies (à venir)
+## 📊 Data Format
+### Posts Data
 
-## 📖 Documentation
+Each post contains:
+- `subreddit` - Subreddit name
+- `post_id` - Unique post identifier
+- `title` - Post title
+- `author` - Post author username
+- `created_utc` - Timestamp (ISO format)
+- `score` - Upvotes minus downvotes
+- `upvote_ratio` - Ratio of upvotes
+- `num_comments` - Number of comments
+- `url` - Post URL
+- `permalink` - Reddit permalink
+- `selftext` - Post text content
+- `link_flair_text` - Post flair
+- `is_self` - Is it a self post?
+- `distinguished` - Moderator/admin status
+- `stickied` - Is post stickied?
 
-Consultez `README_TWITTER_EXTRACTION.md` pour plus de détails.
+### Comments Data
 
-## 👥 Contribution
+Each comment contains:
+- `post_id` - Parent post ID
+- `subreddit` - Subreddit name
+- `comment_id` - Unique comment identifier
+- `author` - Comment author username
+- `created_utc` - Timestamp (ISO format)
+- `body` - Comment text
+- `score` - Comment score
+- `is_submitter` - Is author the OP?
+- `distinguished` - Moderator/admin status
+- `parent_id` - Parent comment/post ID
+- `depth` - Comment depth in thread
 
-Branche: `feature/zakariae-twitter-extraction`
