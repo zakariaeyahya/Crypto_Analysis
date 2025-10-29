@@ -156,120 +156,120 @@ class RedditExtractor:
     def _fetch_posts_with_retry(self, subreddit_name: str, query: str, limit: int, sort: str, attempt: int) -> pd.DataFrame:
         """
         Internal method to fetch posts (called by fetch_posts with retry logic)
+        NOTE: returns posts_df for backward compatibility, but stores separate
+        posts_df and comments_df in self._last_posts_df and self._last_comments_df
         """
-        # Load checkpoint to skip already extracted posts
         extracted_ids = self._load_checkpoint()
 
-        posts_data = []
+        posts_rows = []
+        comments_rows = []
         new_post_ids = set()
         skipped_count = 0
         start_time = datetime.now()
 
         try:
-            # Get subreddit and search for posts
             subreddit = self.reddit.subreddit(subreddit_name)
             submissions = subreddit.search(query, sort=sort, limit=limit)
 
-            # Process each submission
             for i, submission in enumerate(submissions, 1):
                 try:
-                    # Skip if already extracted
                     if submission.id in extracted_ids:
                         skipped_count += 1
                         logger.debug(f"Skipping already extracted post: {submission.id}")
                         continue
 
-                    # Track new post ID
                     new_post_ids.add(submission.id)
-                    # Extract post data
-                    post_data = {
+
+                    # ---- Post row (one row per submission)
+                    post_row = {
                         "submission_id": submission.id,
                         "title": submission.title,
-                        "text": submission.selftext if hasattr(submission, 'selftext') else "",
+                        "text": getattr(submission, 'selftext', "") or "",
+                        "url": submission.url,
+                        "post_author": str(submission.author) if submission.author else "[deleted]",
                         "score": submission.score,
                         "num_comments": submission.num_comments,
                         "upvote_ratio": submission.upvote_ratio,
-                        "url": submission.url,
-                        "created_utc": submission.created_utc,
-                        "author": str(submission.author) if submission.author else "[deleted]",
                         "subreddit": submission.subreddit.display_name,
                         "query": query,
                         "source": "reddit_post",
+                        "created_utc": submission.created_utc,
                         "created_datetime": datetime.fromtimestamp(submission.created_utc).isoformat() if hasattr(submission, 'created_utc') else ""
                     }
-                    
-                    # Extract top comments (limit to avoid memory issues)
-                    comments_data = []
+                    posts_rows.append(post_row)
+
+                    # ---- Comments (top 20)
                     submission.comments.replace_more(limit=0)
-                    for comment in submission.comments.list()[:20]:  # Get top 20 comments
-                        if hasattr(comment, 'body'):
-                            comment_data = {
-                                **post_data,
-                                "comment_id": comment.id,
-                                "body": comment.body,
-                                "comment_score": comment.score,
-                                "parent_id": comment.parent_id,
-                                "comment_created_utc": comment.created_utc,
-                                "created_datetime": datetime.fromtimestamp(comment.created_utc).isoformat() if hasattr(comment, 'created_utc') else ""
-                            }
-                            comments_data.append(comment_data)
-                    
-                    # Store post with its comments
-                    if len(comments_data) > 0:
-                        posts_data.extend(comments_data)
-                    else:
-                        # Store post without comments
-                        post_data["comment_id"] = ""
-                        post_data["body"] = ""
-                        post_data["comment_score"] = 0
-                        post_data["parent_id"] = ""
-                        post_data["comment_created_utc"] = submission.created_utc
-                        posts_data.append(post_data)
-                    
-                    # Log progress every 25 posts
+                    for c in submission.comments.list()[:20]:
+                        if hasattr(c, "body"):
+                            comments_rows.append({
+                                "comment_id": c.id,
+                                "submission_id": submission.id,  # FK → posts
+                                "comment_author": str(getattr(c, "author", None)) if getattr(c, "author", None) else "[deleted]",
+                                "comment_body": c.body,
+                                "comment_score": c.score,
+                                "comment_parent_id": c.parent_id,
+                                "comment_created_utc": c.created_utc,
+                                "created_datetime": datetime.fromtimestamp(c.created_utc).isoformat() if hasattr(c, 'created_utc') else "",
+                                "subreddit": submission.subreddit.display_name,
+                                "query": query,
+                                "source": "reddit_comment",
+                            })
+
                     if i % 25 == 0:
                         logger.info(f"Progress: {i} posts processed")
-                    
+
                 except Exception as e:
                     logger.warning(f"Failed to process post: {e}")
                     continue
-            
+
             end_time = datetime.now()
             duration = (end_time - start_time).total_seconds()
 
-            logger.info(f"[OK] Fetched {len(posts_data)} posts/comments in {duration:.2f} seconds")
+            logger.info(f"[OK] Fetched {len(posts_rows)} posts and {len(comments_rows)} comments in {duration:.2f} seconds")
             if skipped_count > 0:
                 logger.info(f"[INFO] Skipped {skipped_count} already extracted posts")
 
-            # Save checkpoint with new post IDs
             if new_post_ids:
                 self._save_checkpoint(new_post_ids)
 
-            # Create DataFrame
-            df = pd.DataFrame(posts_data)
+            # ---- DataFrames (separate schemas)
+            posts_df = pd.DataFrame(posts_rows).drop_duplicates("submission_id") if posts_rows else pd.DataFrame()
+            comments_df = pd.DataFrame(comments_rows).drop_duplicates("comment_id") if comments_rows else pd.DataFrame()
 
-            # Clean data
-            df = self._clean_data(df)
+            # ---- Validation (using existing validator, with warning handling)
+            try:
+                if not posts_df.empty:
+                    posts_df = RedditDataValidator.validate_and_clean(posts_df)
+            except Exception as ve:
+                logger.warning(f"[Validator] Posts validation warning: {ve}")
 
-            return df
+            try:
+                if not comments_df.empty:
+                    comments_df = RedditDataValidator.validate_and_clean(comments_df)
+            except Exception as ve:
+                logger.warning(f"[Validator] Comments validation warning: {ve}")
+
+            # Store for save methods
+            self._last_posts_df = posts_df
+            self._last_comments_df = comments_df
+
+            # Backward compatibility: return posts_df
+            return posts_df
 
         except ResponseException as e:
-            # Reddit API returned an error (rate limit, server error, etc.) - Recoverable
             logger.error(f"[ERROR] Reddit API error: {e}")
             raise RedditAPIError(f"Reddit API returned error: {e}")
 
         except RequestException as e:
-            # Network/connection error - Recoverable
             logger.error(f"[ERROR] Network error: {e}")
             raise RedditAPIError(f"Network error occurred: {e}")
 
         except RedditValidationError as e:
-            # Data validation failed - Fatal (bad data quality)
             logger.error(f"[ERROR] Data validation failed: {e}")
             raise
 
         except Exception as e:
-            # Unknown error - treat as recoverable for now
             logger.error(f"[ERROR] Unexpected error during extraction: {e}")
             raise RedditAPIError(f"Unexpected error: {e}")
     
@@ -347,7 +347,126 @@ class RedditExtractor:
 
         except Exception as e:
             logger.error(f"[ERROR] Failed to save daily Reddit data: {e}")
-    
+
+    def save_posts_to_bronze(self, posts_df: pd.DataFrame, base_filename: str = "reddit_posts", execution_date: datetime = None):
+        """
+        Save Reddit posts to Bronze layer (one CSV per day with append).
+
+        Args:
+            posts_df: DataFrame with Reddit posts
+            base_filename: Base filename without extension
+            execution_date: Date for partitioning (defaults to today)
+        """
+        if execution_date is None:
+            execution_date = datetime.now()
+
+        year = execution_date.strftime('%Y')
+        month = execution_date.strftime('%m')
+        day = execution_date.strftime('%d')
+        date_str = execution_date.strftime('%Y%m%d')
+
+        partition_path = Path(f"data/bronze/reddit/year={year}/month={month}/day={day}")
+        partition_path.mkdir(parents=True, exist_ok=True)
+
+        csv_path = partition_path / f"{base_filename}_{date_str}.csv"
+        summary_path = partition_path / f"{base_filename}_{date_str}_summary.json"
+
+        try:
+            file_exists = csv_path.exists()
+
+            # Columns in desired order (robust if columns missing)
+            cols = [
+                "submission_id", "title", "text", "url",
+                "post_author", "score", "num_comments", "upvote_ratio",
+                "subreddit", "query", "source", "created_utc", "created_datetime"
+            ]
+            # Reindex/order without breaking
+            posts_to_write = posts_df.reindex(columns=cols)
+
+            posts_to_write.to_csv(
+                csv_path,
+                mode='a' if file_exists else 'w',
+                index=False,
+                header=not file_exists,
+                encoding='utf-8'
+            )
+
+            logger.info(f"[OK] {len(posts_to_write)} post rows {'appended to' if file_exists else 'written to new'} {csv_path}")
+
+            # Summary (full daily file)
+            full = pd.read_csv(csv_path)
+            summary = {
+                "total_posts": int(len(full)),
+                "extraction_date": datetime.now().isoformat(),
+                "file_location": str(csv_path),
+                "unique_submissions": int(full['submission_id'].nunique()) if 'submission_id' in full.columns else 0,
+                "average_score": float(full['score'].mean()) if 'score' in full.columns and not full.empty else 0.0
+            }
+            with open(summary_path, 'w', encoding='utf-8') as f:
+                json.dump(summary, f, indent=2)
+            logger.info(f"[OK] Posts daily summary refreshed: {summary_path}")
+
+        except Exception as e:
+            logger.error(f"[ERROR] Failed to save posts daily data: {e}")
+
+    def save_comments_to_bronze(self, comments_df: pd.DataFrame, base_filename: str = "reddit_comments", execution_date: datetime = None):
+        """
+        Save Reddit comments to Bronze layer (one CSV per day with append).
+
+        Args:
+            comments_df: DataFrame with Reddit comments
+            base_filename: Base filename without extension
+            execution_date: Date for partitioning (defaults to today)
+        """
+        if execution_date is None:
+            execution_date = datetime.now()
+
+        year = execution_date.strftime('%Y')
+        month = execution_date.strftime('%m')
+        day = execution_date.strftime('%d')
+        date_str = execution_date.strftime('%Y%m%d')
+
+        partition_path = Path(f"data/bronze/reddit/year={year}/month={month}/day={day}")
+        partition_path.mkdir(parents=True, exist_ok=True)
+
+        csv_path = partition_path / f"{base_filename}_{date_str}.csv"
+        summary_path = partition_path / f"{base_filename}_{date_str}_summary.json"
+
+        try:
+            file_exists = csv_path.exists()
+
+            cols = [
+                "comment_id", "submission_id", "comment_author", "comment_body", "comment_score",
+                "comment_parent_id", "comment_created_utc", "created_datetime",
+                "subreddit", "query", "source"
+            ]
+            comments_to_write = comments_df.reindex(columns=cols)
+
+            comments_to_write.to_csv(
+                csv_path,
+                mode='a' if file_exists else 'w',
+                index=False,
+                header=not file_exists,
+                encoding='utf-8'
+            )
+
+            logger.info(f"[OK] {len(comments_to_write)} comment rows {'appended to' if file_exists else 'written to new'} {csv_path}")
+
+            full = pd.read_csv(csv_path)
+            summary = {
+                "total_comments": int(len(full)),
+                "extraction_date": datetime.now().isoformat(),
+                "file_location": str(csv_path),
+                "unique_submissions_ref": int(full['submission_id'].nunique()) if 'submission_id' in full.columns else 0,
+                "average_comment_score": float(full['comment_score'].mean()) if 'comment_score' in full.columns and not full.empty else 0.0
+            }
+            with open(summary_path, 'w', encoding='utf-8') as f:
+                json.dump(summary, f, indent=2)
+            logger.info(f"[OK] Comments daily summary refreshed: {summary_path}")
+
+        except Exception as e:
+            logger.error(f"[ERROR] Failed to save comments daily data: {e}")
+
     def _save_summary(self, df: pd.DataFrame, filepath: str):
         """Save extraction summary"""
         summary = {
@@ -377,28 +496,34 @@ def main():
     logger.info("=" * 60)
 
     try:
-        # Load configuration
         config = RedditConfig()
-
-        # Initialize extractor with config
         extractor = RedditExtractor(config)
 
-        # Fetch posts using config parameters
-        df = extractor.fetch_posts(
+        # fetch_posts preserves signature, but _fetch_posts_with_retry populates:
+        # extractor._last_posts_df and extractor._last_comments_df
+        _ = extractor.fetch_posts(
             subreddit_name=config.subreddit,
             query=config.query,
             limit=config.max_posts,
             sort="new"
         )
-        
-        # Save to bronze
-        if not df.empty:
-            extractor.save_to_bronze(df, 'reddit_posts')
-            logger.info("=" * 60)
-            logger.info("[OK] Reddit extraction completed successfully")
-            logger.info("=" * 60)
+
+        posts_df = getattr(extractor, "_last_posts_df", pd.DataFrame())
+        comments_df = getattr(extractor, "_last_comments_df", pd.DataFrame())
+
+        if not posts_df.empty:
+            extractor.save_posts_to_bronze(posts_df, base_filename='reddit_posts')
         else:
             logger.warning("[WARN] No Reddit posts extracted")
+
+        if not comments_df.empty:
+            extractor.save_comments_to_bronze(comments_df, base_filename='reddit_comments')
+        else:
+            logger.info("[INFO] No comments found (or limit=0)")
+
+        logger.info("=" * 60)
+        logger.info("[OK] Reddit extraction completed successfully")
+        logger.info("=" * 60)
 
     except RedditConfigError as e:
         # Fatal configuration error - cannot proceed
