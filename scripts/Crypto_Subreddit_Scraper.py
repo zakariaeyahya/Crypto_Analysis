@@ -57,7 +57,43 @@ class CryptoRedditScraper:
             )
             print("✅ Read-only mode (no username/password needed for scraping)")
         
-        self.target_subreddits = ['cryptocurrency', 'bitcoin', 'ethereum', 'solana']
+        self.target_subreddits = [
+    # Your original list:
+    'cryptocurrency', 
+    'bitcoin', 
+    'ethereum', 
+    'solana',
+
+    # --- General & Markets ---
+    # Broad discussion, but more focused on price and market trends
+    'CryptoMarkets',
+    # Focuses on the underlying technology, less on price
+    'CryptoTechnology',
+
+    # --- Other Major Coins & L1s ---
+    # Good to add other major players
+    'cardano',
+    'polkadot',
+    'Avalanche',
+    'dogecoin',  # Excellent for high-sentiment, meme-driven data
+    'binance',   # Covers the exchange and its ecosystem
+    
+    # --- Trading & Speculation ---
+    # These will have highly volatile sentiment (highs and lows)
+    'CryptoTrading',
+    'SatoshiStreetBets', # The crypto-equivalent of WallStreetBets
+    'CryptoMoonShots', # For low-cap coins, very high speculation
+    'altcoin',
+
+    # --- Specific Sectors ---
+    # To capture sentiment on specific parts of the industry
+    'defi',
+    'NFTs',
+
+    # --- Skeptical View (Highly Recommended) ---
+    # CRITICAL for balanced analysis to get negative sentiment
+    'buttcoin' 
+]
         self.posts_data = []
         self.comments_data = []
         self.output_dir = output_dir
