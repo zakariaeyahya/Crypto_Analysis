@@ -1,10 +1,38 @@
 # Crypto Reddit Scraper 🚀
 
 A Python-based tool for scraping posts and comments from cryptocurrency-related subreddits using the Reddit API (PRAW). Perfect for sentiment analysis, trend detection, and market research.
+## 🧠 Project Progress
 
-## 📊 Latest Scraping Results
+### 🗓️ Updates Log
 
-**Last Run:** October 29, 2024
+- **30/10/2025** — Added new scraping run results (see details below).
+
+============================================================
+✨ NEW Posts This Run: 1533
+✨ NEW Comments This Run: 13775
+📚 Total Posts Ever Scraped: 1533
+
+📍 New Posts by Subreddit:
+  r/cryptocurrency: 500
+  r/bitcoin: 500
+  r/ethereum: 113
+  r/solana: 420
+
+⭐ Average Post Score: 108.37
+⭐ Average Comment Score: 9.32
+
+💾 Posts saved to: output\posts\crypto_posts_20251030_140452.json
+💾 Comments saved to: output\comments\crypto_comments_20251030_140452.json
+💾 Posts CSV saved to: output\posts\crypto_posts_20251030_140459.csv
+💾 Comments CSV saved to: output\comments\crypto_comments_20251030_140459.csv
+
+💾 State saved: 1533 new posts tracked
+============================================================
+✅ Scraping completed successfully!
+============================================================
+
+
+- **October 29, 2025**
 
 | Metric | Value |
 |--------|-------|
