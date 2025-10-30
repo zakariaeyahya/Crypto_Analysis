@@ -1,10 +1,10 @@
 """
-Crypto Tweet Scraper - Fresh Tweets Only
-Collects only NEW crypto-related tweets on each run using persistent tracking
-Filters spam/bot accounts and exports to CSV/JSON
+Crypto Tweet Scraper - Using Twitter API v2 (Tweepy)
+Collects only NEW crypto-related tweets on each run using official API
+Requires Twitter API credentials (Free tier available)
 """
 
-import snscrape.modules.twitter as sntwitter
+import tweepy
 import pandas as pd
 import json
 from datetime import datetime, timedelta
@@ -13,12 +13,30 @@ import re
 import time
 import os
 import pickle
+from dotenv import load_dotenv
 
-# Configuration
+# Load environment variables from .env file
+load_dotenv()
+
+# ============================================================================
+# CONFIGURATION - CREDENTIALS LOADED FROM .env FILE
+# ============================================================================
+# Get free API access at: https://developer.twitter.com/en/portal/dashboard
+TWITTER_API_CONFIG = {
+    "bearer_token": os.getenv("TWITTER_BEARER_TOKEN"),  # Loaded from .env
+}
+
+# Output Configuration
 OUTPUT_FORMAT = "csv"  # Choose "csv" or "json"
 OUTPUT_FILENAME = "crypto_tweets"
-MAX_TWEETS_PER_QUERY = 1000  # Limit per search query to manage data volume
-TRACKING_FILE = "collected_tweet_ids.pkl"  # File to store previously collected tweet IDs
+MAX_TWEETS_PER_QUERY = 10  # FREE TIER: Reduced to 10 (you only get 100 reads/month!)
+TRACKING_FILE = "collected_tweet_ids.pkl"
+SEARCH_DAYS = 7  # Free tier: last 7 days only (upgrade to Academic for 30 days)
+
+# FREE TIER WARNING
+print("⚠️  WARNING: Free tier has only 100 tweet reads per month!")
+print("   This script is optimized for BASIC ($100/mo) or ACADEMIC (free) tiers")
+print("   Consider applying for Academic Research access for free unlimited access")
 
 # Define search terms and hashtags
 SEARCH_TERMS = [
@@ -26,222 +44,254 @@ SEARCH_TERMS = [
     "#Ethereum",
     "$BTC",
     "$ETH",
-    '"crypto bullish"',  # Exact phrase
-    '"crypto bearish"',  # Exact phrase
+    '"crypto bullish"',
+    '"crypto bearish"',
     "Bitcoin",
     "Ethereum",
 ]
 
 # Spam/Bot detection thresholds
 SPAM_FILTERS = {
-    "min_followers": 10,  # Accounts with fewer followers likely bots
-    "max_tweets_per_day": 100,  # Extremely high posting frequency
-    "min_account_age_days": 30,  # Very new accounts often spam
-    "repeated_text_threshold": 0.8,  # If 80%+ tweets identical, likely bot
+    "min_followers": 10,
+    "max_tweets_per_day": 100,
+    "min_account_age_days": 30,
 }
 
 
-def load_collected_tweet_ids():
+def initialize_twitter_client():
     """
-    Load the set of previously collected tweet IDs from disk
+    Initialize Twitter API v2 client with bearer token from .env file
     Returns:
-        set: Set of tweet IDs that have been collected before
+        tweepy.Client: Authenticated Twitter client
     """
+    bearer_token = TWITTER_API_CONFIG["bearer_token"]
+    
+    if not bearer_token:
+        print("\n" + "="*60)
+        print("ERROR: Twitter API credentials not found!")
+        print("="*60)
+        print("\nTo use this script, you need to:")
+        print("1. Create a .env file in the same directory as this script")
+        print("2. Add your Bearer Token to the .env file:")
+        print("   TWITTER_BEARER_TOKEN=your_actual_bearer_token_here")
+        print("\n3. Get your Bearer Token:")
+        print("   • Go to: https://developer.twitter.com/en/portal/dashboard")
+        print("   • Sign up for a free developer account")
+        print("   • Create a new App and get your Bearer Token")
+        print("\nFree tier limits: 500K tweets/month, perfect for this use case")
+        print("="*60)
+        exit(1)
+    
+    try:
+        client = tweepy.Client(bearer_token=bearer_token, wait_on_rate_limit=True)
+        print("✓ Twitter API client initialized successfully")
+        return client
+    except Exception as e:
+        print(f"Error initializing Twitter client: {e}")
+        print("Please check your TWITTER_BEARER_TOKEN in the .env file")
+        exit(1)
+
+
+def load_collected_tweet_ids():
+    """Load previously collected tweet IDs from disk"""
     if os.path.exists(TRACKING_FILE):
         try:
             with open(TRACKING_FILE, 'rb') as f:
                 collected_ids = pickle.load(f)
-            print(f"Loaded {len(collected_ids)} previously collected tweet IDs")
+            print(f"✓ Loaded {len(collected_ids)} previously collected tweet IDs")
             return collected_ids
         except Exception as e:
-            print(f"Error loading tracking file: {e}")
+            print(f"Warning: Error loading tracking file: {e}")
             return set()
     else:
-        print("No previous collection found - starting fresh")
+        print("✓ No previous collection found - starting fresh")
         return set()
 
 
 def save_collected_tweet_ids(collected_ids):
-    """
-    Save the set of collected tweet IDs to disk for future runs
-    Args:
-        collected_ids: Set of tweet IDs
-    """
+    """Save collected tweet IDs to disk for future runs"""
     try:
         with open(TRACKING_FILE, 'wb') as f:
             pickle.dump(collected_ids, f)
-        print(f"Saved {len(collected_ids)} tweet IDs to tracking file")
+        print(f"✓ Saved {len(collected_ids)} tweet IDs to tracking file")
     except Exception as e:
-        print(f"Error saving tracking file: {e}")
-
-
-def clean_old_tracking_data(collected_ids, max_age_days=60):
-    """
-    Remove tweet IDs older than max_age_days to prevent tracking file from growing indefinitely
-    This keeps the tracking file manageable while still preventing duplicates
-    Args:
-        collected_ids: Set of tweet IDs with timestamps
-        max_age_days: Maximum age to keep in days
-    Returns:
-        set: Cleaned set of tweet IDs
-    """
-    # Note: Since we only store IDs, we'll keep all for now
-    # In production, you might store (id, timestamp) tuples
-    return collected_ids
+        print(f"Warning: Error saving tracking file: {e}")
 
 
 def calculate_date_range():
     """
-    Calculate the date range for the past 30 days
-    Returns: tuple of (start_date, end_date) in YYYY-MM-DD format
-    """
-    end_date = datetime.now()
-    start_date = end_date - timedelta(days=30)
-    return start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d")
-
-
-def is_spam_account(tweet):
-    """
-    Detect potential spam or bot accounts based on multiple criteria
-    Args:
-        tweet: Tweet object from snscrape
+    Calculate date range based on API limitations
+    Free tier: Last 7 days only
+    Academic/Pro tier: Last 30 days (change SEARCH_DAYS to 30)
     Returns:
-        bool: True if account appears to be spam/bot, False otherwise
+        tuple: (start_date, end_date) as datetime objects
     """
-    user = tweet.user
-    
+    end_date = datetime.utcnow() - timedelta(seconds=30)  # 30 seconds before now
+    start_date = end_date - timedelta(days=SEARCH_DAYS)
+    return start_date, end_date
+
+
+def is_spam_account(user_metrics, user_created_at):
+    """
+    Detect potential spam/bot accounts
+    Args:
+        user_metrics: Dictionary with follower_count, tweet_count
+        user_created_at: Account creation datetime
+    Returns:
+        bool: True if spam/bot detected
+    """
     # Filter 1: Check follower count
-    if user.followersCount < SPAM_FILTERS["min_followers"]:
+    if user_metrics.get('followers_count', 0) < SPAM_FILTERS["min_followers"]:
         return True
     
     # Filter 2: Check account age
-    account_age = (datetime.now() - user.created).days
+    account_age = (datetime.utcnow().replace(tzinfo=user_created_at.tzinfo) - user_created_at).days
     if account_age < SPAM_FILTERS["min_account_age_days"]:
         return True
     
-    # Filter 3: Check posting frequency (tweets per day)
+    # Filter 3: Check posting frequency
     if account_age > 0:
-        tweets_per_day = user.statusesCount / account_age
+        tweets_per_day = user_metrics.get('tweet_count', 0) / account_age
         if tweets_per_day > SPAM_FILTERS["max_tweets_per_day"]:
             return True
     
-    # Filter 4: Check for suspicious username patterns (e.g., many numbers)
-    username = user.username.lower()
-    digit_ratio = sum(c.isdigit() for c in username) / len(username)
-    if digit_ratio > 0.7:  # More than 70% digits in username
-        return True
+    # Filter 4: Check username patterns (many numbers = suspicious)
+    username = user_metrics.get('username', '')
+    if username:
+        digit_ratio = sum(c.isdigit() for c in username) / len(username) if len(username) > 0 else 0
+        if digit_ratio > 0.7:
+            return True
     
     return False
 
 
 def has_repeated_content(tweet_text, text_history):
-    """
-    Check if tweet content is repetitive/spam
-    Args:
-        tweet_text: Current tweet text
-        text_history: Counter object tracking text frequency
-    Returns:
-        bool: True if content appears repetitive
-    """
-    # Normalize text (remove URLs, mentions, extra spaces)
+    """Check if tweet content is repetitive"""
+    # Normalize text
     normalized_text = re.sub(r'http\S+|@\w+', '', tweet_text)
     normalized_text = ' '.join(normalized_text.split()).lower()
     
-    # Update frequency counter
     text_history[normalized_text] += 1
     
-    # Check if this exact text appears too frequently
-    if text_history[normalized_text] > 3:  # Same text more than 3 times
-        return True
-    
-    return False
+    # Same text appearing more than 3 times is likely spam
+    return text_history[normalized_text] > 3
 
 
-def scrape_tweets(search_term, start_date, end_date, text_history, collected_ids):
+def scrape_tweets_api(client, search_term, start_date, end_date, text_history, collected_ids):
     """
-    Scrape tweets for a given search term within date range
-    Only collects tweets that haven't been collected before
+    Scrape tweets using Twitter API v2
     Args:
-        search_term: Query string to search
-        start_date: Start date (YYYY-MM-DD)
-        end_date: End date (YYYY-MM-DD)
-        text_history: Counter for tracking repeated content
-        collected_ids: Set of previously collected tweet IDs
+        client: Tweepy client
+        search_term: Search query
+        start_date: Start datetime
+        end_date: End datetime
+        text_history: Counter for repeated content
+        collected_ids: Set of previously collected IDs
     Returns:
-        list: List of dictionaries containing NEW tweet data
+        list: New tweet data
     """
     tweets_data = []
     
-    # Construct Twitter search query with date filters
-    query = f"{search_term} since:{start_date} until:{end_date} lang:en"
-    
-    print(f"\nScraping tweets for: {search_term}")
-    print(f"Query: {query}")
+    print(f"\n📊 Scraping tweets for: {search_term}")
     
     try:
-        # Scrape tweets using TwitterSearchScraper
-        tweet_count = 0
-        new_tweet_count = 0
-        skipped_duplicate_count = 0
+        # Format dates for API (ISO 8601 with timezone)
+        start_time = start_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+        end_time = end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
         
-        for i, tweet in enumerate(sntwitter.TwitterSearchScraper(query).get_items()):
-            # Limit tweets per query to avoid excessive data
-            if i >= MAX_TWEETS_PER_QUERY:
-                break
-            
-            # CRITICAL: Skip if tweet was already collected
+        # Define tweet fields to retrieve
+        tweet_fields = ['created_at', 'public_metrics', 'author_id', 'lang']
+        user_fields = ['username', 'name', 'public_metrics', 'created_at', 'verified']
+        expansions = ['author_id']
+        
+        new_count = 0
+        skipped_old = 0
+        
+        print(f"  ⏳ Searching (this may take a moment)...")
+        
+        # Search tweets with API v2
+        response = client.search_recent_tweets(
+            query=f"{search_term} lang:en -is:retweet",  # Exclude retweets
+            max_results=MAX_TWEETS_PER_QUERY,
+            start_time=start_time,
+            end_time=end_time,
+            tweet_fields=tweet_fields,
+            user_fields=user_fields,
+            expansions=expansions
+        )
+        
+        if not response.data:
+            print(f"  ℹ️  No tweets found for this query")
+            return tweets_data
+        
+        # Create user lookup dictionary
+        users = {user.id: user for user in response.includes.get('users', [])}
+        
+        # Process each tweet
+        for tweet in response.data:
+            # Skip if already collected
             if tweet.id in collected_ids:
-                skipped_duplicate_count += 1
+                skipped_old += 1
                 continue
             
-            # Apply spam/bot filters
-            if is_spam_account(tweet):
+            # Get user information
+            user = users.get(tweet.author_id)
+            if not user:
+                continue
+            
+            # Prepare user metrics for spam detection
+            user_metrics = {
+                'followers_count': user.public_metrics.get('followers_count', 0),
+                'tweet_count': user.public_metrics.get('tweet_count', 0),
+                'username': user.username
+            }
+            
+            # Apply spam filters
+            if is_spam_account(user_metrics, user.created_at):
                 continue
             
             # Check for repeated content
-            if has_repeated_content(tweet.rawContent, text_history):
+            if has_repeated_content(tweet.text, text_history):
                 continue
             
-            # Extract relevant tweet data
+            # Extract tweet data
             tweet_data = {
                 "tweet_id": tweet.id,
-                "username": tweet.user.username,
-                "display_name": tweet.user.displayname,
-                "date": tweet.date.strftime("%Y-%m-%d %H:%M:%S"),
-                "tweet_text": tweet.rawContent,
-                "like_count": tweet.likeCount,
-                "retweet_count": tweet.retweetCount,
-                "reply_count": tweet.replyCount,
-                "link": tweet.url,
-                "search_term": search_term,  # Track which query found this tweet
-                "follower_count": tweet.user.followersCount,  # Additional context
-                "verified": tweet.user.verified,  # Verified accounts less likely spam
+                "username": user.username,
+                "display_name": user.name,
+                "date": tweet.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "tweet_text": tweet.text,
+                "like_count": tweet.public_metrics.get('like_count', 0),
+                "retweet_count": tweet.public_metrics.get('retweet_count', 0),
+                "reply_count": tweet.public_metrics.get('reply_count', 0),
+                "link": f"https://twitter.com/{user.username}/status/{tweet.id}",
+                "search_term": search_term,
+                "follower_count": user.public_metrics.get('followers_count', 0),
+                "verified": user.verified if hasattr(user, 'verified') else False,
             }
             
             tweets_data.append(tweet_data)
-            new_tweet_count += 1
-            
-            # Progress indicator
-            if new_tweet_count % 50 == 0:
-                print(f"  Collected {new_tweet_count} NEW tweets...")
+            new_count += 1
         
-        print(f"  New tweets collected: {new_tweet_count}")
-        print(f"  Skipped (already collected): {skipped_duplicate_count}")
+        print(f"  ✓ New tweets: {new_count} | Skipped (already collected): {skipped_old}")
         
+    except tweepy.errors.TooManyRequests as e:
+        print(f"  ⚠️  Rate limit reached!")
+        print(f"  💡 The script will wait and retry automatically...")
+        print(f"  ℹ️  Consider running the script less frequently or upgrading your API tier")
+        # Tweepy with wait_on_rate_limit=True will handle this automatically
+        raise  # Re-raise to let tweepy handle the wait
+    except tweepy.errors.Forbidden as e:
+        print(f"  ❌ Access forbidden: {str(e)}")
+        print(f"  💡 Check your API permissions and Bearer Token")
     except Exception as e:
-        print(f"  Error scraping {search_term}: {str(e)}")
+        print(f"  ❌ Error: {str(e)}")
     
     return tweets_data
 
 
 def remove_duplicates(tweets_data):
-    """
-    Remove duplicate tweets (same tweet ID) within current collection
-    Args:
-        tweets_data: List of tweet dictionaries
-    Returns:
-        list: Deduplicated list of tweets
-    """
+    """Remove duplicates within current collection"""
     seen_ids = set()
     unique_tweets = []
     
@@ -254,45 +304,32 @@ def remove_duplicates(tweets_data):
 
 
 def save_data(tweets_data, format_type="csv"):
-    """
-    Save collected tweets to CSV or JSON file with timestamp
-    Args:
-        tweets_data: List of tweet dictionaries
-        format_type: "csv" or "json"
-    """
+    """Save tweets to timestamped file"""
     if not tweets_data:
-        print("\nNo NEW tweets to save!")
+        print("\n⚠️  No NEW tweets to save!")
         return
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     
     if format_type == "csv":
-        # Convert to pandas DataFrame for easy CSV export
         df = pd.DataFrame(tweets_data)
         filename = f"{OUTPUT_FILENAME}_{timestamp}.csv"
         df.to_csv(filename, index=False, encoding='utf-8')
-        print(f"\nData saved to {filename}")
-        print(f"Total NEW tweets: {len(df)}")
-        print(f"\nSample statistics:")
-        print(f"  Average likes: {df['like_count'].mean():.2f}")
-        print(f"  Average retweets: {df['retweet_count'].mean():.2f}")
-        print(f"  Unique users: {df['username'].nunique()}")
-        
+        print(f"\n💾 Data saved to {filename}")
+        print(f"   Total NEW tweets: {len(df)}")
+        print(f"   Average likes: {df['like_count'].mean():.2f}")
+        print(f"   Average retweets: {df['retweet_count'].mean():.2f}")
+        print(f"   Unique users: {df['username'].nunique()}")
     elif format_type == "json":
         filename = f"{OUTPUT_FILENAME}_{timestamp}.json"
         with open(filename, 'w', encoding='utf-8') as f:
             json.dump(tweets_data, f, indent=2, ensure_ascii=False)
-        print(f"\nData saved to {filename}")
-        print(f"Total NEW tweets: {len(tweets_data)}")
+        print(f"\n💾 Data saved to {filename}")
+        print(f"   Total NEW tweets: {len(tweets_data)}")
 
 
 def append_to_master_file(tweets_data, format_type="csv"):
-    """
-    Append new tweets to a master cumulative file
-    Args:
-        tweets_data: List of new tweet dictionaries
-        format_type: "csv" or "json"
-    """
+    """Append new tweets to master cumulative file"""
     if not tweets_data:
         return
     
@@ -300,91 +337,84 @@ def append_to_master_file(tweets_data, format_type="csv"):
     
     if format_type == "csv":
         df_new = pd.DataFrame(tweets_data)
-        
-        # Check if master file exists
         if os.path.exists(master_filename):
-            # Append to existing file
             df_new.to_csv(master_filename, mode='a', header=False, index=False, encoding='utf-8')
-            print(f"Appended {len(df_new)} tweets to {master_filename}")
+            print(f"✓ Appended to {master_filename}")
         else:
-            # Create new master file
             df_new.to_csv(master_filename, index=False, encoding='utf-8')
-            print(f"Created new master file: {master_filename}")
-    
+            print(f"✓ Created master file: {master_filename}")
     elif format_type == "json":
-        # For JSON, we need to load existing data, append, and rewrite
         existing_data = []
         if os.path.exists(master_filename):
             with open(master_filename, 'r', encoding='utf-8') as f:
                 existing_data = json.load(f)
-        
         existing_data.extend(tweets_data)
-        
         with open(master_filename, 'w', encoding='utf-8') as f:
             json.dump(existing_data, f, indent=2, ensure_ascii=False)
-        
-        print(f"Updated master file: {master_filename} (Total: {len(existing_data)} tweets)")
+        print(f"✓ Updated master file (Total: {len(existing_data)} tweets)")
 
 
 def main():
-    """
-    Main execution function - collects only fresh tweets
-    """
-    print("=" * 60)
-    print("Crypto Tweet Scraper - FRESH TWEETS ONLY")
-    print("=" * 60)
+    """Main execution function"""
+    print("="*60)
+    print("🚀 Crypto Tweet Scraper - Twitter API v2")
+    print("="*60)
+    print(f"ℹ️  Collecting tweets from the last {SEARCH_DAYS} days")
+    print("   (Free tier limit - upgrade to Academic for 30 days)")
+    print(f"\n⚡ Optimized queries: {len(SEARCH_TERMS)} combined searches")
+    print("   (Fewer queries = faster collection & less rate limiting)")
     
-    # Load previously collected tweet IDs
+    # Initialize Twitter client
+    client = initialize_twitter_client()
+    
+    # Load tracking data
     collected_ids = load_collected_tweet_ids()
     
-    # Calculate date range for past 30 days
+    # Calculate date range
     start_date, end_date = calculate_date_range()
-    print(f"\nDate range: {start_date} to {end_date}")
+    print(f"\n📅 Date range: {start_date.date()} to {end_date.date()}")
     
-    # Initialize text history counter for duplicate detection
+    # Initialize text tracking
     text_history = Counter()
-    
-    # Collect all tweets
     all_tweets = []
     
-    for search_term in SEARCH_TERMS:
-        # Scrape tweets for each search term (only new ones)
-        tweets = scrape_tweets(search_term, start_date, end_date, text_history, collected_ids)
+    # Collect tweets for each search term
+    for i, search_term in enumerate(SEARCH_TERMS, 1):
+        print(f"\n{'='*60}")
+        print(f"[{i}/{len(SEARCH_TERMS)}] Processing query...")
+        print(f"{'='*60}")
+        tweets = scrape_tweets_api(client, search_term, start_date, end_date, text_history, collected_ids)
         all_tweets.extend(tweets)
         
-        # Small delay to be respectful to rate limits
-        time.sleep(1)
+        # Rate limit friendly delay between queries
+        if i < len(SEARCH_TERMS):
+            print(f"\n⏸️  Waiting 3 seconds before next query...")
+            time.sleep(3)
     
-    # Remove duplicate tweets within current collection
-    print("\nRemoving duplicates within current collection...")
+    # Remove duplicates
+    print(f"\n🔍 Removing duplicates...")
     unique_tweets = remove_duplicates(all_tweets)
-    print(f"Before deduplication: {len(all_tweets)} tweets")
-    print(f"After deduplication: {len(unique_tweets)} tweets")
+    print(f"   Before: {len(all_tweets)} | After: {len(unique_tweets)}")
     
     if unique_tweets:
-        # Update collected IDs set with new tweet IDs
+        # Update tracking
         new_ids = {tweet["tweet_id"] for tweet in unique_tweets}
         collected_ids.update(new_ids)
-        
-        # Save updated tracking file
         save_collected_tweet_ids(collected_ids)
         
-        # Save data to timestamped file
+        # Save data
         save_data(unique_tweets, format_type=OUTPUT_FORMAT)
-        
-        # Also append to master cumulative file
         append_to_master_file(unique_tweets, format_type=OUTPUT_FORMAT)
     else:
-        print("\n⚠️  No new tweets found in this run!")
-        print("This could mean:")
-        print("  - All recent tweets were already collected")
-        print("  - No new tweets match your search criteria")
-        print("  - Try running again later for fresh content")
+        print("\n⚠️  No new tweets found!")
+        print("   • All recent tweets already collected, or")
+        print("   • No tweets match your criteria")
+        print("   • Try again later for fresh content")
     
-    print("\n" + "=" * 60)
-    print("Collection Complete!")
-    print(f"Total unique tweets tracked: {len(collected_ids)}")
-    print("=" * 60)
+    print("\n" + "="*60)
+    print("✅ Collection Complete!")
+    print(f"📊 Total unique tweets tracked: {len(collected_ids)}")
+    print("="*60)
 
 
 if __name__ == "__main__":
