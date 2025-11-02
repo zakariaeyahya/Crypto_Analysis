@@ -2,12 +2,15 @@
 Reddit Dataset Cleaning Script
 ===============================
 Purpose: Clean Reddit posts/comments dataset by removing noise, spam, and bot-like behavior
-Output: master_dataset.csv (high-quality cleaned dataset)
+Output: Saves to data/silver/reddit/ with checkpoint and summary JSON files
 """
 import pandas as pd
 import re
 import logging
+import json
+import os
 from datetime import datetime
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
@@ -18,21 +21,86 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ============================================================================
-# STEP 1: LOAD DATASET
+# CONFIGURATION & SETUP
+# ============================================================================
+# Define paths
+BASE_DIR = Path(__file__).parent.parent.parent  # Go to project root
+SILVER_DIR = BASE_DIR / "data" / "silver" / "reddit"
+INPUT_FILE = BASE_DIR / "data_consolidation" / "outputs" / "master_dataset.csv"
+OUTPUT_CSV = SILVER_DIR / "cleaned_reddit_dataset.csv"
+CHECKPOINT_FILE = SILVER_DIR / "checkpoint.json"
+SUMMARY_FILE = SILVER_DIR / "summary.json"
+
+# Create silver directory structure
+SILVER_DIR.mkdir(parents=True, exist_ok=True)
+logger.info(f"📁 Silver directory created/verified: {SILVER_DIR}")
+
+# ============================================================================
+# CHECKPOINT MANAGEMENT
+# ============================================================================
+def load_checkpoint():
+    """Load checkpoint to track processed data"""
+    if CHECKPOINT_FILE.exists():
+        with open(CHECKPOINT_FILE, 'r', encoding='utf-8') as f:
+            checkpoint = json.load(f)
+            logger.info(f"✅ Loaded checkpoint: {len(checkpoint.get('processed_ids', []))} IDs already processed")
+            return checkpoint
+    logger.info("📝 No checkpoint found - starting fresh")
+    return {
+        'processed_ids': [],
+        'last_run': None,
+        'total_processed': 0
+    }
+
+def save_checkpoint(processed_ids, stats):
+    """Save checkpoint with processed IDs and statistics"""
+    checkpoint = {
+        'processed_ids': list(processed_ids),
+        'last_run': datetime.now().isoformat(),
+        'total_processed': len(processed_ids),
+        'stats': stats
+    }
+    with open(CHECKPOINT_FILE, 'w', encoding='utf-8') as f:
+        json.dump(checkpoint, f, indent=2, ensure_ascii=False)
+    logger.info(f"💾 Checkpoint saved: {len(processed_ids)} processed IDs")
+
+def save_summary(summary_data):
+    """Save summary statistics to JSON"""
+    with open(SUMMARY_FILE, 'w', encoding='utf-8') as f:
+        json.dump(summary_data, f, indent=2, ensure_ascii=False)
+    logger.info(f"📊 Summary saved to: {SUMMARY_FILE}")
+
+# ============================================================================
+# STEP 1: LOAD DATASET & CHECKPOINT
 # ============================================================================
 logger.info("REDDIT DATASET CLEANING PIPELINE STARTED")
-logger.info("[STEP 1] Loading dataset...")
+logger.info("[STEP 1] Loading dataset and checkpoint...")
+
+# Load checkpoint
+checkpoint = load_checkpoint()
+processed_ids = set(checkpoint.get('processed_ids', []))
 
 # Load the Reddit dataset
-df = pd.read_csv(r"data_consolidation\outputs\master_dataset.csv")
+df = pd.read_csv(INPUT_FILE)
 
 # Display initial statistics
 logger.info(f"📊 Initial Dataset Statistics: {len(df):,} rows, {len(df.columns)} columns")
 logger.debug(f"Columns: {list(df.columns)}")
 logger.debug(f"Memory usage: {df.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
 
+# Filter out already processed IDs
+if processed_ids:
+    initial_count_before_filter = len(df)
+    df = df[~df['unified_id'].isin(processed_ids)]
+    logger.info(f"🔍 Filtered out {initial_count_before_filter - len(df):,} already processed rows")
+
+    if len(df) == 0:
+        logger.info("✅ No new data to process. All data already processed!")
+        exit(0)
+
 # Store initial count for comparison
 initial_count = len(df)
+logger.info(f"📥 New data to process: {initial_count:,} rows")
 
 # ============================================================================
 # STEP 2: DATA TYPE VALIDATION & PARSING
@@ -220,35 +288,134 @@ logger.debug(f"created_date: {df['created_date'].dtype}")
 logger.debug(f"author: {df['author'].dtype}")
 
 # ============================================================================
-# STEP 9: SAVE CLEANED DATASET
+# STEP 9: MERGE WITH EXISTING DATA & SAVE
 # ============================================================================
-logger.info("[STEP 9] Saving cleaned dataset...")
+logger.info("[STEP 9] Merging with existing data and saving...")
 
 # Reset index
 df = df.reset_index(drop=True)
 
+# Load existing CSV if it exists and append new data
+if OUTPUT_CSV.exists():
+    logger.info(f"📂 Loading existing data from {OUTPUT_CSV}")
+    existing_df = pd.read_csv(OUTPUT_CSV)
+    logger.info(f"📊 Existing data: {len(existing_df):,} rows")
+
+    # Combine old and new data
+    combined_df = pd.concat([existing_df, df], ignore_index=True)
+
+    # Remove any duplicates that might have slipped through
+    before_final_dedup = len(combined_df)
+    combined_df = combined_df.drop_duplicates(subset=['unified_id'], keep='first')
+    final_dedup_removed = before_final_dedup - len(combined_df)
+    if final_dedup_removed > 0:
+        logger.info(f"✂️ Removed {final_dedup_removed} duplicates during merge")
+
+    df_to_save = combined_df
+    logger.info(f"📊 Combined dataset: {len(df_to_save):,} rows")
+else:
+    df_to_save = df
+    logger.info(f"📝 Creating new dataset with {len(df_to_save):,} rows")
+
 # Save to CSV
-output_file = r'D:\S9_Projects\Sentiment analysis for crypto markets\Repo\Crypto_Analysis\data_cleaning\output\cleaned_master_dataset1.csv'
-df.to_csv(output_file, index=False)
-logger.info(f"💾 Saved cleaned dataset to: {output_file}")
+df_to_save.to_csv(OUTPUT_CSV, index=False)
+logger.info(f"💾 Saved cleaned dataset to: {OUTPUT_CSV}")
 
 # ============================================================================
-# STEP 10: SUMMARY STATISTICS
+# STEP 10: UPDATE CHECKPOINT
+# ============================================================================
+logger.info("[STEP 10] Updating checkpoint...")
+
+# Add new processed IDs to checkpoint
+new_processed_ids = set(df['unified_id'].tolist())
+all_processed_ids = processed_ids.union(new_processed_ids)
+
+# Calculate removal statistics for this run
+final_count = len(df)
+total_removed = initial_count - final_count
+removal_rate = (total_removed / initial_count * 100) if initial_count > 0 else 0
+
+checkpoint_stats = {
+    'this_run': {
+        'timestamp': datetime.now().isoformat(),
+        'initial_rows': initial_count,
+        'final_rows': final_count,
+        'removed_rows': total_removed,
+        'removal_rate_percent': round(removal_rate, 2)
+    },
+    'cumulative': {
+        'total_processed_ids': len(all_processed_ids),
+        'total_rows_in_output': len(df_to_save)
+    }
+}
+
+save_checkpoint(all_processed_ids, checkpoint_stats)
+
+# ============================================================================
+# STEP 11: GENERATE SUMMARY JSON
+# ============================================================================
+logger.info("[STEP 11] Generating summary JSON...")
+
+summary_data = {
+    'metadata': {
+        'generated_at': datetime.now().isoformat(),
+        'input_file': str(INPUT_FILE),
+        'output_file': str(OUTPUT_CSV),
+        'checkpoint_file': str(CHECKPOINT_FILE)
+    },
+    'processing_stats': {
+        'this_run': {
+            'new_rows_processed': initial_count,
+            'rows_after_cleaning': final_count,
+            'rows_removed': total_removed,
+            'removal_rate_percent': round(removal_rate, 2),
+            'breakdown': {
+                'invalid_dates': int(invalid_dates),
+                'missing_critical_fields': int(removed_missing),
+                'too_short': int(removed_short),
+                'exact_duplicates': int(removed_dupes),
+                'bot_accounts': int(bot_count),
+                'high_frequency_posters': int(removed_spam),
+                'repeated_spam': int(removed_repeated_spam),
+                'post_cleaning_short': int(removed_clean_short)
+            }
+        },
+        'cumulative': {
+            'total_processed_ids': len(all_processed_ids),
+            'total_rows_in_output': len(df_to_save),
+            'unique_authors': int(df_to_save['author'].nunique()),
+            'unique_subreddits': int(df_to_save['subreddit'].nunique()),
+            'posts_count': int((df_to_save['source_type'] == 'post').sum()),
+            'comments_count': int((df_to_save['source_type'] == 'comment').sum())
+        }
+    },
+    'data_quality': {
+        'date_range': {
+            'min': str(df_to_save['created_date'].min()),
+            'max': str(df_to_save['created_date'].max())
+        },
+        'text_statistics': {
+            'avg_length': round(df_to_save['text_content'].str.len().mean(), 1),
+            'min_length': int(df_to_save['text_content'].str.len().min()),
+            'max_length': int(df_to_save['text_content'].str.len().max())
+        },
+        'memory_usage_mb': round(df_to_save.memory_usage(deep=True).sum() / 1024**2, 2)
+    }
+}
+
+save_summary(summary_data)
+
+# ============================================================================
+# STEP 12: DISPLAY SUMMARY
 # ============================================================================
 logger.info("=" * 80)
 logger.info("CLEANING SUMMARY")
 logger.info("=" * 80)
 
-# Calculate removal statistics
-final_count = len(df)
-total_removed = initial_count - final_count
-removal_rate = (total_removed / initial_count) * 100
-
-logger.info(f"\n📊 Overall Statistics:")
-logger.info(f"Initial rows:        {initial_count:,}")
-logger.info(f"Final rows:          {final_count:,}")
+logger.info(f"\n📊 This Run Statistics:")
+logger.info(f"New rows processed:  {initial_count:,}")
+logger.info(f"Rows after cleaning: {final_count:,}")
 logger.info(f"Rows removed:        {total_removed:,} ({removal_rate:.2f}%)")
-logger.info(f"Rows retained:       {final_count/initial_count*100:.2f}%")
 
 logger.info(f"\n📋 Breakdown of Removed Rows:")
 logger.info(f"Invalid dates:       {invalid_dates:,}")
@@ -260,17 +427,22 @@ logger.info(f"High-freq posters:   {removed_spam:,}")
 logger.info(f"Repeated spam:       {removed_repeated_spam:,}")
 logger.info(f"Post-cleaning short: {removed_clean_short:,}")
 
-logger.info(f"\n📈 Final Dataset Statistics:")
-logger.info(f"Unique authors:      {df['author'].nunique():,}")
-logger.info(f"Unique subreddits:   {df['subreddit'].nunique():,}")
-logger.info(f"Posts:               {(df['source_type'] == 'post').sum():,}")
-logger.info(f"Comments:            {(df['source_type'] == 'comment').sum():,}")
-logger.info(f"Date range:          {df['created_date'].min()} to {df['created_date'].max()}")
-logger.info(f"Avg text length:     {df['text_content'].str.len().mean():.1f} characters")
-logger.info(f"Memory usage:        {df.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
+logger.info(f"\n📈 Cumulative Dataset Statistics:")
+logger.info(f"Total rows:          {len(df_to_save):,}")
+logger.info(f"Total processed IDs: {len(all_processed_ids):,}")
+logger.info(f"Unique authors:      {df_to_save['author'].nunique():,}")
+logger.info(f"Unique subreddits:   {df_to_save['subreddit'].nunique():,}")
+logger.info(f"Posts:               {(df_to_save['source_type'] == 'post').sum():,}")
+logger.info(f"Comments:            {(df_to_save['source_type'] == 'comment').sum():,}")
+logger.info(f"Date range:          {df_to_save['created_date'].min()} to {df_to_save['created_date'].max()}")
+logger.info(f"Avg text length:     {df_to_save['text_content'].str.len().mean():.1f} characters")
+logger.info(f"Memory usage:        {df_to_save.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
 
 logger.info("\n" + "=" * 80)
 logger.info("✅ CLEANING PIPELINE COMPLETED SUCCESSFULLY")
 logger.info("=" * 80)
-logger.info(f"\n📁 Output file: {output_file}")
+logger.info(f"\n📁 Output files:")
+logger.info(f"  - CSV: {OUTPUT_CSV}")
+logger.info(f"  - Checkpoint: {CHECKPOINT_FILE}")
+logger.info(f"  - Summary: {SUMMARY_FILE}")
 logger.info("🎯 Dataset is ready for NLP analysis!")
