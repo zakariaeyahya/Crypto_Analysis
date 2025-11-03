@@ -1,6 +1,7 @@
 # Extraction
 tweepy
 praw
+kagglehub[pandas-datasets]
 
 # Configuration
 python-dotenv
