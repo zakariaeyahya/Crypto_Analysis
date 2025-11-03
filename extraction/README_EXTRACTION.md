@@ -151,15 +151,50 @@ df_clean = RedditDataValidator.validate_and_clean(df_raw)
 
 ### Kaggle Dataset Download
 
+#### 🔄 Réexécution du script pour obtenir le fichier CSV
+
+Pour télécharger ou récupérer le fichier CSV du dataset Kaggle, suivez ces étapes :
+
 ```powershell
-# Activate virtual environment
+# 1. Activer l'environnement virtuel
 .\venv\Scripts\Activate.ps1
 
-# Install kagglehub dependency
+# 2. Installer la dépendance kagglehub si nécessaire
 pip install kagglehub[pandas-datasets]
 
-# Run download
+# 3. Exécuter le script de téléchargement
 python extraction/services/kaggle_downloader.py
+```
+
+**Comportement du script** :
+- ✅ **Système de checkpoint** : Si un fichier CSV a déjà été téléchargé, le script le détecte automatiquement et charge le fichier existant au lieu de le re-télécharger
+- ✅ **Téléchargement automatique** : Si aucun fichier n'existe, le script télécharge le dataset depuis Kaggle
+- ✅ **Sauvegarde automatique** : Le fichier CSV est sauvegardé dans `data/bronze/kaggle/` avec un timestamp dans le nom de fichier
+- ✅ **Génération de résumé** : Un fichier `*_summary.json` est créé avec les statistiques du dataset
+
+**Emplacement du fichier CSV généré** :
+```
+data/bronze/kaggle/bitcoin_tweets_YYYYMMDD_HHMMSS.csv
+```
+
+**Exemple de sortie** :
+```
+2025-11-03 22:07:52 - INFO - [OK] Dataset downloaded to: /path/to/kaggle/dataset
+2025-11-03 22:07:53 - INFO - [INFO] Found 1 CSV file(s): ['Bitcoin_tweets.csv']
+2025-11-03 22:07:53 - INFO - [INFO] Auto-selected largest file: Bitcoin_tweets.csv
+2025-11-03 22:10:25 - INFO - [OK] Dataset loaded successfully in 152.45 seconds
+2025-11-03 22:10:25 - INFO -   Records: 16000000
+2025-11-03 22:10:25 - INFO - [OK] Saved 16000000 records to data/bronze/kaggle/bitcoin_tweets_20251103_221025.csv
+```
+
+**Si le fichier existe déjà** :
+Le script détecte automatiquement les fichiers déjà téléchargés via le checkpoint et charge le fichier existant sans re-téléchargement :
+```
+2025-11-03 22:15:00 - INFO - [INFO] Dataset already downloaded: data/bronze/kaggle/bitcoin_tweets_20251103_221025.csv
+2025-11-03 22:15:00 - INFO -   Downloaded on: 2025-11-03T22:10:25
+2025-11-03 22:15:00 - INFO -   Records: 16000000
+2025-11-03 22:15:00 - INFO - [INFO] Using existing downloaded dataset
+2025-11-03 22:15:05 - INFO - [OK] Loaded 16000000 records from existing file
 ```
 
 **Features**:
@@ -167,8 +202,9 @@ python extraction/services/kaggle_downloader.py
 - **Checkpoint**: Prevents re-downloading if dataset already exists
 - **Smart selection**: Chooses largest CSV file by default
 - **Flexibility**: Can specify a particular file to load
+- **Idempotent**: Safe to re-run without re-downloading
 
-**Usage in code**:
+**Usage en code**:
 ```python
 from extraction.services.kaggle_downloader import KaggleDownloader
 
@@ -178,12 +214,13 @@ downloader = KaggleDownloader(
 )
 
 # Download dataset (auto-selects largest CSV)
+# Si le fichier existe déjà, il sera chargé depuis le checkpoint
 df = downloader.download_dataset()
 
-# Or specify a particular file
+# Ou spécifier un fichier particulier
 df = downloader.download_dataset(specific_file="Bitcoin_tweets.csv")
 
-# Force re-download even if exists
+# Forcer un nouveau téléchargement même si le fichier existe
 df = downloader.download_dataset(force_redownload=True)
 ```
 
