@@ -18,10 +18,23 @@ This module enables data extraction from multiple cryptocurrency sources with pr
   - Automatic retry logic with exponential backoff
   - Custom error handling (recoverable vs fatal errors)
 
+### ✅ Kaggle (Operational)
+- **Source**: Kaggle datasets (Bitcoin tweets with sentiment)
+- **Dataset**: `gauravduttakiit/bitcoin-tweets-16m-tweets-with-sentiment-tagged`
+- **Data Type**: Bitcoin tweets with sentiment tags (16M+ tweets)
+- **Format**: CSV
+- **Location**: `data/bronze/kaggle/`
+- **Features**:
+  - Checkpoint system to prevent re-downloads
+  - Auto-detection of CSV files in dataset
+  - Idempotent execution (safe for Airflow DAG retries)
+  - Summary statistics generation
+  - Comprehensive logging
+
 ### ⚠️ Twitter (Non-Functional)
 - **Status**: Twitter API requires paid access (API v2)
 - **Issue**: 401 Unauthorized - Invalid credentials
-- **Alternative Solution**: Test data available
+- **Alternative Solution**: Test data available or use Kaggle dataset
 - **Location**: `data/bronze/twitter/`
 
 ## 🏗️ Data Architecture (Medallion)
@@ -34,9 +47,13 @@ data/
 │   │       └── month=MM/
 │   │           └── day=DD/
 │   │               └── reddit_posts_*.csv
+│   ├── kaggle/         # Kaggle datasets (CSV)
+│   │   ├── bitcoin_tweets_*.csv
+│   │   └── kaggle_downloads_checkpoint.json
 │   └── twitter/        # Twitter data (CSV)
 ├── silver/             # Silver Layer: Cleaned data (to be implemented)
 │   ├── reddit/
+│   ├── kaggle/
 │   └── twitter/
 └── gold/               # Gold Layer: Enriched data (to be implemented)
 ```
@@ -72,6 +89,7 @@ extraction/
 ├── services/                  # Extraction services
 │   ├── __init__.py
 │   ├── reddit_extractor.py   # RedditExtractor - Main orchestration
+│   ├── kaggle_downloader.py  # KaggleDownloader - Kaggle dataset download
 │   └── twitter_extractor.py  # Twitter extraction (non-functional)
 │
 └── views/                     # Future: API views/endpoints
@@ -131,6 +149,81 @@ df_clean = RedditDataValidator.validate_and_clean(df_raw)
 
 ## 🚀 Usage
 
+### Kaggle Dataset Download
+
+#### 🔄 Réexécution du script pour obtenir le fichier CSV
+
+Pour télécharger ou récupérer le fichier CSV du dataset Kaggle, suivez ces étapes :
+
+```powershell
+# 1. Activer l'environnement virtuel
+.\venv\Scripts\Activate.ps1
+
+# 2. Installer la dépendance kagglehub si nécessaire
+pip install kagglehub[pandas-datasets]
+
+# 3. Exécuter le script de téléchargement
+python extraction/services/kaggle_downloader.py
+```
+
+**Comportement du script** :
+- ✅ **Système de checkpoint** : Si un fichier CSV a déjà été téléchargé, le script le détecte automatiquement et charge le fichier existant au lieu de le re-télécharger
+- ✅ **Téléchargement automatique** : Si aucun fichier n'existe, le script télécharge le dataset depuis Kaggle
+- ✅ **Sauvegarde automatique** : Le fichier CSV est sauvegardé dans `data/bronze/kaggle/` avec un timestamp dans le nom de fichier
+- ✅ **Génération de résumé** : Un fichier `*_summary.json` est créé avec les statistiques du dataset
+
+**Emplacement du fichier CSV généré** :
+```
+data/bronze/kaggle/bitcoin_tweets_YYYYMMDD_HHMMSS.csv
+```
+
+**Exemple de sortie** :
+```
+2025-11-03 22:07:52 - INFO - [OK] Dataset downloaded to: /path/to/kaggle/dataset
+2025-11-03 22:07:53 - INFO - [INFO] Found 1 CSV file(s): ['Bitcoin_tweets.csv']
+2025-11-03 22:07:53 - INFO - [INFO] Auto-selected largest file: Bitcoin_tweets.csv
+2025-11-03 22:10:25 - INFO - [OK] Dataset loaded successfully in 152.45 seconds
+2025-11-03 22:10:25 - INFO -   Records: 16000000
+2025-11-03 22:10:25 - INFO - [OK] Saved 16000000 records to data/bronze/kaggle/bitcoin_tweets_20251103_221025.csv
+```
+
+**Si le fichier existe déjà** :
+Le script détecte automatiquement les fichiers déjà téléchargés via le checkpoint et charge le fichier existant sans re-téléchargement :
+```
+2025-11-03 22:15:00 - INFO - [INFO] Dataset already downloaded: data/bronze/kaggle/bitcoin_tweets_20251103_221025.csv
+2025-11-03 22:15:00 - INFO -   Downloaded on: 2025-11-03T22:10:25
+2025-11-03 22:15:00 - INFO -   Records: 16000000
+2025-11-03 22:15:00 - INFO - [INFO] Using existing downloaded dataset
+2025-11-03 22:15:05 - INFO - [OK] Loaded 16000000 records from existing file
+```
+
+**Features**:
+- **Auto-detection**: Automatically finds and loads CSV files from dataset
+- **Checkpoint**: Prevents re-downloading if dataset already exists
+- **Smart selection**: Chooses largest CSV file by default
+- **Flexibility**: Can specify a particular file to load
+- **Idempotent**: Safe to re-run without re-downloading
+
+**Usage en code**:
+```python
+from extraction.services.kaggle_downloader import KaggleDownloader
+
+# Initialize downloader
+downloader = KaggleDownloader(
+    dataset_name="gauravduttakiit/bitcoin-tweets-16m-tweets-with-sentiment-tagged"
+)
+
+# Download dataset (auto-selects largest CSV)
+# Si le fichier existe déjà, il sera chargé depuis le checkpoint
+df = downloader.download_dataset()
+
+# Ou spécifier un fichier particulier
+df = downloader.download_dataset(specific_file="Bitcoin_tweets.csv")
+
+# Forcer un nouveau téléchargement même si le fichier existe
+df = downloader.download_dataset(force_redownload=True)
+```
+
 ### Reddit Extraction
 
 ```powershell
@@ -167,6 +260,47 @@ python extraction/services/twitter_extractor.py
 **Alternative Solution**: Use test data if available.
 
 ## 📁 Extracted Files Structure
+
+### Kaggle
+
+**File Structure**:
+```
+data/bronze/kaggle/bitcoin_tweets_20251103_215924.csv
+data/bronze/kaggle/bitcoin_tweets_20251103_215924_summary.json
+data/bronze/kaggle/kaggle_downloads_checkpoint.json  # Tracks downloads
+```
+
+**CSV Columns** (Bitcoin tweets dataset):
+- Dataset-specific columns (varies by Kaggle dataset)
+- Typically includes: tweet text, sentiment, timestamps, etc.
+
+**Checkpoint File** (`kaggle_downloads_checkpoint.json`):
+```json
+{
+  "downloads": [
+    {
+      "dataset_name": "gauravduttakiit/bitcoin-tweets-16m-tweets-with-sentiment-tagged",
+      "file_path": "data/bronze/kaggle/bitcoin_tweets_20251103_215924.csv",
+      "records_count": 16000000,
+      "download_date": "2025-11-03T21:59:24",
+      "last_checked": "2025-11-03T21:59:24"
+    }
+  ],
+  "last_updated": "2025-11-03T21:59:24"
+}
+```
+
+**Summary File** (JSON):
+```json
+{
+  "total_records": 16000000,
+  "columns": ["tweet", "sentiment", "timestamp", "..."],
+  "dataset_name": "gauravduttakiit/bitcoin-tweets-16m-tweets-with-sentiment-tagged",
+  "download_date": "2025-11-03T21:59:24",
+  "file_location": "data/bronze/kaggle/bitcoin_tweets_20251103_215924.csv",
+  "file_size_mb": 2500.45
+}
+```
 
 ### Reddit
 
@@ -212,6 +346,22 @@ data/bronze/twitter/twitter_tweets_YYYYMMDD_HHMMSS_summary.json
 
 ## 🛠️ Available Services
 
+### `kaggle_downloader.py`
+- ✅ Download Kaggle datasets (Bitcoin tweets)
+- ✅ Checkpoint system prevents re-downloads
+- ✅ Auto-detection of CSV files in dataset
+- ✅ CSV save to bronze/kaggle
+- ✅ Detailed logging with timestamps
+- ✅ Summary statistics generation
+- ✅ Skip download if already exists (idempotent)
+
+**Key Features**:
+- **Checkpoint**: JSON file tracks downloaded datasets with metadata
+- **Smart Selection**: Auto-selects largest CSV if multiple files exist
+- **Idempotent**: Safe to re-run without re-downloading
+- **Flexible**: Can specify exact file to load or auto-detect
+- **Statistics**: Generates summary JSON with dataset info
+
 ### `reddit_extractor.py`
 - ✅ Extract Reddit posts and comments
 - ✅ Automatic data cleaning
@@ -246,10 +396,11 @@ The `_summary.json` files contain:
 ## 🔧 Dependencies
 
 ```
-tweepy          # Twitter API (if functional)
-praw            # Reddit API
-pandas          # Data processing
-python-dotenv   # Configuration
+tweepy                      # Twitter API (if functional)
+praw                        # Reddit API
+kagglehub[pandas-datasets]  # Kaggle dataset download
+pandas                      # Data processing
+python-dotenv               # Configuration
 ```
 
 ## 🔄 Checkpoint System
@@ -472,19 +623,20 @@ All operations are logged to:
 
 ### ✅ Completed
 1. ✅ Reddit extraction operational
-2. ✅ Date partitioning implemented (Hive-style)
-3. ✅ Checkpoint system implemented
-4. ✅ Modular architecture (models/services separation)
-5. ✅ Centralized configuration (RedditConfig)
-6. ✅ Schema validation (RedditDataValidator)
-7. ✅ Retry logic with exponential backoff
-8. ✅ Custom error handling (Fatal vs Recoverable)
+2. ✅ Kaggle dataset download operational
+3. ✅ Date partitioning implemented (Hive-style)
+4. ✅ Checkpoint system implemented (Reddit & Kaggle)
+5. ✅ Modular architecture (models/services separation)
+6. ✅ Centralized configuration (RedditConfig)
+7. ✅ Schema validation (RedditDataValidator)
+8. ✅ Retry logic with exponential backoff
+9. ✅ Custom error handling (Fatal vs Recoverable)
 
 ### ⏳ Remaining Tasks
 1. ⏳ Implement Silver layer processing
 2. ⏳ Implement Gold layer enrichment
 3. ⏳ Fix Twitter authentication or find alternative
-4. ⏳ Add more data sources
+4. ⏳ Add more Kaggle datasets
 5. ⏳ Add metrics export for monitoring
 6. ⏳ Create Airflow DAG configuration files
 7. ⏳ Add unit tests for all modules
