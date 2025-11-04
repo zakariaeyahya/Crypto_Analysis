@@ -50,3 +50,8 @@ logs/
 *.log
 extraction.log
 
+# Kaggle data files (large CSV and JSON metadata)
+data/bronze/kaggle/*.csv
+data/bronze/kaggle/*_summary.json
+data/bronze/kaggle/kaggle_downloads_checkpoint.json
+
