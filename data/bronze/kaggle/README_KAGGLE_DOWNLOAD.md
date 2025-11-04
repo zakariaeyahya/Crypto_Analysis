@@ -63,7 +63,9 @@ Après l'exécution, les fichiers suivants seront créés dans `data/bronze/kagg
 ### Système de checkpoint
 
 Le script utilise un système de checkpoint pour éviter les téléchargements redondants :
+  
 
+  
 - ✅ **Si le fichier existe déjà** : Le script détecte automatiquement le fichier existant et le charge sans re-téléchargement
 - ✅ **Si le fichier n'existe pas** : Le script télécharge le dataset depuis Kaggle et le sauvegarde
 
