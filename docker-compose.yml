@@ -1,0 +1,95 @@
+# ============================================================================
+# Docker Compose - Apache Airflow for Crypto Extraction
+# ============================================================================
+# Configuration simple avec 3 services (LocalExecutor):
+#   1. postgres  - Base de donn�es Airflow (m�tadonn�es)
+#   2. webserver - Interface web Airflow (http://localhost:8080)
+#   3. scheduler - Ordonnanceur et ex�cution des DAGs
+# ============================================================================
+
+version: '3.8'
+
+services:
+  # ==========================================================================
+  # PostgreSQL - M�tadonn�es Airflow UNIQUEMENT (pas les donn�es d'extraction)
+  # ==========================================================================
+  postgres:
+    image: postgres:13
+    container_name: crypto_airflow_postgres
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: always
+
+  # ==========================================================================
+  # Airflow Webserver - Interface web sur http://localhost:8080
+  # ==========================================================================
+  airflow-webserver:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.airflow
+    container_name: crypto_airflow_webserver
+    command: webserver
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env.airflow
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+      - ./data:/opt/airflow/data
+      - ./.env:/opt/airflow/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
+
+  # ==========================================================================
+  # Airflow Scheduler - Ordonnanceur des DAGs
+  # ==========================================================================
+  airflow-scheduler:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.airflow
+    container_name: crypto_airflow_scheduler
+    command: scheduler
+    env_file:
+      - .env.airflow
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+      - ./data:/opt/airflow/data
+      - ./.env:/opt/airflow/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "airflow", "jobs", "check", "--job-type", "SchedulerJob", "--hostname", "$${HOSTNAME}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
+
+# ============================================================================
+# Volumes - Persistance des donn�es
+# ============================================================================
+volumes:
+  postgres-db-volume:
+    name: crypto_airflow_postgres_data
