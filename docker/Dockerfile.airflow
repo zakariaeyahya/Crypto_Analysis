@@ -1,0 +1,32 @@
+# ============================================================================
+# Dockerfile for Apache Airflow with Crypto Extraction
+# ============================================================================
+# Simple image avec Airflow + nos modules d'extraction
+# ============================================================================
+
+# Image de base: Airflow officiel
+FROM apache/airflow:2.8.1-python3.11
+
+# Passer en root pour installer des packages système
+USER root
+
+# Installer gcc (nécessaire pour compiler certains packages Python)
+RUN apt-get update && \
+    apt-get install -y gcc && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Retour à l'utilisateur airflow (sécurité)
+USER airflow
+
+# Copier et installer les dépendances Python
+COPY docker/requirements-airflow.txt /requirements.txt
+RUN pip install --no-cache-dir -r /requirements.txt
+
+# Copier notre code d'extraction dans le container
+COPY --chown=airflow:root extraction/ /opt/airflow/extraction/
+
+# Configurer le PYTHONPATH pour importer nos modules
+ENV PYTHONPATH="/opt/airflow:${PYTHONPATH}"
+
+# Note: Le reste de la config (DB, Redis, etc.) est dans docker-compose.yml

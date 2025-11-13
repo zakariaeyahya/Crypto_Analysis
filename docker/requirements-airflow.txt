@@ -1,0 +1,48 @@
+# ============================================================================
+# Apache Airflow - Requirements
+# ============================================================================
+# Ce fichier contient toutes les d�pendances Python n�cessaires pour
+# l'ex�cution des DAGs Airflow et des extracteurs de donn�es.
+# ============================================================================
+
+# ------------------------------
+# Core Airflow (LocalExecutor)
+# ------------------------------
+apache-airflow
+apache-airflow-providers-postgres
+
+# ------------------------------
+# Data Extraction Dependencies
+# ------------------------------
+# Reddit API
+praw
+
+# Twitter API (optionnel, actuellement non fonctionnel)
+tweepy
+
+# Kaggle Dataset Download
+kagglehub
+
+# ------------------------------
+# Data Processing
+# ------------------------------
+pandas
+numpy
+
+# ------------------------------
+# Configuration & Environment
+# ------------------------------
+python-dotenv
+pyyaml
+
+# ------------------------------
+# Database
+# ------------------------------
+# PostgreSQL: Uniquement pour les métadonnées Airflow (pas pour les données d'extraction)
+psycopg2-binary
+
+# ------------------------------
+# Utilities
+# ------------------------------
+requests
+pytz
