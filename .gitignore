@@ -55,3 +55,4 @@ data/bronze/kaggle/*.csv
 data/bronze/kaggle/*_summary.json
 data/bronze/kaggle/kaggle_downloads_checkpoint.json
 
+.env.airflow
