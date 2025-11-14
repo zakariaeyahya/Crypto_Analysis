@@ -1,0 +1,36 @@
+default_args:
+  owner: 'crypto-team'
+  depends_on_past: false
+  email_on_failure: false
+  email_on_retry: false
+  retries: 3
+  retry_delay_minutes: 5
+  execution_timeout_minutes: 30
+
+reddit_extraction:
+  dag_id: 'reddit_crypto_extraction'
+  description: 'Daily extraction of cryptocurrency posts from r/CryptoCurrency'
+  schedule_interval: '0 6 * * *'
+  start_date: '2025-11-14'
+  catchup: false
+  max_active_runs: 1
+  subreddit: 'CryptoCurrency'
+  max_posts: 100
+  sort_by: 'hot'
+  time_filter: 'day'
+  crypto_keywords:
+    - 'bitcoin'
+    - 'ethereum'
+    - 'crypto'
+    - 'cryptocurrency'
+    - 'blockchain'
+    - 'BTC'
+    - 'ETH'
+  output_format: 'csv'
+  partition_by:
+    - 'year'
+    - 'month'
+    - 'day'
+  task_id: 'extract_reddit_crypto_posts'
+  pool: 'default_pool'
+  priority_weight: 1

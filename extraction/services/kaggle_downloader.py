@@ -294,7 +294,6 @@ def main():
         logger.info("=" * 60)
         logger.info("First 5 records preview:")
         logger.info("=" * 60)
-        print(df.head())
 
         logger.info("=" * 60)
         logger.info("[OK] Kaggle download service completed successfully")
