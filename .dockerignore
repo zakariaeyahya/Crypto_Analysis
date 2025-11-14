@@ -1,0 +1,59 @@
+# Docker ignore file - files to exclude from Docker build context
+
+# Git
+.git/
+.gitignore
+.github/
+
+# Documentation (not needed in container)
+*.md
+!README.md
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+airflow/logs/
+extraction.log
+
+# Environment files (use Railway variables instead)
+.env
+.env.local
+.env.airflow
+.env.*
+
+# Data files (will be mounted as volumes or stored externally)
+data/bronze/
+data/silver/
+data/gold/
+
+# Tests
+tests/
+test_*.py
+*_test.py
+
+# CI/CD
+.railwayignore
+
+# Scripts (keep only deployment scripts)
+scripts/
+!scripts/start_airflow_combined.sh
+
+# Railway config (not needed in container)
+railway.json
+railway.toml
+nixpacks.toml
+
