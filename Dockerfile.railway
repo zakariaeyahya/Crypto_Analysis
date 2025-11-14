@@ -22,6 +22,8 @@ COPY --chown=airflow:root extraction/ /opt/airflow/extraction/
 
 # Copy DAGs and config
 COPY --chown=airflow:root airflow/dags/ /opt/airflow/dags/
+
+# Copy plugins directory (now contains .gitkeep file)
 COPY --chown=airflow:root airflow/plugins/ /opt/airflow/plugins/
 
 # Copy startup script
