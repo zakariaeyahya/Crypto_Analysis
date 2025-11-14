@@ -1,17 +1,7 @@
-# ============================================================================
-# Docker Compose - Apache Airflow for Crypto Extraction
-# ============================================================================
-# Configuration simple avec 3 services (LocalExecutor):
-#   1. postgres  - Base de donn�es Airflow (m�tadonn�es)
-#   2. webserver - Interface web Airflow (http://localhost:8080)
-#   3. scheduler - Ordonnanceur et ex�cution des DAGs
-# ============================================================================
-
 version: '3.8'
 
 services:
   # ==========================================================================
-  # PostgreSQL - M�tadonn�es Airflow UNIQUEMENT (pas les donn�es d'extraction)
   # ==========================================================================
   postgres:
     image: postgres:13
@@ -28,6 +18,23 @@ services:
       retries: 5
       start_period: 5s
     restart: always
+
+  # ==========================================================================
+  # Airflow Init - Initialize database (run once)
+  # ==========================================================================
+  airflow-init:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.airflow
+    container_name: crypto_airflow_init
+    command: >
+      bash -c "airflow db migrate &&
+               airflow users create --username airflow --firstname Admin --lastname User --role Admin --email admin@example.com --password airflow"
+    env_file:
+      - .env.airflow
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   # ==========================================================================
   # Airflow Webserver - Interface web sur http://localhost:8080
@@ -88,7 +95,6 @@ services:
     restart: always
 
 # ============================================================================
-# Volumes - Persistance des donn�es
 # ============================================================================
 volumes:
   postgres-db-volume:

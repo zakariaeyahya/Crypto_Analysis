@@ -17,7 +17,6 @@ apache-airflow-providers-postgres
 # Reddit API
 praw
 
-# Twitter API (optionnel, actuellement non fonctionnel)
 tweepy
 
 # Kaggle Dataset Download
