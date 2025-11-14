@@ -11,8 +11,8 @@ reddit_extraction:
   dag_id: 'reddit_crypto_extraction'
   description: 'Daily extraction of cryptocurrency posts from r/CryptoCurrency'
   schedule_interval: '0 6 * * *'
-  start_date: '2025-01-01'
-  catchup: true
+  start_date: '2025-11-14'
+  catchup: false
   max_active_runs: 1
   subreddit: 'CryptoCurrency'
   max_posts: 100
