@@ -1,0 +1,15 @@
+# Disable automatic detection and force Dockerfile usage
+[phases.setup]
+nixPkgs = {}
+
+[phases.install]
+cmds = []
+
+[phases.build]
+cmds = []
+
+# Force Railway to use Dockerfile instead of auto-detection
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile.railway"
+

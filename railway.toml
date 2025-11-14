@@ -1,0 +1,15 @@
+# Railway configuration for Airflow deployment
+# This file configures Railway to deploy Airflow services
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "docker/Dockerfile.airflow"
+
+[deploy]
+startCommand = "webserver"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+# Note: Railway doesn't support docker-compose directly
+# You'll need to deploy services separately or use Railway's multi-service setup
+
