@@ -45,7 +45,8 @@ echo "Airflow is ready!"
 echo "Access the UI at the Railway URL"
 echo "=========================================="
 # Set environment variables for Gunicorn configuration
-export GUNICORN_CMD_ARGS="--workers=1 --worker-timeout=300 --timeout=300 --bind=0.0.0.0:8080 --access-logfile=- --error-logfile=- --preload"
+# Note: --timeout is for worker timeout, not --worker-timeout
+export GUNICORN_CMD_ARGS="--workers=1 --timeout=300 --bind=0.0.0.0:8080 --access-logfile=- --error-logfile=-"
 # Increase Airflow webserver startup timeout (default is 120 seconds)
 export AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT=300
 # Start webserver (will use GUNICORN_CMD_ARGS)
