@@ -25,12 +25,13 @@ airflow users create \
 
 echo "Starting scheduler in background..."
 airflow scheduler &
-
 sleep 5
 
-echo "Starting Airflow webserver on Railway port: $PORT"
+echo "Patching airflow.cfg to force port 8080..."
+sed -i "s/^web_server_port = .*/web_server_port = 8080/" /opt/airflow/airflow.cfg
+sed -i "s/^web_server_host = .*/web_server_host = 0.0.0.0/" /opt/airflow/airflow.cfg
 
-export AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT=300
-export GUNICORN_CMD_ARGS="--workers=1 --timeout=300 --bind=0.0.0.0:$PORT"
-
+echo "Starting Airflow webserver on 0.0.0.0:8080"
+AIRFLOW__WEBSERVER__WEB_SERVER_PORT=8080 \
+AIRFLOW__WEBSERVER__WEB_SERVER_HOST=0.0.0.0 \
 exec airflow webserver
