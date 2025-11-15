@@ -45,8 +45,3 @@ psycopg2-binary
 # ------------------------------
 requests
 pytz
-
-# ------------------------------
-# Fix Airflow 2.8.1 webserver crash (swagger-ui bug)
-# ------------------------------
-connexion[swagger-ui]
