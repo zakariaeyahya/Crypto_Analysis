@@ -1,32 +1,39 @@
 # ============================================================================
-# Dockerfile for Apache Airflow with Crypto Extraction
-# ============================================================================
-# Simple image avec Airflow + nos modules d'extraction
+# Dockerfile for Apache Airflow running on Railway
 # ============================================================================
 
-# Image de base: Airflow officiel
 FROM apache/airflow:2.8.1-python3.11
 
-# Passer en root pour installer des packages système
 USER root
 
-# Installer gcc (nécessaire pour compiler certains packages Python)
+# System dependencies
 RUN apt-get update && \
-    apt-get install -y gcc && \
+    apt-get install -y gcc curl && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Retour à l'utilisateur airflow (sécurité)
 USER airflow
 
-# Copier et installer les dépendances Python
+# Install Python dependencies
 COPY docker/requirements-airflow.txt /requirements.txt
 RUN pip install --no-cache-dir -r /requirements.txt
 
-# Copier notre code d'extraction dans le container
+# Copy extraction modules
 COPY --chown=airflow:root extraction/ /opt/airflow/extraction/
 
-# Configurer le PYTHONPATH pour importer nos modules
+# Copy DAGs
+COPY --chown=airflow:root airflow/dags/ /opt/airflow/dags/
+
+# Copy plugins directory
+COPY --chown=airflow:root airflow/plugins/ /opt/airflow/plugins/
+
+# Copy startup script
+COPY --chown=airflow:root scripts/start_airflow_combined.sh /start.sh
+RUN chmod +x /start.sh
+
+# Set PYTHONPATH
 ENV PYTHONPATH="/opt/airflow:${PYTHONPATH}"
 
-# Note: Le reste de la config (DB, Redis, etc.) est dans docker-compose.yml
+EXPOSE 8080
+
+CMD ["bash", "/start.sh"]
