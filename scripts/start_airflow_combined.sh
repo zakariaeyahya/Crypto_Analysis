@@ -44,10 +44,10 @@ echo "=========================================="
 echo "Airflow is ready!"
 echo "Access the UI at the Railway URL"
 echo "=========================================="
-# Use explicit host and port binding for Railway
-exec airflow webserver \
-    --workers 1 \
-    --worker-timeout 300 \
-    --host 0.0.0.0 \
-    --port 8080
+# Set environment variables for Gunicorn configuration
+export GUNICORN_CMD_ARGS="--workers=1 --worker-timeout=300 --timeout=300 --bind=0.0.0.0:8080 --access-logfile=- --error-logfile=- --preload"
+# Increase Airflow webserver startup timeout (default is 120 seconds)
+export AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT=300
+# Start webserver (will use GUNICORN_CMD_ARGS)
+exec airflow webserver
 
