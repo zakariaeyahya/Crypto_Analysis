@@ -44,5 +44,10 @@ echo "=========================================="
 echo "Airflow is ready!"
 echo "Access the UI at the Railway URL"
 echo "=========================================="
-exec airflow webserver --workers 1 --worker-timeout 300
+# Use explicit host and port binding for Railway
+exec airflow webserver \
+    --workers 1 \
+    --worker-timeout 300 \
+    --host 0.0.0.0 \
+    --port 8080
 
