@@ -31,6 +31,12 @@ echo "Patching airflow.cfg to force port 8080..."
 sed -i "s/^web_server_port = .*/web_server_port = 8080/" /opt/airflow/airflow.cfg
 sed -i "s/^web_server_host = .*/web_server_host = 0.0.0.0/" /opt/airflow/airflow.cfg
 
+# Configure Gunicorn for Railway (1 worker, increased timeout)
+export GUNICORN_CMD_ARGS="--workers=1 --timeout=300 --bind=0.0.0.0:8080 --access-logfile=- --error-logfile=-"
+
+# Increase Airflow webserver startup timeout
+export AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT=300
+
 echo "Starting Airflow webserver on 0.0.0.0:8080"
 AIRFLOW__WEBSERVER__WEB_SERVER_PORT=8080 \
 AIRFLOW__WEBSERVER__WEB_SERVER_HOST=0.0.0.0 \
