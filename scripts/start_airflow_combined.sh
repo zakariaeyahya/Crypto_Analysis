@@ -1,26 +1,19 @@
 #!/bin/bash
-# Start both Airflow webserver and scheduler in one container
-# Used for cloud deployments that don't support multi-container docker-compose
-
 set -e
 
-echo "=========================================="
-echo "Starting Airflow services..."
-echo "=========================================="
+echo "=== Starting Airflow (Railway optimized) ==="
 
-# Wait for database to be ready (important for Railway)
 echo "Waiting for database connection..."
 until airflow db check; do
-    echo "Database is unavailable - sleeping"
+    echo "DB unavailable - sleeping"
     sleep 2
 done
-echo "Database is ready!"
 
-# Initialize database if needed (migrate will create tables if they don't exist)
-echo "Initializing Airflow database..."
+echo "DB ready!"
+
+echo "Running migrations..."
 airflow db migrate
 
-# Create admin user if it doesn't exist
 echo "Creating admin user..."
 airflow users create \
     --username airflow \
@@ -28,27 +21,16 @@ airflow users create \
     --lastname User \
     --role Admin \
     --email admin@example.com \
-    --password airflow 2>/dev/null || echo "Admin user already exists"
+    --password airflow 2>/dev/null || echo "Admin user exists"
 
-# Start scheduler in background
-echo "Starting Airflow scheduler in background..."
+echo "Starting scheduler in background..."
 airflow scheduler &
 
-# Wait a bit for scheduler to start
-sleep 10
+sleep 5
 
-# Start webserver in foreground (this keeps container alive)
-# Use only 1 worker for Railway (limited resources) with increased timeout
-echo "Starting Airflow webserver with 1 worker (Railway optimized)..."
-echo "=========================================="
-echo "Airflow is ready!"
-echo "Access the UI at the Railway URL"
-echo "=========================================="
-# Set environment variables for Gunicorn configuration
-# Note: --timeout is for worker timeout, not --worker-timeout
-export GUNICORN_CMD_ARGS="--workers=1 --timeout=300 --bind=0.0.0.0:8080 --access-logfile=- --error-logfile=-"
-# Increase Airflow webserver startup timeout (default is 120 seconds)
+echo "Starting Airflow webserver on Railway port: $PORT"
+
 export AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT=300
-# Start webserver (will use GUNICORN_CMD_ARGS)
-exec airflow webserver
+export GUNICORN_CMD_ARGS="--workers=1 --timeout=300 --bind=0.0.0.0:$PORT"
 
+exec airflow webserver
