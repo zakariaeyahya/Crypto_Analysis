@@ -38,10 +38,11 @@ airflow scheduler &
 sleep 10
 
 # Start webserver in foreground (this keeps container alive)
-echo "Starting Airflow webserver..."
+# Use only 1 worker for Railway (limited resources)
+echo "Starting Airflow webserver with 1 worker (Railway optimized)..."
 echo "=========================================="
 echo "Airflow is ready!"
 echo "Access the UI at the Railway URL"
 echo "=========================================="
-exec airflow webserver
+exec airflow webserver --workers 1
 
