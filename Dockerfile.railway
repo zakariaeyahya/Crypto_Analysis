@@ -17,6 +17,10 @@ USER airflow
 COPY docker/requirements-airflow.txt /requirements.txt
 RUN pip install --no-cache-dir -r /requirements.txt
 
+# FIX CRITICAL: Airflow 2.8.1 webserver crash without swagger-ui
+# This prevents silent crash when swagger_ui directory is not found
+RUN pip install --no-cache-dir connexion[swagger-ui]
+
 # Copy extraction modules
 COPY --chown=airflow:root extraction/ /opt/airflow/extraction/
 
