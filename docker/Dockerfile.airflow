@@ -8,7 +8,7 @@ USER root
 
 # System dependencies
 RUN apt-get update && \
-    apt-get install -y gcc curl && \
+    apt-get install -y gcc curl git && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -30,6 +30,9 @@ COPY --chown=airflow:root airflow/plugins/ /opt/airflow/plugins/
 # Copy startup script
 COPY --chown=airflow:root scripts/start_airflow_combined.sh /start.sh
 RUN chmod +x /start.sh
+
+# Copy GitHub push script
+COPY --chown=airflow:root scripts/push_to_github.py /opt/airflow/scripts/push_to_github.py
 
 # Set PYTHONPATH
 ENV PYTHONPATH="/opt/airflow:${PYTHONPATH}"
