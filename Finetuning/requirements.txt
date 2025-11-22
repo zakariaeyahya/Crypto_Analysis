@@ -1,0 +1,28 @@
+# Dépendances pour le fine-tuning de RoBERTa sur sentiment analysis
+
+# Deep Learning
+torch
+transformers
+accelerate
+
+# Data Processing
+pandas
+numpy
+scikit-learn
+
+# Hugging Face Datasets (optionnel, pour datasets plus avancés)
+datasets
+
+# Visualization
+matplotlib
+seaborn
+
+# Progress bars
+tqdm
+
+# Configuration
+pyyaml
+
+# Logging et tracking (optionnel)
+wandb  # Pour Weights & Biases
+tensorboard  # Pour TensorBoard
