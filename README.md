@@ -2,7 +2,7 @@
 
 Project for extraction and analysis of cryptocurrency tweets.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Activate virtual environment
 ```powershell
@@ -22,13 +22,13 @@ Create a `.env` file with your Twitter API credentials (see `.env.example`)
 python extraction/services/twitter_extractor.py
 ```
 
-## 📁 Structure
+## Structure
 
 - `extraction/` : Tweet extraction code
 - `data/bronze/` : Raw extracted data
 - `data/silver/` : Cleaned data (coming soon)
 - `data/gold/` : Enriched data (coming soon)
 
-## 📖 Documentation
+## Documentation
 
 See `README_TWITTER_EXTRACTION.md` for more details.
