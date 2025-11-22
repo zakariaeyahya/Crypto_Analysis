@@ -1,5 +1,5 @@
 """
-Visualisations pour les résultats d'entraînement et d'évaluation
+Visualizations for training and evaluation results
 """
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -11,18 +11,18 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Configuration du style
+# Style configuration
 plt.style.use('seaborn-v0_8-darkgrid')
 sns.set_palette("husl")
 
 
 def plot_training_curves(metrics_path: str, save_path: str = None):
     """
-    Visualiser les courbes d'entraînement (loss, accuracy, F1)
+    Visualize training curves (loss, accuracy, F1)
     
     Args:
-        metrics_path: Chemin vers le fichier JSON des métriques
-        save_path: Chemin où sauvegarder la figure
+        metrics_path: Path to JSON metrics file
+        save_path: Path where to save the figure
     """
     with open(metrics_path, 'r') as f:
         metrics = json.load(f)
@@ -60,7 +60,7 @@ def plot_training_curves(metrics_path: str, save_path: str = None):
     
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        logger.info(f"💾 Figure sauvegardée: {save_path}")
+        logger.info(f"Figure saved: {save_path}")
     else:
         plt.show()
     
@@ -69,11 +69,11 @@ def plot_training_curves(metrics_path: str, save_path: str = None):
 
 def plot_confusion_matrix(results_path: str, save_path: str = None):
     """
-    Visualiser la matrice de confusion
+    Visualize confusion matrix
     
     Args:
-        results_path: Chemin vers le fichier JSON des résultats
-        save_path: Chemin où sauvegarder la figure
+        results_path: Path to JSON results file
+        save_path: Path where to save the figure
     """
     with open(results_path, 'r') as f:
         results = json.load(f)
@@ -81,12 +81,12 @@ def plot_confusion_matrix(results_path: str, save_path: str = None):
     cm = np.array(results['confusion_matrix'])
     class_names = results['class_names']
     
-    # Normaliser la matrice
+    # Normalize matrix
     cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     
     fig, axes = plt.subplots(1, 2, figsize=(16, 6))
     
-    # Matrice de confusion absolue
+    # Absolute confusion matrix
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
                 xticklabels=class_names, yticklabels=class_names,
                 ax=axes[0], cbar_kws={'label': 'Count'})
@@ -94,7 +94,7 @@ def plot_confusion_matrix(results_path: str, save_path: str = None):
     axes[0].set_ylabel('True', fontsize=12, fontweight='bold')
     axes[0].set_title('Confusion Matrix (Absolute)', fontsize=14, fontweight='bold')
     
-    # Matrice de confusion normalisée
+    # Normalized confusion matrix
     sns.heatmap(cm_normalized, annot=True, fmt='.2%', cmap='Blues',
                 xticklabels=class_names, yticklabels=class_names,
                 ax=axes[1], cbar_kws={'label': 'Percentage'})
@@ -106,7 +106,7 @@ def plot_confusion_matrix(results_path: str, save_path: str = None):
     
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        logger.info(f"💾 Figure sauvegardée: {save_path}")
+        logger.info(f"Figure saved: {save_path}")
     else:
         plt.show()
     
@@ -115,11 +115,11 @@ def plot_confusion_matrix(results_path: str, save_path: str = None):
 
 def plot_metrics_comparison(results_path: str, save_path: str = None):
     """
-    Visualiser la comparaison des métriques par classe
+    Visualize metrics comparison by class
     
     Args:
-        results_path: Chemin vers le fichier JSON des résultats
-        save_path: Chemin où sauvegarder la figure
+        results_path: Path to JSON results file
+        save_path: Path where to save the figure
     """
     with open(results_path, 'r') as f:
         results = json.load(f)
@@ -147,7 +147,7 @@ def plot_metrics_comparison(results_path: str, save_path: str = None):
     ax.grid(True, alpha=0.3, axis='y')
     ax.set_ylim([0, 1.1])
     
-    # Ajouter les valeurs sur les barres
+    # Add values on bars
     for bars in [bars1, bars2, bars3]:
         for bar in bars:
             height = bar.get_height()
@@ -159,7 +159,7 @@ def plot_metrics_comparison(results_path: str, save_path: str = None):
     
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        logger.info(f"💾 Figure sauvegardée: {save_path}")
+        logger.info(f"Figure saved: {save_path}")
     else:
         plt.show()
     
@@ -168,14 +168,14 @@ def plot_metrics_comparison(results_path: str, save_path: str = None):
 
 def create_all_visualizations(results_dir: str):
     """
-    Créer toutes les visualisations à partir des résultats
+    Create all visualizations from results
     
     Args:
-        results_dir: Dossier contenant les fichiers de résultats
+        results_dir: Directory containing result files
     """
     results_dir = Path(results_dir)
     
-    # Courbes d'entraînement
+    # Training curves
     metrics_path = results_dir / "training_metrics.json"
     if metrics_path.exists():
         plot_training_curves(
@@ -183,7 +183,7 @@ def create_all_visualizations(results_dir: str):
             str(results_dir / "training_curves.png")
         )
     
-    # Matrice de confusion et métriques
+    # Confusion matrix and metrics
     eval_path = results_dir / "evaluation_results.json"
     if eval_path.exists():
         plot_confusion_matrix(
@@ -195,7 +195,7 @@ def create_all_visualizations(results_dir: str):
             str(results_dir / "metrics_comparison.png")
         )
     
-    logger.info("✅ Toutes les visualisations créées")
+    logger.info("All visualizations created")
 
 
 if __name__ == "__main__":

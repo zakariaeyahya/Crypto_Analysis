@@ -1,21 +1,21 @@
-# Crypto Analysis - Extraction de Tweets
+# Crypto Analysis - Tweet Extraction
 
-Projet d'extraction et d'analyse de tweets sur les cryptomonnaies.
+Project for extraction and analysis of cryptocurrency tweets.
 
-## 🚀 Démarrage Rapide
+## 🚀 Quick Start
 
-### 1. Activation du venv
+### 1. Activate virtual environment
 ```powershell
 .\venv\Scripts\Activate.ps1
 ```
 
-### 2. Installation des dépendances
+### 2. Install dependencies
 ```powershell
 pip install -r requirements.txt
 ```
 
 ### 3. Configuration
-Créez un fichier `.env` avec vos identifiants Twitter API (voir `.env.example`)
+Create a `.env` file with your Twitter API credentials (see `.env.example`)
 
 ### 4. Extraction
 ```powershell
@@ -24,15 +24,11 @@ python extraction/services/twitter_extractor.py
 
 ## 📁 Structure
 
-- `extraction/` : Code d'extraction de tweets
-- `data/bronze/` : Données brutes extraites
-- `data/silver/` : Données nettoyées (à venir)
-- `data/gold/` : Données enrichies (à venir)
+- `extraction/` : Tweet extraction code
+- `data/bronze/` : Raw extracted data
+- `data/silver/` : Cleaned data (coming soon)
+- `data/gold/` : Enriched data (coming soon)
 
 ## 📖 Documentation
 
-Consultez `README_TWITTER_EXTRACTION.md` pour plus de détails.
-
-## 👥 Contribution
-
-Branche: `feature/zakariae-twitter-extraction`
+See `README_TWITTER_EXTRACTION.md` for more details.

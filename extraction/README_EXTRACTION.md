@@ -151,33 +151,33 @@ df_clean = RedditDataValidator.validate_and_clean(df_raw)
 
 ### Kaggle Dataset Download
 
-#### 🔄 Réexécution du script pour obtenir le fichier CSV
+#### 🔄 Re-running the script to get the CSV file
 
-Pour télécharger ou récupérer le fichier CSV du dataset Kaggle, suivez ces étapes :
+To download or retrieve the CSV file from the Kaggle dataset, follow these steps:
 
 ```powershell
-# 1. Activer l'environnement virtuel
+# 1. Activate virtual environment
 .\venv\Scripts\Activate.ps1
 
-# 2. Installer la dépendance kagglehub si nécessaire
+# 2. Install kagglehub dependency if needed
 pip install kagglehub[pandas-datasets]
 
-# 3. Exécuter le script de téléchargement
+# 3. Run download script
 python extraction/services/kaggle_downloader.py
 ```
 
-**Comportement du script** :
-- ✅ **Système de checkpoint** : Si un fichier CSV a déjà été téléchargé, le script le détecte automatiquement et charge le fichier existant au lieu de le re-télécharger
-- ✅ **Téléchargement automatique** : Si aucun fichier n'existe, le script télécharge le dataset depuis Kaggle
-- ✅ **Sauvegarde automatique** : Le fichier CSV est sauvegardé dans `data/bronze/kaggle/` avec un timestamp dans le nom de fichier
-- ✅ **Génération de résumé** : Un fichier `*_summary.json` est créé avec les statistiques du dataset
+**Script behavior**:
+- ✅ **Checkpoint system**: If a CSV file has already been downloaded, the script automatically detects it and loads the existing file instead of re-downloading
+- ✅ **Automatic download**: If no file exists, the script downloads the dataset from Kaggle
+- ✅ **Automatic save**: The CSV file is saved in `data/bronze/kaggle/` with a timestamp in the filename
+- ✅ **Summary generation**: A `*_summary.json` file is created with dataset statistics
 
-**Emplacement du fichier CSV généré** :
+**Generated CSV file location**:
 ```
 data/bronze/kaggle/bitcoin_tweets_YYYYMMDD_HHMMSS.csv
 ```
 
-**Exemple de sortie** :
+**Example output**:
 ```
 2025-11-03 22:07:52 - INFO - [OK] Dataset downloaded to: /path/to/kaggle/dataset
 2025-11-03 22:07:53 - INFO - [INFO] Found 1 CSV file(s): ['Bitcoin_tweets.csv']
@@ -187,8 +187,8 @@ data/bronze/kaggle/bitcoin_tweets_YYYYMMDD_HHMMSS.csv
 2025-11-03 22:10:25 - INFO - [OK] Saved 16000000 records to data/bronze/kaggle/bitcoin_tweets_20251103_221025.csv
 ```
 
-**Si le fichier existe déjà** :
-Le script détecte automatiquement les fichiers déjà téléchargés via le checkpoint et charge le fichier existant sans re-téléchargement :
+**If file already exists**:
+The script automatically detects already downloaded files via checkpoint and loads the existing file without re-downloading:
 ```
 2025-11-03 22:15:00 - INFO - [INFO] Dataset already downloaded: data/bronze/kaggle/bitcoin_tweets_20251103_221025.csv
 2025-11-03 22:15:00 - INFO -   Downloaded on: 2025-11-03T22:10:25
@@ -204,7 +204,7 @@ Le script détecte automatiquement les fichiers déjà téléchargés via le che
 - **Flexibility**: Can specify a particular file to load
 - **Idempotent**: Safe to re-run without re-downloading
 
-**Usage en code**:
+**Code usage**:
 ```python
 from extraction.services.kaggle_downloader import KaggleDownloader
 
@@ -214,13 +214,13 @@ downloader = KaggleDownloader(
 )
 
 # Download dataset (auto-selects largest CSV)
-# Si le fichier existe déjà, il sera chargé depuis le checkpoint
+# If file already exists, it will be loaded from checkpoint
 df = downloader.download_dataset()
 
-# Ou spécifier un fichier particulier
+# Or specify a particular file
 df = downloader.download_dataset(specific_file="Bitcoin_tweets.csv")
 
-# Forcer un nouveau téléchargement même si le fichier existe
+# Force a new download even if file exists
 df = downloader.download_dataset(force_redownload=True)
 ```
 

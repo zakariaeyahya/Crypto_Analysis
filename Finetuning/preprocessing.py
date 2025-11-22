@@ -1,5 +1,5 @@
 """
-Préprocessing et nettoyage des textes pour le fine-tuning
+Preprocessing and text cleaning for fine-tuning
 """
 import re
 import pandas as pd
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class TextPreprocessor:
-    """Classe pour nettoyer et préprocesser les textes de tweets"""
+    """Class to clean and preprocess tweet texts"""
     
     def __init__(self, 
                  remove_urls: bool = True,
@@ -22,14 +22,14 @@ class TextPreprocessor:
                  normalize_spaces: bool = True,
                  handle_emojis: str = "keep"):
         """
-        Initialiser le preprocessor
+        Initialize preprocessor
         
         Args:
-            remove_urls: Enlever les URLs
-            handle_mentions: Gérer les mentions @user
-            handle_hashtags: Gérer les hashtags (garder texte, enlever #)
-            normalize_spaces: Normaliser les espaces multiples
-            handle_emojis: "keep", "remove", ou "convert"
+            remove_urls: Remove URLs
+            handle_mentions: Handle @user mentions
+            handle_hashtags: Handle hashtags (keep text, remove #)
+            normalize_spaces: Normalize multiple spaces
+            handle_emojis: "keep", "remove", or "convert"
         """
         self.remove_urls = remove_urls
         self.handle_mentions = handle_mentions
@@ -39,38 +39,38 @@ class TextPreprocessor:
         
     def clean_text(self, text: str) -> str:
         """
-        Nettoyer un texte selon les règles configurées
+        Clean text according to configured rules
         
         Args:
-            text: Texte à nettoyer
+            text: Text to clean
             
         Returns:
-            Texte nettoyé
+            Cleaned text
         """
         if pd.isna(text):
             return ""
         
         text = str(text)
         
-        # Enlever les URLs
+        # Remove URLs
         if self.remove_urls:
             text = re.sub(r'http\S+|www\.\S+', '', text)
         
-        # Gérer les mentions @user (garder le texte)
+        # Handle @user mentions (keep text)
         if self.handle_mentions:
             text = re.sub(r'@(\w+)', r'\1', text)
         
-        # Gérer les hashtags (garder le texte, enlever #)
+        # Handle hashtags (keep text, remove #)
         if self.handle_hashtags:
             text = re.sub(r'#(\w+)', r'\1', text)
         
-        # Normaliser les espaces multiples
+        # Normalize multiple spaces
         if self.normalize_spaces:
             text = re.sub(r'\s+', ' ', text)
         
-        # Gérer les emojis
+        # Handle emojis
         if self.handle_emojis == "remove":
-            # Enlever les emojis (pattern simplifié)
+            # Remove emojis (simplified pattern)
             emoji_pattern = re.compile("["
                 u"\U0001F600-\U0001F64F"  # emoticons
                 u"\U0001F300-\U0001F5FF"  # symbols & pictographs
@@ -81,24 +81,24 @@ class TextPreprocessor:
                 "]+", flags=re.UNICODE)
             text = emoji_pattern.sub('', text)
         elif self.handle_emojis == "convert":
-            # Convertir en texte (simplifié - pourrait utiliser emoji library)
-            pass  # À implémenter si nécessaire
+            # Convert to text (simplified - could use emoji library)
+            pass  # To implement if necessary
         
-        # Nettoyer les espaces en début/fin
+        # Clean spaces at start/end
         text = text.strip()
         
         return text
     
     def preprocess_dataframe(self, df: pd.DataFrame, text_column: str = 'text') -> pd.DataFrame:
         """
-        Préprocesser toutes les colonnes de texte d'un DataFrame
+        Preprocess all text columns of a DataFrame
         
         Args:
-            df: DataFrame à préprocesser
-            text_column: Nom de la colonne contenant les textes
+            df: DataFrame to preprocess
+            text_column: Name of column containing texts
             
         Returns:
-            DataFrame avec textes nettoyés
+            DataFrame with cleaned texts
         """
         logger.info(f"Preprocessing {len(df):,} texts...")
         
@@ -119,7 +119,7 @@ class TextPreprocessor:
 
 
 class LabelEncoderWrapper:
-    """Wrapper pour encoder les labels de sentiment"""
+    """Wrapper to encode sentiment labels"""
     
     def __init__(self):
         self.encoder = LabelEncoder()
@@ -128,15 +128,15 @@ class LabelEncoderWrapper:
     
     def fit(self, labels: pd.Series):
         """
-        Entraîner l'encodeur sur les labels
+        Train encoder on labels
         
         Args:
-            labels: Série pandas avec les labels
+            labels: Pandas Series with labels
         """
         unique_labels = sorted(labels.unique())
         self.encoder.fit(unique_labels)
         
-        # Créer le mapping
+        # Create mapping
         for i, label in enumerate(unique_labels):
             encoded = self.encoder.transform([label])[0]
             self.label_mapping[label] = int(encoded)
@@ -146,30 +146,30 @@ class LabelEncoderWrapper:
     
     def transform(self, labels: pd.Series) -> np.ndarray:
         """
-        Encoder les labels
+        Encode labels
         
         Args:
-            labels: Série pandas avec les labels
+            labels: Pandas Series with labels
             
         Returns:
-            Array numpy avec labels encodés
+            NumPy array with encoded labels
         """
         return self.encoder.transform(labels)
     
     def inverse_transform(self, encoded_labels: np.ndarray) -> List[str]:
         """
-        Décoder les labels
+        Decode labels
         
         Args:
-            encoded_labels: Array numpy avec labels encodés
+            encoded_labels: NumPy array with encoded labels
             
         Returns:
-            Liste de labels décodés
+            List of decoded labels
         """
         return self.encoder.inverse_transform(encoded_labels)
     
     def get_num_classes(self) -> int:
-        """Retourner le nombre de classes"""
+        """Return number of classes"""
         return len(self.label_mapping)
 
 
@@ -182,17 +182,17 @@ def split_data(df: pd.DataFrame,
                stratify: bool = True,
                random_state: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
-    Diviser le dataset en train/val/test
+    Split dataset into train/val/test
     
     Args:
-        df: DataFrame à diviser
-        text_column: Nom de la colonne texte
-        label_column: Nom de la colonne labels
-        train_size: Proportion pour train
-        val_size: Proportion pour validation
-        test_size: Proportion pour test
-        stratify: Si True, stratifier par classe
-        random_state: Seed pour reproductibilité
+        df: DataFrame to split
+        text_column: Name of text column
+        label_column: Name of label column
+        train_size: Proportion for train
+        val_size: Proportion for validation
+        test_size: Proportion for test
+        stratify: If True, stratify by class
+        random_state: Seed for reproducibility
         
     Returns:
         Tuple (train_df, val_df, test_df)
