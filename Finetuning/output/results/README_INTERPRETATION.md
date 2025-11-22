@@ -1,8 +1,8 @@
-# 📊 RoBERTa Fine-tuning Results Interpretation
+# RoBERTa Fine-tuning Results Interpretation
 
 This document presents a detailed analysis of the results obtained during fine-tuning of the RoBERTa model for Bitcoin tweet sentiment analysis.
 
-## 📋 Overview
+## Overview
 
 - **Model**: RoBERTa (RobertaForSequenceClassification)
 - **Dataset**: ~397,516 Bitcoin tweets
@@ -10,7 +10,7 @@ This document presents a detailed analysis of the results obtained during fine-t
 - **Number of epochs**: 8
 - **Training time**: ~8.8 hours (31,722 seconds)
 
-## 📈 Training Metrics
+## Training Metrics
 
 ### Loss Evolution
 
@@ -36,13 +36,13 @@ Validation loss shows a more irregular evolution:
 | Epoch | Validation Loss |
 |-------|-----------------|
 | 1     | 0.668           |
-| 2     | 0.712 ⬆️        |
-| 3     | 0.627 ⬇️        |
-| 4     | 0.698 ⬆️        |
-| 5     | 0.732 ⬆️        |
-| 6     | 0.738 ⬆️        |
-| 7     | 0.777 ⬆️        |
-| 8     | 0.770 ⬇️        |
+| 2     | 0.712 (up)      |
+| 3     | 0.627 (down)    |
+| 4     | 0.698 (up)      |
+| 5     | 0.732 (up)      |
+| 6     | 0.738 (up)      |
+| 7     | 0.777 (up)      |
+| 8     | 0.770 (down)    |
 
 **Interpretation**: 
 - Validation loss increases overall after epoch 2, indicating **overfitting**.
@@ -89,7 +89,7 @@ Macro F1-score follows a similar evolution to accuracy:
 - Improvement slows significantly after epoch 3.
 - Best F1-score is reached at epoch 8: **0.686**.
 
-## 🎯 Final Results
+## Final Results
 
 ### Main Metrics
 
@@ -102,19 +102,19 @@ Macro F1-score follows a similar evolution to accuracy:
 
 | Metric | Target | Achieved | Status |
 |--------|--------|----------|--------|
-| Accuracy | > 75% | 70.1% | ⚠️ Below target |
-| F1-Score macro | > 0.70 | 0.686 | ⚠️ Slightly below |
-| F1-Score per class | > 0.65 | To verify | ⏳ To analyze |
+| Accuracy | > 75% | 70.1% | Below target |
+| F1-Score macro | > 0.70 | 0.686 | Slightly below |
+| F1-Score per class | > 0.65 | To verify | To analyze |
 
-## 🔍 Performance Analysis
+## Performance Analysis
 
-### Positive Points ✅
+### Positive Points
 
 1. **Constant improvement**: Model improves regularly on accuracy and F1-score metrics.
 2. **Convergence**: Model converges to a stable solution.
 3. **Acceptable performance**: 70.1% accuracy and 68.6% F1-score are reasonable results for binary sentiment classification.
 
-### Improvement Points ⚠️
+### Improvement Points
 
 1. **Overfitting**: 
    - Validation loss increases after epoch 2-3.
@@ -130,7 +130,7 @@ Macro F1-score follows a similar evolution to accuracy:
    - Best model could have been obtained earlier (epoch 3).
    - **Recommendation**: Implement early stopping based on validation loss.
 
-## 📊 Available Visualizations
+## Available Visualizations
 
 The following files are available in this directory:
 
@@ -138,7 +138,7 @@ The following files are available in this directory:
 - **`confusion_matrix.png`**: Confusion matrix on test set
 - **`training_metrics.json`**: Detailed metrics in JSON format
 
-## 🔧 Recommendations to Improve Performance
+## Recommendations to Improve Performance
 
 ### 1. Overfitting Management
 
@@ -164,7 +164,7 @@ The following files are available in this directory:
 - **Larger model**: Test `roberta-large` if resources allow.
 - **Specialized model**: Use `cardiffnlp/twitter-roberta-base-sentiment` which is pre-trained on Twitter.
 
-## 📁 Result Files
+## Result Files
 
 ### Saved Models
 
@@ -178,7 +178,7 @@ The following files are available in this directory:
 - **`val_split.csv`**: Validation dataset
 - **`test_split.csv`**: Test dataset
 
-## 🎓 Conclusion
+## Conclusion
 
 The fine-tuned RoBERTa model achieves **acceptable** performance with:
 - **70.1% accuracy**

@@ -1,10 +1,10 @@
 # Cryptocurrency Data Extraction
 
-## 📊 Data Sources
+## Data Sources
 
 This module enables data extraction from multiple cryptocurrency sources with production-ready features.
 
-### ✅ Reddit (Operational)
+### Reddit (Operational)
 - **Source**: Cryptocurrency subreddits (r/CryptoCurrency)
 - **Data Type**: Posts, comments, engagement metrics
 - **Format**: CSV
@@ -18,7 +18,7 @@ This module enables data extraction from multiple cryptocurrency sources with pr
   - Automatic retry logic with exponential backoff
   - Custom error handling (recoverable vs fatal errors)
 
-### ✅ Kaggle (Operational)
+### Kaggle (Operational)
 - **Source**: Kaggle datasets (Bitcoin tweets with sentiment)
 - **Dataset**: `gauravduttakiit/bitcoin-tweets-16m-tweets-with-sentiment-tagged`
 - **Data Type**: Bitcoin tweets with sentiment tags (16M+ tweets)
@@ -31,13 +31,13 @@ This module enables data extraction from multiple cryptocurrency sources with pr
   - Summary statistics generation
   - Comprehensive logging
 
-### ⚠️ Twitter (Non-Functional)
+### Twitter (Non-Functional)
 - **Status**: Twitter API requires paid access (API v2)
 - **Issue**: 401 Unauthorized - Invalid credentials
 - **Alternative Solution**: Test data available or use Kaggle dataset
 - **Location**: `data/bronze/twitter/`
 
-## 🏗️ Data Architecture (Medallion)
+## Data Architecture (Medallion)
 
 ```
 data/
@@ -74,7 +74,7 @@ data/
 - **Format**: Optimized Parquet
 - **Usage**: Ready for visualization and ML
 
-## 📦 Module Architecture
+## Module Architecture
 
 The extraction service is organized into modular components for better maintainability and reusability:
 
@@ -147,11 +147,11 @@ df_clean = RedditDataValidator.validate_and_clean(df_raw)
 - Saves data with date partitioning
 - Uses validators and config from models
 
-## 🚀 Usage
+## Usage
 
 ### Kaggle Dataset Download
 
-#### 🔄 Re-running the script to get the CSV file
+#### Re-running the script to get the CSV file
 
 To download or retrieve the CSV file from the Kaggle dataset, follow these steps:
 
@@ -167,10 +167,10 @@ python extraction/services/kaggle_downloader.py
 ```
 
 **Script behavior**:
-- ✅ **Checkpoint system**: If a CSV file has already been downloaded, the script automatically detects it and loads the existing file instead of re-downloading
-- ✅ **Automatic download**: If no file exists, the script downloads the dataset from Kaggle
-- ✅ **Automatic save**: The CSV file is saved in `data/bronze/kaggle/` with a timestamp in the filename
-- ✅ **Summary generation**: A `*_summary.json` file is created with dataset statistics
+- **Checkpoint system**: If a CSV file has already been downloaded, the script automatically detects it and loads the existing file instead of re-downloading
+- **Automatic download**: If no file exists, the script downloads the dataset from Kaggle
+- **Automatic save**: The CSV file is saved in `data/bronze/kaggle/` with a timestamp in the filename
+- **Summary generation**: A `*_summary.json` file is created with dataset statistics
 
 **Generated CSV file location**:
 ```
@@ -259,7 +259,7 @@ python extraction/services/twitter_extractor.py
 
 **Alternative Solution**: Use test data if available.
 
-## 📁 Extracted Files Structure
+## Extracted Files Structure
 
 ### Kaggle
 
@@ -344,16 +344,16 @@ data/bronze/twitter/twitter_tweets_YYYYMMDD_HHMMSS_summary.json
 
 **Note**: Twitter extraction currently unavailable.
 
-## 🛠️ Available Services
+## Available Services
 
 ### `kaggle_downloader.py`
-- ✅ Download Kaggle datasets (Bitcoin tweets)
-- ✅ Checkpoint system prevents re-downloads
-- ✅ Auto-detection of CSV files in dataset
-- ✅ CSV save to bronze/kaggle
-- ✅ Detailed logging with timestamps
-- ✅ Summary statistics generation
-- ✅ Skip download if already exists (idempotent)
+- Download Kaggle datasets (Bitcoin tweets)
+- Checkpoint system prevents re-downloads
+- Auto-detection of CSV files in dataset
+- CSV save to bronze/kaggle
+- Detailed logging with timestamps
+- Summary statistics generation
+- Skip download if already exists (idempotent)
 
 **Key Features**:
 - **Checkpoint**: JSON file tracks downloaded datasets with metadata
@@ -363,13 +363,13 @@ data/bronze/twitter/twitter_tweets_YYYYMMDD_HHMMSS_summary.json
 - **Statistics**: Generates summary JSON with dataset info
 
 ### `reddit_extractor.py`
-- ✅ Extract Reddit posts and comments
-- ✅ Automatic data cleaning
-- ✅ Date partitioning (year/month/day)
-- ✅ Checkpoint system for idempotent execution
-- ✅ CSV save to bronze/reddit with partitions
-- ✅ Detailed logging
-- ✅ Skip already extracted posts (prevents duplicates)
+- Extract Reddit posts and comments
+- Automatic data cleaning
+- Date partitioning (year/month/day)
+- Checkpoint system for idempotent execution
+- CSV save to bronze/reddit with partitions
+- Detailed logging
+- Skip already extracted posts (prevents duplicates)
 
 **Key Features**:
 - **Partitioning**: Data organized by `year=YYYY/month=MM/day=DD/`
@@ -378,11 +378,11 @@ data/bronze/twitter/twitter_tweets_YYYYMMDD_HHMMSS_summary.json
 - **Airflow-Ready**: Supports DAG retries and backfills
 
 ### `twitter_extractor.py`
-- ⚠️ Requires valid API credentials
-- ⚠️ Currently non-functional (401 Unauthorized)
+- Requires valid API credentials
+- Currently non-functional (401 Unauthorized)
 - CSV format in bronze/twitter
 
-## 📊 Extraction Statistics
+## Extraction Statistics
 
 The `_summary.json` files contain:
 - Total number of posts/tweets
@@ -393,7 +393,7 @@ The `_summary.json` files contain:
 - Average score
 - Total comments
 
-## 🔧 Dependencies
+## Dependencies
 
 ```
 tweepy                      # Twitter API (if functional)
@@ -403,7 +403,7 @@ pandas                      # Data processing
 python-dotenv               # Configuration
 ```
 
-## 🔄 Checkpoint System
+## Checkpoint System
 
 The checkpoint system ensures idempotent extractions:
 
@@ -424,7 +424,7 @@ Progress: 25 posts processed
 [OK] Checkpoint saved: 165 total posts tracked
 ```
 
-## 📅 Date Partitioning
+## Date Partitioning
 
 Data is partitioned using Hive-style partitioning:
 
@@ -444,7 +444,7 @@ extractor.save_to_bronze(df, 'reddit_posts', execution_date=datetime(2025, 10, 2
 # Creates: data/bronze/reddit/year=2025/month=10/day=27/reddit_posts_*.csv
 ```
 
-## 🔁 Automatic Retry Logic
+## Automatic Retry Logic
 
 The extractor implements automatic retry with exponential backoff for recoverable errors:
 
@@ -461,15 +461,15 @@ Attempt 4: Wait 8 seconds (2^2)
 ```
 
 **When Retries Happen**:
-- ✅ Rate limit errors
-- ✅ Network/connection issues
-- ✅ Server errors (5xx)
-- ✅ Temporary Reddit API failures
+- Rate limit errors
+- Network/connection issues
+- Server errors (5xx)
+- Temporary Reddit API failures
 
 **When Retries DON'T Happen**:
-- ❌ Configuration errors (missing credentials)
-- ❌ Authentication failures
-- ❌ Data validation errors
+- Configuration errors (missing credentials)
+- Authentication failures
+- Data validation errors
 
 **Example Log Output**:
 ```
@@ -480,7 +480,7 @@ Attempt 4: Wait 8 seconds (2^2)
 [OK] Fetched 100 posts/comments in 15.23 seconds
 ```
 
-## ⚠️ Error Handling
+## Error Handling
 
 Custom exceptions help distinguish between fatal and recoverable errors:
 
@@ -525,7 +525,7 @@ RedditAPIError: Reddit API returned error: 429 Too Many Requests
 RedditValidationError: Missing required columns: ['submission_id', 'created_utc']
 ```
 
-## ✅ Schema Validation
+## Schema Validation
 
 Data is validated before saving to bronze layer using `RedditDataValidator`:
 
@@ -558,7 +558,7 @@ Data is validated before saving to bronze layer using `RedditDataValidator`:
 - Provides clear warnings about data problems
 - Prevents corrupted data from entering pipeline
 
-## ⚙️ Centralized Configuration
+## Centralized Configuration
 
 Configuration is managed through `RedditConfig` class:
 
@@ -599,7 +599,7 @@ extractor = RedditExtractor(config)
 - Easy to test with custom configs
 - Airflow DAGs can pass custom configurations
 
-## ⚠️ Limitations
+## Limitations
 
 1. **Twitter API**: Requires paid subscription for API v2 access
 2. **Rate Limits**:
@@ -608,7 +608,7 @@ extractor = RedditExtractor(config)
 3. **Data**: Only recent data available
 4. **Checkpoint**: Uses local JSON file (not distributed)
 
-## 📝 Logs
+## Logs
 
 All operations are logged to:
 - **Console**: Real-time display
@@ -619,42 +619,42 @@ All operations are logged to:
 - `WARNING`: Skipped/failed posts
 - `ERROR`: Critical errors
 
-## 🎯 Next Steps
+## Next Steps
 
-### ✅ Completed
-1. ✅ Reddit extraction operational
-2. ✅ Kaggle dataset download operational
-3. ✅ Date partitioning implemented (Hive-style)
-4. ✅ Checkpoint system implemented (Reddit & Kaggle)
-5. ✅ Modular architecture (models/services separation)
-6. ✅ Centralized configuration (RedditConfig)
-7. ✅ Schema validation (RedditDataValidator)
-8. ✅ Retry logic with exponential backoff
-9. ✅ Custom error handling (Fatal vs Recoverable)
+### Completed
+1. Reddit extraction operational
+2. Kaggle dataset download operational
+3. Date partitioning implemented (Hive-style)
+4. Checkpoint system implemented (Reddit & Kaggle)
+5. Modular architecture (models/services separation)
+6. Centralized configuration (RedditConfig)
+7. Schema validation (RedditDataValidator)
+8. Retry logic with exponential backoff
+9. Custom error handling (Fatal vs Recoverable)
 
-### ⏳ Remaining Tasks
-1. ⏳ Implement Silver layer processing
-2. ⏳ Implement Gold layer enrichment
-3. ⏳ Fix Twitter authentication or find alternative
-4. ⏳ Add more Kaggle datasets
-5. ⏳ Add metrics export for monitoring
-6. ⏳ Create Airflow DAG configuration files
-7. ⏳ Add unit tests for all modules
+### Remaining Tasks
+1. Implement Silver layer processing
+2. Implement Gold layer enrichment
+3. Fix Twitter authentication or find alternative
+4. Add more Kaggle datasets
+5. Add metrics export for monitoring
+6. Create Airflow DAG configuration files
+7. Add unit tests for all modules
 
-## 🚀 Ready for Apache Airflow
+## Ready for Apache Airflow
 
 This extraction service is **production-ready** for Apache Airflow:
 
 ### Core Features
-- ✅ **Idempotent**: Safe to re-run with checkpoint system
-- ✅ **Partitioned**: Date-based partitioning for scheduling
-- ✅ **Logging**: Detailed logs for monitoring
-- ✅ **Execution Date**: Supports custom execution dates
-- ✅ **Configuration**: Centralized config with validation
-- ✅ **Retry Logic**: Automatic retry with exponential backoff
-- ✅ **Error Handling**: Custom exceptions (Fatal vs Recoverable)
-- ✅ **Schema Validation**: Data quality checks before saving
-- ✅ **Modular Design**: Clean separation of concerns
+- **Idempotent**: Safe to re-run with checkpoint system
+- **Partitioned**: Date-based partitioning for scheduling
+- **Logging**: Detailed logs for monitoring
+- **Execution Date**: Supports custom execution dates
+- **Configuration**: Centralized config with validation
+- **Retry Logic**: Automatic retry with exponential backoff
+- **Error Handling**: Custom exceptions (Fatal vs Recoverable)
+- **Schema Validation**: Data quality checks before saving
+- **Modular Design**: Clean separation of concerns
 
 ### Airflow Integration Benefits
 
@@ -683,12 +683,12 @@ extractor.save_to_bronze(df, execution_date=context['execution_date'])
 ```
 
 **What's Still Needed for Airflow**:
-- ⏳ DAG file (`dags/reddit_extraction_dag.py`)
-- ⏳ Airflow operators/tasks definition
-- ⏳ Metrics export for Airflow UI
-- ⏳ Airflow configuration file (`config.yaml`)
+- DAG file (`dags/reddit_extraction_dag.py`)
+- Airflow operators/tasks definition
+- Metrics export for Airflow UI
+- Airflow configuration file (`config.yaml`)
 
-## 👥 Contribution
+## Contribution
 
 Branch: `feature/zakariae-twitter-extraction`
 Phase: Extraction (Bronze layer - Production Ready)
