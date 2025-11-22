@@ -52,6 +52,5 @@ logs/
 extraction.log
 
 # Kaggle data files (large CSV and JSON metadata)
-data/bronze/kaggle/*.csv
-data/bronze/kaggle/*_summary.json
-data/bronze/kaggle/kaggle_downloads_checkpoint.json
+data/bronze/kaggle/
+!data/bronze/kaggle/README*.md
