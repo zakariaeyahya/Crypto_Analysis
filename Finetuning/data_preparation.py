@@ -37,14 +37,14 @@ class DataLoader:
         Returns:
             DataFrame avec les données
         """
-        logger.info(f"📂 Chargement des données depuis: {self.csv_path}")
+        logger.info(f"Chargement des donnees depuis: {self.csv_path}")
         
         if not self.csv_path.exists():
-            raise FileNotFoundError(f"Fichier non trouvé: {self.csv_path}")
+            raise FileNotFoundError(f"Fichier non trouve: {self.csv_path}")
         
         # Si sample_size est défini, charger par chunks et échantillonner
         if self.sample_size:
-            logger.info(f"📊 Échantillonnage de {self.sample_size:,} tweets...")
+            logger.info(f"Echantillonnage de {self.sample_size:,} tweets...")
             
             chunks = []
             total_loaded = 0
@@ -57,18 +57,18 @@ class DataLoader:
                     break
                 
                 if total_loaded % 100000 == 0:
-                    logger.info(f"   Chargé {total_loaded:,} lignes...")
+                    logger.info(f"   Charge {total_loaded:,} lignes...")
             
             # Concaténer et échantillonner
             self.df = pd.concat(chunks, ignore_index=True)
             if len(self.df) > self.sample_size:
                 self.df = self.df.sample(n=self.sample_size, random_state=42).reset_index(drop=True)
-                logger.info(f"✅ Échantillon de {len(self.df):,} tweets créé")
+                logger.info(f"Echantillon de {len(self.df):,} tweets cree")
         else:
             # Charger tout le fichier (attention: peut être très lent pour 3GB)
-            logger.warning("⚠️  Chargement du fichier complet (peut prendre du temps)...")
+            logger.warning("Chargement du fichier complet (peut prendre du temps)...")
             self.df = pd.read_csv(self.csv_path)
-            logger.info(f"✅ {len(self.df):,} tweets chargés")
+            logger.info(f"{len(self.df):,} tweets charges")
         
         return self.df
     
@@ -93,8 +93,8 @@ class DataLoader:
         stats['columns'] = list(self.df.columns)
         stats['missing_values'] = self.df.isnull().sum().to_dict()
         
-        logger.info(f"📊 Total de tweets: {stats['total_records']:,}")
-        logger.info(f"📋 Colonnes: {', '.join(stats['columns'])}")
+        logger.info(f"Total de tweets: {stats['total_records']:,}")
+        logger.info(f"Colonnes: {', '.join(stats['columns'])}")
         
         # Distribution des sentiments
         if 'Sentiment' in self.df.columns:
@@ -102,7 +102,7 @@ class DataLoader:
             stats['sentiment_distribution'] = sentiment_counts.to_dict()
             stats['sentiment_percentages'] = (sentiment_counts / len(self.df) * 100).to_dict()
             
-            logger.info("\n📈 Distribution des sentiments:")
+            logger.info("Distribution des sentiments:")
             for sentiment, count in sentiment_counts.items():
                 percentage = stats['sentiment_percentages'][sentiment]
                 logger.info(f"   {sentiment}: {count:,} ({percentage:.2f}%)")
@@ -119,9 +119,9 @@ class DataLoader:
                 'std': float(text_lengths.std())
             }
             
-            logger.info(f"\n📝 Statistiques sur les textes:")
-            logger.info(f"   Longueur moyenne: {stats['text_length']['mean']:.1f} caractères")
-            logger.info(f"   Longueur médiane: {stats['text_length']['median']:.1f} caractères")
+            logger.info("Statistiques sur les textes:")
+            logger.info(f"   Longueur moyenne: {stats['text_length']['mean']:.1f} caracteres")
+            logger.info(f"   Longueur mediane: {stats['text_length']['median']:.1f} caracteres")
             logger.info(f"   Min: {stats['text_length']['min']}, Max: {stats['text_length']['max']}")
         
         # Distribution temporelle (si Date disponible)
@@ -132,9 +132,9 @@ class DataLoader:
                     'start': str(self.df['Date'].min()),
                     'end': str(self.df['Date'].max())
                 }
-                logger.info(f"\n📅 Période: {stats['date_range']['start']} à {stats['date_range']['end']}")
+                logger.info(f"Periode: {stats['date_range']['start']} a {stats['date_range']['end']}")
             except:
-                logger.warning("⚠️  Impossible de parser les dates")
+                logger.warning("Impossible de parser les dates")
         
         logger.info("=" * 60)
         
@@ -182,5 +182,5 @@ if __name__ == "__main__":
     df = loader.load_data(chunk_size=data_config.get('chunk_size', 10000))
     stats = loader.analyze_data()
     
-    print(f"\n✅ Données chargées: {len(df):,} tweets")
+    logger.info(f"Donnees chargees: {len(df):,} tweets")
 

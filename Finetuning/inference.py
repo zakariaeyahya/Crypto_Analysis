@@ -81,13 +81,13 @@ class SentimentPredictor:
                     # Format simple: {"Negative": 0, "Positive": 1}
                     self.label_encoder.label_mapping = label_data
                     self.label_encoder.reverse_mapping = {v: k for k, v in label_data.items()}
-            logger.info(f"✅ Label mapping chargé depuis: {label_mapping_path}")
+            logger.info(f"Label mapping charge depuis: {label_mapping_path}")
         else:
-            logger.warning("⚠️  Label mapping non trouvé, utilisation des indices par défaut")
+            logger.warning("Label mapping non trouve, utilisation des indices par defaut")
             self.label_encoder = None
         
-        logger.info(f"✅ Modèle chargé depuis: {self.model_path}")
-        logger.info(f"✅ Prêt pour l'inférence sur device: {self.model_wrapper.device}")
+        logger.info(f"Modele charge depuis: {self.model_path}")
+        logger.info(f"Pret pour l'inference sur device: {self.model_wrapper.device}")
     
     def predict(self, text: str, return_proba: bool = False) -> Union[str, dict]:
         """
@@ -253,21 +253,21 @@ if __name__ == "__main__":
     
     # Exemples de prédictions
     test_tweets = [
-        "Bitcoin is going to the moon! 🚀🚀🚀",
+        "Bitcoin is going to the moon!",
         "I lost all my money in crypto, this is terrible",
         "Bitcoin price is stable today",
         "Crypto market is crashing, sell everything!",
         "Just bought some BTC, feeling optimistic"
     ]
     
-    print("\n" + "=" * 60)
-    print("EXEMPLES DE PRÉDICTIONS")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("EXEMPLES DE PREDICTIONS")
+    logger.info("=" * 60)
     
     for tweet in test_tweets:
         result = predictor.predict(tweet, return_proba=True)
-        print(f"\nTweet: {tweet}")
-        print(f"Sentiment: {result['label']}")
-        print(f"Confidence: {result['confidence']:.2%}")
-        print(f"Probabilités: {result['probabilities']}")
+        logger.info(f"Tweet: {tweet}")
+        logger.info(f"Sentiment: {result['label']}")
+        logger.info(f"Confidence: {result['confidence']:.2%}")
+        logger.info(f"Probabilites: {result['probabilities']}")
 
