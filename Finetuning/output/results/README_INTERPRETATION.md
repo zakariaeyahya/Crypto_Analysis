@@ -1,21 +1,21 @@
-# 📊 Interprétation des Résultats du Fine-tuning RoBERTa
+# 📊 RoBERTa Fine-tuning Results Interpretation
 
-Ce document présente une analyse détaillée des résultats obtenus lors du fine-tuning du modèle RoBERTa pour l'analyse de sentiment des tweets Bitcoin.
+This document presents a detailed analysis of the results obtained during fine-tuning of the RoBERTa model for Bitcoin tweet sentiment analysis.
 
-## 📋 Vue d'ensemble
+## 📋 Overview
 
-- **Modèle** : RoBERTa (RobertaForSequenceClassification)
-- **Dataset** : ~397,516 tweets Bitcoin
-- **Classes** : 2 classes (Negative, Positive)
-- **Nombre d'epochs** : 8
-- **Temps d'entraînement** : ~8.8 heures (31,722 secondes)
+- **Model**: RoBERTa (RobertaForSequenceClassification)
+- **Dataset**: ~397,516 Bitcoin tweets
+- **Classes**: 2 classes (Negative, Positive)
+- **Number of epochs**: 8
+- **Training time**: ~8.8 hours (31,722 seconds)
 
-## 📈 Métriques d'entraînement
+## 📈 Training Metrics
 
-### Évolution de la Loss
+### Loss Evolution
 
 #### Training Loss
-La loss d'entraînement diminue régulièrement de **0.538** (epoch 1) à **0.292** (epoch 8), indiquant que le modèle apprend progressivement à classifier les sentiments.
+Training loss decreases steadily from **0.538** (epoch 1) to **0.292** (epoch 8), indicating that the model is progressively learning to classify sentiments.
 
 | Epoch | Training Loss |
 |-------|---------------|
@@ -28,10 +28,10 @@ La loss d'entraînement diminue régulièrement de **0.538** (epoch 1) à **0.29
 | 7     | 0.305         |
 | 8     | 0.292         |
 
-**Interprétation** : La diminution constante de la loss d'entraînement montre que le modèle continue d'apprendre. Cependant, la perte de validation augmente après l'epoch 2, ce qui suggère un début d'overfitting.
+**Interpretation**: The constant decrease in training loss shows that the model continues to learn. However, validation loss increases after epoch 2, suggesting the beginning of overfitting.
 
 #### Validation Loss
-La loss de validation présente une évolution plus irrégulière :
+Validation loss shows a more irregular evolution:
 
 | Epoch | Validation Loss |
 |-------|-----------------|
@@ -44,14 +44,14 @@ La loss de validation présente une évolution plus irrégulière :
 | 7     | 0.777 ⬆️        |
 | 8     | 0.770 ⬇️        |
 
-**Interprétation** : 
-- La validation loss augmente globalement après l'epoch 2, ce qui indique un **overfitting**.
-- Le meilleur modèle aurait probablement été obtenu à l'epoch 3 (validation loss = 0.627).
-- L'écart croissant entre training loss et validation loss confirme l'overfitting.
+**Interpretation**: 
+- Validation loss increases overall after epoch 2, indicating **overfitting**.
+- The best model would likely have been obtained at epoch 3 (validation loss = 0.627).
+- The growing gap between training loss and validation loss confirms overfitting.
 
-### Évolution de l'Accuracy
+### Accuracy Evolution
 
-L'accuracy de validation s'améliore progressivement :
+Validation accuracy improves progressively:
 
 | Epoch | Validation Accuracy |
 |-------|---------------------|
@@ -64,14 +64,14 @@ L'accuracy de validation s'améliore progressivement :
 | 7     | 69.9%               |
 | 8     | **70.1%**          |
 
-**Interprétation** :
-- L'accuracy augmente de manière constante, passant de 56.1% à 70.1%.
-- L'amélioration ralentit après l'epoch 3, suggérant que le modèle atteint un plateau.
-- L'accuracy finale de **70.1%** est acceptable mais pourrait être améliorée.
+**Interpretation**:
+- Accuracy increases steadily, from 56.1% to 70.1%.
+- Improvement slows after epoch 3, suggesting the model reaches a plateau.
+- Final accuracy of **70.1%** is acceptable but could be improved.
 
-### Évolution du F1-Score
+### F1-Score Evolution
 
-Le F1-score macro suit une évolution similaire à l'accuracy :
+Macro F1-score follows a similar evolution to accuracy:
 
 | Epoch | Validation F1-Score |
 |-------|---------------------|
@@ -84,113 +84,112 @@ Le F1-score macro suit une évolution similaire à l'accuracy :
 | 7     | 0.684               |
 | 8     | **0.686**          |
 
-**Interprétation** :
-- Le F1-score final de **0.686** est légèrement en dessous de l'objectif de 0.70.
-- L'amélioration ralentit significativement après l'epoch 3.
-- Le meilleur F1-score est atteint à l'epoch 8 : **0.686**.
+**Interpretation**:
+- Final F1-score of **0.686** is slightly below the target of 0.70.
+- Improvement slows significantly after epoch 3.
+- Best F1-score is reached at epoch 8: **0.686**.
 
-## 🎯 Résultats finaux
+## 🎯 Final Results
 
-### Métriques principales
+### Main Metrics
 
-- **Meilleur F1-Score (validation)** : **0.686** (68.6%)
-- **Accuracy finale (validation)** : **70.1%**
-- **Training Loss finale** : 0.292
-- **Validation Loss finale** : 0.770
+- **Best F1-Score (validation)**: **0.686** (68.6%)
+- **Final Accuracy (validation)**: **70.1%**
+- **Final Training Loss**: 0.292
+- **Final Validation Loss**: 0.770
 
-### Comparaison avec les objectifs
+### Comparison with Objectives
 
-| Métrique | Objectif | Atteint | Statut |
-|----------|----------|---------|--------|
-| Accuracy | > 75% | 70.1% | ⚠️ En dessous |
-| F1-Score macro | > 0.70 | 0.686 | ⚠️ Légèrement en dessous |
-| F1-Score par classe | > 0.65 | À vérifier | ⏳ À analyser |
+| Metric | Target | Achieved | Status |
+|--------|--------|----------|--------|
+| Accuracy | > 75% | 70.1% | ⚠️ Below target |
+| F1-Score macro | > 0.70 | 0.686 | ⚠️ Slightly below |
+| F1-Score per class | > 0.65 | To verify | ⏳ To analyze |
 
-## 🔍 Analyse des performances
+## 🔍 Performance Analysis
 
-### Points positifs ✅
+### Positive Points ✅
 
-1. **Amélioration constante** : Le modèle s'améliore régulièrement sur les métriques d'accuracy et F1-score.
-2. **Convergence** : Le modèle converge vers une solution stable.
-3. **Performance acceptable** : 70.1% d'accuracy et 68.6% de F1-score sont des résultats raisonnables pour une classification binaire de sentiment.
+1. **Constant improvement**: Model improves regularly on accuracy and F1-score metrics.
+2. **Convergence**: Model converges to a stable solution.
+3. **Acceptable performance**: 70.1% accuracy and 68.6% F1-score are reasonable results for binary sentiment classification.
 
-### Points d'amélioration ⚠️
+### Improvement Points ⚠️
 
-1. **Overfitting** : 
-   - La validation loss augmente après l'epoch 2-3.
-   - L'écart entre training loss et validation loss s'agrandit.
-   - **Recommandation** : Utiliser early stopping ou régularisation plus forte.
+1. **Overfitting**: 
+   - Validation loss increases after epoch 2-3.
+   - Gap between training loss and validation loss widens.
+   - **Recommendation**: Use early stopping or stronger regularization.
 
-2. **Performance sous les objectifs** :
-   - L'accuracy (70.1%) est en dessous de l'objectif de 75%.
-   - Le F1-score (0.686) est légèrement en dessous de 0.70.
-   - **Recommandation** : Tester différents hyperparamètres, augmenter la taille du dataset, ou essayer data augmentation.
+2. **Performance below objectives**:
+   - Accuracy (70.1%) is below the 75% target.
+   - F1-score (0.686) is slightly below 0.70.
+   - **Recommendation**: Test different hyperparameters, increase dataset size, or try data augmentation.
 
-3. **Optimisation des epochs** :
-   - Le meilleur modèle aurait pu être obtenu plus tôt (epoch 3).
-   - **Recommandation** : Implémenter early stopping basé sur validation loss.
+3. **Epoch optimization**:
+   - Best model could have been obtained earlier (epoch 3).
+   - **Recommendation**: Implement early stopping based on validation loss.
 
-## 📊 Visualisations disponibles
+## 📊 Available Visualizations
 
-Les fichiers suivants sont disponibles dans ce dossier :
+The following files are available in this directory:
 
-- **`training_curves.png`** : Courbes d'évolution de la loss, accuracy et F1-score
-- **`confusion_matrix.png`** : Matrice de confusion sur le test set
-- **`training_metrics.json`** : Métriques détaillées au format JSON
+- **`training_curves.png`**: Evolution curves of loss, accuracy and F1-score
+- **`confusion_matrix.png`**: Confusion matrix on test set
+- **`training_metrics.json`**: Detailed metrics in JSON format
 
-## 🔧 Recommandations pour améliorer les performances
+## 🔧 Recommendations to Improve Performance
 
-### 1. Gestion de l'overfitting
+### 1. Overfitting Management
 
-- **Early stopping** : Arrêter l'entraînement quand la validation loss cesse de diminuer.
-- **Dropout** : Augmenter le taux de dropout (actuellement 0.1).
-- **Weight decay** : Augmenter le weight decay pour plus de régularisation.
-- **Data augmentation** : Paraphrase, back-translation, ou synonym replacement.
+- **Early stopping**: Stop training when validation loss stops decreasing.
+- **Dropout**: Increase dropout rate (currently 0.1).
+- **Weight decay**: Increase weight decay for more regularization.
+- **Data augmentation**: Paraphrase, back-translation, or synonym replacement.
 
-### 2. Optimisation des hyperparamètres
+### 2. Hyperparameter Optimization
 
-- **Learning rate** : Tester des learning rates plus faibles (1e-5) ou utiliser un scheduler adaptatif.
-- **Batch size** : Tester différentes tailles de batch.
-- **Max length** : Analyser si 128 tokens est optimal pour les tweets.
+- **Learning rate**: Test lower learning rates (1e-5) or use adaptive scheduler.
+- **Batch size**: Test different batch sizes.
+- **Max length**: Analyze if 128 tokens is optimal for tweets.
 
-### 3. Amélioration des données
+### 3. Data Improvement
 
-- **Plus de données** : Utiliser un échantillon plus large du dataset complet.
-- **Équilibrage des classes** : Vérifier et corriger le déséquilibre si présent.
-- **Nettoyage** : Améliorer le preprocessing des textes.
+- **More data**: Use a larger sample from the complete dataset.
+- **Class balancing**: Check and correct imbalance if present.
+- **Cleaning**: Improve text preprocessing.
 
-### 4. Architecture du modèle
+### 4. Model Architecture
 
-- **Modèle plus grand** : Tester `roberta-large` si les ressources le permettent.
-- **Modèle spécialisé** : Utiliser `cardiffnlp/twitter-roberta-base-sentiment` qui est pré-entraîné sur Twitter.
+- **Larger model**: Test `roberta-large` if resources allow.
+- **Specialized model**: Use `cardiffnlp/twitter-roberta-base-sentiment` which is pre-trained on Twitter.
 
-## 📁 Fichiers de résultats
+## 📁 Result Files
 
-### Modèles sauvegardés
+### Saved Models
 
-- **`../models/best_model/`** : Meilleur modèle basé sur validation F1-score
-- **`../models/final_model/`** : Modèle final après 8 epochs
-- **`../models/label_mapping.json`** : Mapping des labels (Negative: 0, Positive: 1)
+- **`../models/best_model/`**: Best model based on validation F1-score
+- **`../models/final_model/`**: Final model after 8 epochs
+- **`../models/label_mapping.json`**: Label mapping (Negative: 0, Positive: 1)
 
-### Splits de données
+### Data Splits
 
-- **`train_split.csv`** : Dataset d'entraînement (~397k tweets)
-- **`val_split.csv`** : Dataset de validation
-- **`test_split.csv`** : Dataset de test
+- **`train_split.csv`**: Training dataset (~397k tweets)
+- **`val_split.csv`**: Validation dataset
+- **`test_split.csv`**: Test dataset
 
 ## 🎓 Conclusion
 
-Le modèle RoBERTa fine-tuné atteint des performances **acceptables** avec :
-- **70.1% d'accuracy**
-- **68.6% de F1-score macro**
+The fine-tuned RoBERTa model achieves **acceptable** performance with:
+- **70.1% accuracy**
+- **68.6% macro F1-score**
 
-Cependant, il y a des signes d'**overfitting** et les performances sont **légèrement en dessous des objectifs**. Les recommandations ci-dessus peuvent aider à améliorer les résultats.
+However, there are signs of **overfitting** and performance is **slightly below objectives**. The recommendations above can help improve results.
 
-Le modèle est **utilisable en production** pour une classification basique de sentiment, mais des améliorations sont possibles avec les optimisations suggérées.
+The model is **usable in production** for basic sentiment classification, but improvements are possible with the suggested optimizations.
 
 ---
 
-**Date de génération** : Résultats obtenus après l'exécution de `roberta-1-1.ipynb`  
-**Modèle de base** : RoBERTa (RobertaForSequenceClassification)  
-**Configuration** : Voir `../models/best_model/config.json`
-
+**Generation date**: Results obtained after execution of `roberta-1-1.ipynb`  
+**Base model**: RoBERTa (RobertaForSequenceClassification)  
+**Configuration**: See `../models/best_model/config.json`

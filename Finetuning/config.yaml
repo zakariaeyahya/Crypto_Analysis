@@ -1,34 +1,34 @@
-# Configuration pour le fine-tuning de RoBERTa sur sentiment analysis
+# Configuration for RoBERTa fine-tuning on sentiment analysis
 model:
-  name: "cardiffnlp/twitter-roberta-base-sentiment"  # Modèle pré-entraîné sur Twitter
+  name: "cardiffnlp/twitter-roberta-base-sentiment"  # Pre-trained model on Twitter
   num_labels: 3
-  max_length: 64  # Réduit au minimum pour 2GB GPU
-  freeze_layers: true  # Geler les premières couches pour économiser VRAM
+  max_length: 64  # Reduced to minimum for 2GB GPU
+  freeze_layers: true  # Freeze first layers to save VRAM
 
 data:
   csv_path: "../data/bronze/kaggle/bitcoin_tweets_20251119_165829.csv"
-  sample_size: 1000000  # Nombre de tweets à utiliser (ajuster selon ressources)
+  sample_size: 1000000  # Number of tweets to use (adjust according to resources)
   train_split: 0.8
   val_split: 0.1
   test_split: 0.1
   stratify: true
-  chunk_size: 10000  # Pour le chargement par chunks
+  chunk_size: 10000  # For chunk-based loading
 
 preprocessing:
   remove_urls: true
-  handle_mentions: true  # Garder @user
-  handle_hashtags: true  # Garder texte, enlever #
+  handle_mentions: true  # Keep @user
+  handle_hashtags: true  # Keep text, remove #
   normalize_spaces: true
   handle_emojis: "keep"  # Options: keep, remove, convert
 
 training:
-  batch_size: 2  # Minimum pour GTX 1050 (2GB VRAM)
-  learning_rate: 0.00002  # 2e-5 en notation décimale
+  batch_size: 2  # Minimum for GTX 1050 (2GB VRAM)
+  learning_rate: 0.00002  # 2e-5 in decimal notation
   num_epochs: 5
   warmup_steps: 1000
   weight_decay: 0.01
   max_grad_norm: 1.0
-  gradient_accumulation_steps: 16  # Simule batch_size=32 (2x16=32)
+  gradient_accumulation_steps: 16  # Simulates batch_size=32 (2x16=32)
   use_fp16: true  # Mixed precision training
   early_stopping:
     enabled: true
@@ -36,7 +36,7 @@ training:
     monitor: "val_f1"
   
   # GPU/CUDA settings
-  device: "cuda"  # Utiliser CUDA si disponible
+  device: "cuda"  # Use CUDA if available
   use_cuda: true
 
 evaluation:
@@ -52,9 +52,9 @@ paths:
   model_save_name: "roberta-bitcoin-sentiment"
 
 logging:
-  use_wandb: false  # Mettre à true si vous avez un compte wandb
+  use_wandb: false  # Set to true if you have a wandb account
   use_tensorboard: true
-  log_interval: 100  # Logger toutes les N steps
+  log_interval: 100  # Log every N steps
 
 reproducibility:
   seed: 42

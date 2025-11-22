@@ -1,5 +1,5 @@
 """
-Évaluation du modèle fine-tuné
+Evaluation of fine-tuned model
 """
 import torch
 import pandas as pd
@@ -22,31 +22,31 @@ logger = logging.getLogger(__name__)
 
 
 class ModelEvaluator:
-    """Classe pour évaluer le modèle fine-tuné"""
+    """Class to evaluate fine-tuned model"""
     
     def __init__(self, model_path: str, tokenizer_path: str = None, use_cuda: bool = True):
         """
-        Initialiser l'évaluateur
+        Initialize evaluator
         
         Args:
-            model_path: Chemin vers le modèle sauvegardé
-            tokenizer_path: Chemin vers le tokenizer (si différent du modèle)
-            use_cuda: Utiliser CUDA si disponible
+            model_path: Path to saved model
+            tokenizer_path: Path to tokenizer (if different from model)
+            use_cuda: Use CUDA if available
         """
         self.model_path = Path(model_path)
         self.tokenizer_path = Path(tokenizer_path) if tokenizer_path else self.model_path
         
-        # Charger le modèle
+        # Load model
         self.model_wrapper = RobertaModelConfig(use_cuda=use_cuda)
         self.model_wrapper.load_tokenizer()
         
-        # Charger le modèle depuis le checkpoint ou directement
+        # Load model from checkpoint or directly
         if (self.model_path / "pytorch_model.bin").exists() or (self.model_path / "model.safetensors").exists():
-            # Modèle sauvegardé avec save_pretrained
+            # Model saved with save_pretrained
             from transformers import RobertaForSequenceClassification
             self.model = RobertaForSequenceClassification.from_pretrained(str(self.model_path))
         else:
-            # Charger depuis checkpoint
+            # Load from checkpoint
             checkpoint = torch.load(self.model_path, map_location=self.model_wrapper.device)
             self.model = self.model_wrapper.load_model()
             self.model.load_state_dict(checkpoint['model_state_dict'])
@@ -54,26 +54,26 @@ class ModelEvaluator:
         self.model = self.model.to(self.model_wrapper.device)
         self.model.eval()
         
-        logger.info(f"✅ Modèle chargé depuis: {self.model_path}")
+        logger.info(f"Model loaded from: {self.model_path}")
     
     def evaluate(self, test_df: pd.DataFrame, label_encoder: LabelEncoderWrapper, 
                  batch_size: int = 32) -> Dict[str, Any]:
         """
-        Évaluer le modèle sur le test set
+        Evaluate model on test set
         
         Args:
-            test_df: DataFrame avec les données de test
-            label_encoder: LabelEncoderWrapper pour décoder les labels
-            batch_size: Taille des batches
+            test_df: DataFrame with test data
+            label_encoder: LabelEncoderWrapper to decode labels
+            batch_size: Batch size
             
         Returns:
-            Dictionnaire avec toutes les métriques
+            Dictionary with all metrics
         """
         logger.info("=" * 60)
-        logger.info("ÉVALUATION DU MODÈLE")
+        logger.info("MODEL EVALUATION")
         logger.info("=" * 60)
         
-        # Créer le dataset et dataloader
+        # Create dataset and dataloader
         test_dataset = TweetDataset(
             texts=test_df['text'].tolist(),
             labels=test_df['label_encoded'].tolist(),
@@ -88,11 +88,11 @@ class ModelEvaluator:
             num_workers=0
         )
         
-        # Prédictions
+        # Predictions
         predictions = []
         true_labels = []
         
-        logger.info("🔮 Génération des prédictions...")
+        logger.info("Generating predictions...")
         with torch.no_grad():
             for batch in test_loader:
                 input_ids = batch['input_ids'].to(self.model_wrapper.device)
@@ -106,8 +106,8 @@ class ModelEvaluator:
                 predictions.extend(preds.cpu().numpy())
                 true_labels.extend(labels.numpy())
         
-        # Calculer les métriques
-        logger.info("📊 Calcul des métriques...")
+        # Calculate metrics
+        logger.info("Calculating metrics...")
         
         accuracy = accuracy_score(true_labels, predictions)
         f1_macro = f1_score(true_labels, predictions, average='macro')
@@ -122,7 +122,7 @@ class ModelEvaluator:
         recall_weighted = recall_score(true_labels, predictions, average='weighted')
         recall_per_class = recall_score(true_labels, predictions, average=None)
         
-        # Matrice de confusion
+        # Confusion matrix
         cm = confusion_matrix(true_labels, predictions)
         
         # Classification report
@@ -133,7 +133,7 @@ class ModelEvaluator:
             output_dict=True
         )
         
-        # Résultats
+        # Results
         results = {
             'accuracy': float(accuracy),
             'f1_macro': float(f1_macro),
@@ -150,24 +150,24 @@ class ModelEvaluator:
             'class_names': class_names.tolist()
         }
         
-        # Afficher les résultats
+        # Display results
         logger.info("\n" + "=" * 60)
-        logger.info("RÉSULTATS D'ÉVALUATION")
+        logger.info("EVALUATION RESULTS")
         logger.info("=" * 60)
-        logger.info(f"📊 Accuracy: {accuracy:.4f}")
-        logger.info(f"📊 F1-Score (macro): {f1_macro:.4f}")
-        logger.info(f"📊 F1-Score (weighted): {f1_weighted:.4f}")
-        logger.info(f"📊 Precision (macro): {precision_macro:.4f}")
-        logger.info(f"📊 Recall (macro): {recall_macro:.4f}")
+        logger.info(f"Accuracy: {accuracy:.4f}")
+        logger.info(f"F1-Score (macro): {f1_macro:.4f}")
+        logger.info(f"F1-Score (weighted): {f1_weighted:.4f}")
+        logger.info(f"Precision (macro): {precision_macro:.4f}")
+        logger.info(f"Recall (macro): {recall_macro:.4f}")
         
-        logger.info("\n📈 Métriques par classe:")
+        logger.info("\nMetrics per class:")
         for i, class_name in enumerate(class_names):
             logger.info(f"   {class_name}:")
             logger.info(f"      F1: {f1_per_class[i]:.4f}")
             logger.info(f"      Precision: {precision_per_class[i]:.4f}")
             logger.info(f"      Recall: {recall_per_class[i]:.4f}")
         
-        logger.info("\n📋 Classification Report:")
+        logger.info("\nClassification Report:")
         logger.info(classification_report(true_labels, predictions, target_names=class_names))
         
         logger.info("=" * 60)
@@ -176,11 +176,11 @@ class ModelEvaluator:
     
     def save_results(self, results: Dict[str, Any], save_path: str):
         """
-        Sauvegarder les résultats d'évaluation
+        Save evaluation results
         
         Args:
-            results: Dictionnaire avec les résultats
-            save_path: Chemin où sauvegarder
+            results: Dictionary with results
+            save_path: Path where to save
         """
         save_path = Path(save_path)
         save_path.parent.mkdir(parents=True, exist_ok=True)
@@ -188,7 +188,7 @@ class ModelEvaluator:
         with open(save_path, 'w', encoding='utf-8') as f:
             json.dump(results, f, indent=2, ensure_ascii=False)
         
-        logger.info(f"💾 Résultats sauvegardés: {save_path}")
+        logger.info(f"Results saved: {save_path}")
 
 
 if __name__ == "__main__":
@@ -207,10 +207,10 @@ if __name__ == "__main__":
     # Charger la configuration
     config = load_config()
     
-    # Charger les données de test
+    # Load test data
     test_df = pd.read_csv(f"{config['paths']['results_dir']}/test_split.csv")
     
-    # Préprocessing (même que pour l'entraînement)
+    # Preprocessing (same as for training)
     preprocessor = TextPreprocessor(
         remove_urls=config['preprocessing']['remove_urls'],
         handle_mentions=config['preprocessing']['handle_mentions'],
@@ -221,18 +221,18 @@ if __name__ == "__main__":
     
     test_df = preprocessor.preprocess_dataframe(test_df, text_column='text')
     
-    # Encoder les labels (doit correspondre à l'entraînement)
+    # Encode labels (must match training)
     label_encoder = LabelEncoderWrapper()
     label_encoder.fit(test_df['Sentiment'])
     test_df['label_encoded'] = label_encoder.transform(test_df['Sentiment'])
     
-    # Évaluer
+    # Evaluate
     model_path = f"{config['paths']['models_dir']}/{config['paths']['model_save_name']}"
     evaluator = ModelEvaluator(model_path, use_cuda=config['training']['use_cuda'])
     
     results = evaluator.evaluate(test_df, label_encoder, batch_size=config['training']['batch_size'])
     
-    # Sauvegarder
+    # Save
     results_path = f"{config['paths']['results_dir']}/evaluation_results.json"
     evaluator.save_results(results, results_path)
 
