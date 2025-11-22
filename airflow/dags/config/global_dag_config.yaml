@@ -1,0 +1,63 @@
+# Configuration globale pour tous les DAGs
+default_args:
+  owner: 'crypto-team'
+  depends_on_past: false
+  email_on_failure: true
+  email_on_retry: false
+  email: ['crypto-alerts@example.com']
+  retries: 2
+  retry_delay_minutes: 5
+  retry_exponential_backoff: true
+  max_retry_delay_minutes: 60
+  execution_timeout_minutes: 30
+
+# Configuration des pools Airflow
+pools:
+  extraction_pool:
+    slots: 2
+    description: 'Pool for extraction tasks'
+
+  processing_pool:
+    slots: 3
+    description: 'Pool for data processing tasks'
+
+  analysis_pool:
+    slots: 1
+    description: 'Pool for analysis tasks'
+
+# Configuration des connexions
+connections:
+  reddit_api:
+    conn_type: 'http'
+    host: 'https://www.reddit.com'
+
+  kaggle_api:
+    conn_type: 'http'
+    host: 'https://www.kaggle.com'
+
+# Alerting configuration
+alerts:
+  slack_webhook: '${SLACK_WEBHOOK_URL}'
+  email_recipients:
+    - 'team@example.com'
+
+  thresholds:
+    max_extraction_failures: 3
+    max_cleaning_removal_rate: 0.25  # 25%
+    min_records_per_day: 100
+
+# Monitoring metrics
+metrics:
+  track_execution_time: true
+  track_data_volume: true
+  track_data_quality: true
+  push_to_prometheus: false  # À activer si Prometheus disponible
+
+# Data sources configuration
+data_sources:
+  kaggle:
+    enabled: false  # Kaggle download NOT managed by Airflow
+    data_path: 'data/bronze/kaggle'
+    auto_detect: true  # Automatic detection during consolidation
+
+
