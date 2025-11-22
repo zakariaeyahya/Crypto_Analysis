@@ -4,9 +4,14 @@ from datetime import datetime, timedelta
 from pathlib import Path
 import yaml
 import logging
+import sys
 
 from extraction.models import RedditConfig
 from extraction.services.reddit_extractor import RedditExtractor
+
+# Add scripts directory to path for GitHub push module
+sys.path.insert(0, '/opt/airflow/scripts')
+from push_to_github import push_data_to_github
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -31,6 +36,18 @@ def extract_reddit_data(**context):
     extractor.save_to_bronze(df, 'reddit_posts', execution_date=current_date)
     logger.info("Reddit data extraction completed successfully")
     return {'posts_extracted': len(df)}
+
+
+def push_data_to_git(**context):
+    """Push extracted data to GitHub"""
+    logger.info("Starting GitHub auto-push...")
+    try:
+        push_data_to_github()
+        logger.info("Data pushed to GitHub successfully")
+    except Exception as e:
+        logger.error(f"Failed to push to GitHub: {e}")
+        # Don't fail the DAG if push fails - extraction already succeeded
+        logger.warning("Continuing despite push failure")
 
 
 # Load and validate YAML configuration
@@ -105,3 +122,12 @@ with DAG(
         python_callable=extract_reddit_data,
         provide_context=True
     )
+
+    push_task = PythonOperator(
+        task_id='push_to_github',
+        python_callable=push_data_to_git,
+        provide_context=True
+    )
+
+    # Define task dependencies: extract first, then push
+    extract_task >> push_task

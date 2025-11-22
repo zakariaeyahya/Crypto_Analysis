@@ -52,6 +52,13 @@ logs/
 extraction.log
 
 # Kaggle data files (large CSV and JSON metadata)
+data/bronze/kaggle/
+!data/bronze/kaggle/README*.md
 data/bronze/kaggle/*.csv
 data/bronze/kaggle/*_summary.json
 data/bronze/kaggle/kaggle_downloads_checkpoint.json
+
+# Airflow documentation files
+airflow/DEPLOYMENT_GUIDE.md
+airflow/GITHUB_AUTO_PUSH_SETUP.md
+airflow/README_AIRFLOW.md
