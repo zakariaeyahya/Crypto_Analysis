@@ -1,8 +1,8 @@
 {
-  "total_rows": 100,
-  "extraction_date": "2025-11-22T16:56:05.492345",
+  "total_rows": 16,
+  "extraction_date": "2025-11-24T12:47:51.149951",
   "file_location": "data/bronze/reddit/year=2025/month=11/day=22/reddit_posts_20251122.csv",
-  "unique_submissions": 100,
-  "average_score": 255.87,
+  "unique_submissions": 0,
+  "average_score": 0,
   "total_comments": 0
 }

@@ -1,16 +1,16 @@
 {
   "metadata": {
-    "generated_at": "2025-11-02T20:53:32.980937",
-    "input_file": "D:\\bureau\\BD_AI1\\ci3\\taln\\Crypto\\Crypto_Analysis\\data_consolidation\\outputs\\master_dataset.csv",
-    "output_file": "D:\\bureau\\BD_AI1\\ci3\\taln\\Crypto\\Crypto_Analysis\\data\\silver\\reddit\\cleaned_reddit_dataset.csv",
-    "checkpoint_file": "D:\\bureau\\BD_AI1\\ci3\\taln\\Crypto\\Crypto_Analysis\\data\\silver\\reddit\\checkpoint.json"
+    "generated_at": "2025-11-24T18:18:27.278505",
+    "input_file": "/opt/airflow/data_consolidation/outputs/master_dataset.csv",
+    "output_file": "/opt/airflow/data/silver/reddit/cleaned_reddit_dataset.csv",
+    "checkpoint_file": "/opt/airflow/data/silver/reddit/checkpoint.json"
   },
   "processing_stats": {
     "this_run": {
-      "new_rows_processed": 28731,
-      "rows_after_cleaning": 27138,
+      "new_rows_processed": 1593,
+      "rows_after_cleaning": 0,
       "rows_removed": 1593,
-      "removal_rate_percent": 5.54,
+      "removal_rate_percent": 100.0,
       "breakdown": {
         "invalid_dates": 0,
         "missing_critical_fields": 0,
@@ -24,10 +24,10 @@
     },
     "cumulative": {
       "total_processed_ids": 27137,
-      "total_rows_in_output": 27138,
+      "total_rows_in_output": 27137,
       "unique_authors": 12802,
-      "unique_subreddits": 16,
-      "posts_count": 2225,
+      "unique_subreddits": 15,
+      "posts_count": 2224,
       "comments_count": 24913
     }
   },
@@ -37,10 +37,10 @@
       "max": "2025-11-01 14:23:34"
     },
     "text_statistics": {
-      "avg_length": 155.6,
+      "avg_length": 155.5,
       "min_length": 10,
       "max_length": 24298
     },
-    "memory_usage_mb": 17.27
+    "memory_usage_mb": 19.23
   }
 }

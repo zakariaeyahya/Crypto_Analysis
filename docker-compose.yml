@@ -2,6 +2,8 @@ services:
   # ==========================================================================
   # ==========================================================================
   postgres:
+    networks:
+      - airflow-network
     image: postgres:13
     container_name: crypto_airflow_postgres
     environment:
@@ -33,6 +35,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - airflow-network
 
   # ==========================================================================
   # Airflow Webserver - Interface web sur http://localhost:8080
@@ -52,10 +56,16 @@ services:
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/plugins:/opt/airflow/plugins
       - ./data:/opt/airflow/data
+      - ./data_consolidation:/opt/airflow/data_consolidation
+      - ./EDA_Task:/opt/airflow/EDA_Task
+      - ./extraction:/opt/airflow/extraction
+      - ./data_cleaning:/opt/airflow/data_cleaning
       - ./.env:/opt/airflow/.env
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - airflow-network
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
       interval: 30s
@@ -80,10 +90,16 @@ services:
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/plugins:/opt/airflow/plugins
       - ./data:/opt/airflow/data
+      - ./data_consolidation:/opt/airflow/data_consolidation
+      - ./EDA_Task:/opt/airflow/EDA_Task
+      - ./extraction:/opt/airflow/extraction
+      - ./data_cleaning:/opt/airflow/data_cleaning
       - ./.env:/opt/airflow/.env
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - airflow-network
     healthcheck:
       test: ["CMD", "airflow", "jobs", "check", "--job-type", "SchedulerJob", "--hostname", "$${HOSTNAME}"]
       interval: 30s
@@ -94,6 +110,10 @@ services:
 
 # ============================================================================
 # ============================================================================
+networks:
+  airflow-network:
+    driver: bridge
+
 volumes:
   postgres-db-volume:
     name: crypto_airflow_postgres_data

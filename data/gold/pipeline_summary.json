@@ -1,0 +1,64 @@
+{
+  "status": "success",
+  "execution_date": "2025-11-24T18:17:40.516882+00:00",
+  "extraction": {
+    "posts_extracted": 54,
+    "extraction_date": "2025-11-24T18:17:40.516882+00:00"
+  },
+  "cleaning": {
+    "initial_rows": 28731,
+    "final_rows": 27137,
+    "removed_rows": 1594,
+    "removal_rate": 5.548014339911593,
+    "breakdown": {
+      "metadata": {
+        "generated_at": "2025-11-24T18:18:27.278505",
+        "input_file": "/opt/airflow/data_consolidation/outputs/master_dataset.csv",
+        "output_file": "/opt/airflow/data/silver/reddit/cleaned_reddit_dataset.csv",
+        "checkpoint_file": "/opt/airflow/data/silver/reddit/checkpoint.json"
+      },
+      "processing_stats": {
+        "this_run": {
+          "new_rows_processed": 1593,
+          "rows_after_cleaning": 0,
+          "rows_removed": 1593,
+          "removal_rate_percent": 100.0,
+          "breakdown": {
+            "invalid_dates": 0,
+            "missing_critical_fields": 0,
+            "too_short": 1158,
+            "exact_duplicates": 0,
+            "bot_accounts": 334,
+            "high_frequency_posters": 0,
+            "repeated_spam": 0,
+            "post_cleaning_short": 101
+          }
+        },
+        "cumulative": {
+          "total_processed_ids": 27137,
+          "total_rows_in_output": 27137,
+          "unique_authors": 12802,
+          "unique_subreddits": 15,
+          "posts_count": 2224,
+          "comments_count": 24913
+        }
+      },
+      "data_quality": {
+        "date_range": {
+          "min": "2025-09-29 22:06:41",
+          "max": "2025-11-01 14:23:34"
+        },
+        "text_statistics": {
+          "avg_length": 155.5,
+          "min_length": 10,
+          "max_length": 24298
+        },
+        "memory_usage_mb": 19.23
+      }
+    }
+  },
+  "eda": {
+    "plots_generated": 4,
+    "cryptos_analyzed": 4
+  }
+}

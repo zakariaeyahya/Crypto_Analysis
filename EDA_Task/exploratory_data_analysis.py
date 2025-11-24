@@ -1,5 +1,6 @@
 """
 Comprehensive Dataset Overview and Cryptocurrency Extraction
+Modified to save plots instead of showing them
 """
 
 import logging
@@ -7,6 +8,8 @@ from pathlib import Path
 import pandas as pd
 from collections import Counter
 from typing import List
+import matplotlib
+matplotlib.use('Agg')  # Non-interactive backend for Docker
 import matplotlib.pyplot as plt
 
 # === Logging configuration ===
@@ -16,6 +19,11 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()]
 )
 logger = logging.getLogger(__name__)
+
+# === Create plots directory ===
+PLOTS_DIR = Path("plots")
+PLOTS_DIR.mkdir(parents=True, exist_ok=True)
+logger.info(f"Plots will be saved to: {PLOTS_DIR.absolute()}")
 
 # === 1. Load dataset ===
 DATA_PATH = Path("master_dataset.csv")
@@ -165,7 +173,12 @@ if "type" in df.columns:
     )
 
     plt.tight_layout()
-    plt.show()
+
+    # Save plot instead of showing
+    plot_path = PLOTS_DIR / "01_posts_comments_distribution.png"
+    plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    logger.info(f"✅ Saved plot: {plot_path}")
 else:
     logger.info("Column 'type' not found in the dataset. Skipping posts/comments distribution chart.")
 
@@ -195,7 +208,12 @@ if "crypto_freq_df" in globals() and not crypto_freq_df.empty:
     plt.gca().invert_yaxis()  # Most mentioned on top
 
     plt.tight_layout()
-    plt.show()
+
+    # Save plot instead of showing
+    plot_path = PLOTS_DIR / "02_top7_cryptos.png"
+    plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    logger.info(f"✅ Saved plot: {plot_path}")
 else:
     logger.info("Crypto frequency DataFrame is empty or not defined. Skipping top 7 chart.")
 
@@ -236,7 +254,12 @@ plt.ylabel("Number of Entries")
 plt.xticks(rotation=45)
 plt.legend()
 plt.tight_layout()
-plt.show()
+
+# Save plot instead of showing
+plot_path = PLOTS_DIR / "03_daily_trends.png"
+plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+plt.close()
+logger.info(f"✅ Saved plot: {plot_path}")
 
 # === Posts and Comments Distribution by Cryptocurrency (Top 10) ===
 
@@ -279,7 +302,18 @@ if "subreddit" in df.columns and "type" in df.columns:
     plt.xticks(rotation=45)
     plt.legend(title="Type")
     plt.tight_layout()
-    plt.show()
+
+    # Save plot instead of showing
+    plot_path = PLOTS_DIR / "04_crypto_distribution_top10.png"
+    plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    logger.info(f"✅ Saved plot: {plot_path}")
 else:
     logger.info("Columns 'subreddit' and/or 'type' not found in the dataset. Skipping crypto distribution chart.")
+
+# === Summary ===
+logger.info("=" * 60)
+logger.info("EDA COMPLETED - All plots saved successfully")
+logger.info(f"Plots directory: {PLOTS_DIR.absolute()}")
+logger.info("=" * 60)
 
