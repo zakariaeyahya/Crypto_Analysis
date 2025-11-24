@@ -29,6 +29,12 @@ pandas
 numpy
 
 # ------------------------------
+# Visualization & EDA
+# ------------------------------
+matplotlib
+seaborn
+
+# ------------------------------
 # Configuration & Environment
 # ------------------------------
 python-dotenv

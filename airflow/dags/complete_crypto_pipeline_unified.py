@@ -1,6 +1,7 @@
 """
-Complete Unified Pipeline DAG - Single DAG containing all crypto analysis tasks
-This DAG replaces the multi-DAG architecture with a single unified pipeline
+Simplified Crypto Analysis Pipeline - Streamlined 3-step process
+This DAG contains: Extraction → Cleaning → EDA/NLP Analysis
+Removed: Data consolidation and Temporal splits (as per requirements)
 """
 from airflow import DAG
 from airflow.operators.python import PythonOperator, BranchPythonOperator
@@ -25,6 +26,61 @@ logger = logging.getLogger(__name__)
 
 
 # ============================================================================
+#                           0. PIPELINE EXECUTION GUARD
+# ============================================================================
+
+def check_if_already_executed(**context):
+    """
+    Check if pipeline has already been successfully executed for this execution date.
+    Allows only ONE successful run per day (manual or scheduled).
+    """
+    from airflow.models import DagRun
+    from airflow.utils.state import State
+
+    execution_date = context['execution_date']
+    dag_id = context['dag'].dag_id
+    current_run_id = context['run_id']
+
+    logger.info("=" * 60)
+    logger.info("GUARD: Checking for existing successful runs")
+    logger.info("=" * 60)
+    logger.info(f"Execution Date: {execution_date.strftime('%Y-%m-%d')}")
+    logger.info(f"Current Run ID: {current_run_id}")
+
+    # Query all dag runs for this DAG on the same execution date
+    from airflow.settings import Session
+    session = Session()
+
+    try:
+        existing_runs = session.query(DagRun).filter(
+            DagRun.dag_id == dag_id,
+            DagRun.execution_date == execution_date,
+            DagRun.run_id != current_run_id,  # Exclude current run
+            DagRun.state == State.SUCCESS
+        ).all()
+
+        if existing_runs:
+            logger.warning("=" * 60)
+            logger.warning("⚠️  PIPELINE ALREADY EXECUTED SUCCESSFULLY TODAY")
+            logger.warning("=" * 60)
+            logger.warning(f"Found {len(existing_runs)} successful run(s) for {execution_date.strftime('%Y-%m-%d')}")
+            for run in existing_runs:
+                logger.warning(f"  - Run ID: {run.run_id}, Completed: {run.end_date}")
+            logger.warning("")
+            logger.warning("Skipping this execution to avoid duplicate processing.")
+            logger.warning("Only ONE successful execution per day is allowed.")
+            logger.warning("=" * 60)
+            return 'skip_pipeline_already_executed'
+        else:
+            logger.info("✅ No successful runs found for today - proceeding with execution")
+            logger.info("=" * 60)
+            return 'extract_reddit_data'
+
+    finally:
+        session.close()
+
+
+# ============================================================================
 #                           1. REDDIT EXTRACTION
 # ============================================================================
 
@@ -34,6 +90,9 @@ def extract_reddit_data(**context):
     logger.info("STEP 1: Reddit Data Extraction")
     logger.info("=" * 60)
 
+    # Use execution_date from context instead of datetime.now()
+    execution_date = context['execution_date']
+
     config = RedditConfig()
     extractor = RedditExtractor(config)
 
@@ -41,98 +100,22 @@ def extract_reddit_data(**context):
     df = extractor.fetch_posts(
         subreddit_name='CryptoCurrency',
         query='bitcoin OR ethereum',
-        limit=100
+        limit=500  # Increased to 500 to get more posts
     )
 
-    current_date = datetime.now()
-    logger.info(f"Extracted {len(df)} posts, saving to bronze layer for date: {current_date.strftime('%Y-%m-%d')}")
-    extractor.save_to_bronze(df, 'reddit_posts', execution_date=current_date)
+    logger.info(f"Extracted {len(df)} posts, saving to bronze layer for date: {execution_date.strftime('%Y-%m-%d')}")
+    extractor.save_to_bronze(df, 'reddit_posts', execution_date=execution_date)
 
-    result = {'posts_extracted': len(df), 'extraction_date': current_date.isoformat()}
+    result = {'posts_extracted': len(df), 'extraction_date': execution_date.isoformat()}
     context['ti'].xcom_push(key='extraction_result', value=result)
     logger.info(f"✅ Reddit extraction completed: {len(df)} posts")
     return result
 
 
 # ============================================================================
-#                           2. DATA CONSOLIDATION
+#                           2. DATA CONSOLIDATION - REMOVED
 # ============================================================================
-
-def check_bronze_data_availability(**context):
-    """Check if bronze data exists"""
-    logger.info("=" * 60)
-    logger.info("STEP 2: Data Consolidation - Checking Data Availability")
-    logger.info("=" * 60)
-
-    execution_date = context['execution_date']
-
-    # Check Reddit data
-    reddit_data_path = Path(f"data/bronze/reddit/year={execution_date.year}/month={execution_date.month:02d}/day={execution_date.day:02d}")
-    reddit_check = {
-        'exists': reddit_data_path.exists(),
-        'file_count': len(list(reddit_data_path.glob("*.csv"))) if reddit_data_path.exists() else 0
-    }
-
-    # Check Kaggle data (optional)
-    kaggle_data_path = Path("data/bronze/kaggle")
-    kaggle_check = {
-        'available': kaggle_data_path.exists(),
-        'file_count': len(list(kaggle_data_path.glob("*.csv"))) if kaggle_data_path.exists() else 0
-    }
-
-    if reddit_check['exists']:
-        logger.info(f"✅ Reddit data available: {reddit_check['file_count']} files")
-        if kaggle_check['available']:
-            logger.info(f"✅ Kaggle data detected: {kaggle_check['file_count']} files (will be included)")
-        else:
-            logger.info("ℹ️ No Kaggle data detected - continuing with Reddit only")
-        return 'consolidate_data'
-    else:
-        logger.warning("❌ No Reddit data available. Skipping consolidation.")
-        return 'skip_consolidation'
-
-
-def consolidate_data(**context):
-    """Consolidate bronze datasets"""
-    logger.info("Consolidating Reddit and Kaggle data...")
-
-    # Placeholder - will be implemented when module is created
-    logger.warning("⚠️ Consolidation logic not yet fully implemented")
-
-    result = {
-        'reddit_records': 0,
-        'kaggle_records': 0,
-        'total_records': 0
-    }
-
-    context['ti'].xcom_push(key='consolidation_result', value=result)
-    logger.info("✅ Consolidation completed (placeholder)")
-    return result
-
-
-def validate_master_dataset(**context):
-    """Validate the consolidated master dataset"""
-    logger.info("Validating master dataset...")
-
-    master_path = Path("data_consolidation/outputs/master_dataset.csv")
-
-    if not master_path.exists():
-        logger.warning(f"Master dataset not found: {master_path} - skipping validation")
-        return {'validation_status': 'skipped', 'total_records': 0}
-
-    import pandas as pd
-    df = pd.read_csv(master_path)
-
-    stats = {
-        'validation_status': 'passed',
-        'total_records': len(df),
-        'posts': len(df[df['source_type'] == 'post']) if 'source_type' in df.columns else 0,
-        'comments': len(df[df['source_type'] == 'comment']) if 'source_type' in df.columns else 0,
-    }
-
-    context['ti'].xcom_push(key='validation_stats', value=stats)
-    logger.info(f"✅ Validation passed: {stats['total_records']} total records")
-    return stats
+# Consolidation step has been removed - cleaning now works directly on Reddit bronze data
 
 
 # ============================================================================
@@ -140,23 +123,43 @@ def validate_master_dataset(**context):
 # ============================================================================
 
 def clean_reddit_data(**context):
-    """Clean Reddit data (Bronze to Silver)"""
+    """Clean Reddit data (Bronze to Silver) - Direct from Reddit extraction"""
     logger.info("=" * 60)
-    logger.info("STEP 3: Data Cleaning")
+    logger.info("STEP 2: Data Cleaning (Bronze → Silver)")
     logger.info("=" * 60)
 
-    # Placeholder - will call actual cleaning script
-    logger.warning("⚠️ Cleaning logic not yet fully implemented")
+    execution_date = context['execution_date']
 
-    result = {
-        'initial_rows': 0,
-        'final_rows': 0,
-        'removed_rows': 0,
-        'removal_rate': 0.0
-    }
+    # Load Reddit bronze data directly
+    reddit_data_path = Path(f"data/bronze/reddit/year={execution_date.year}/month={execution_date.month:02d}/day={execution_date.day:02d}")
+
+    if not reddit_data_path.exists():
+        logger.warning(f"No Reddit bronze data found at {reddit_data_path}")
+        result = {
+            'initial_rows': 0,
+            'final_rows': 0,
+            'removed_rows': 0,
+            'removal_rate': 0.0
+        }
+        context['ti'].xcom_push(key='cleaning_result', value=result)
+        return result
+
+    # Call cleaning wrapper
+    from wrappers.cleaning_wrapper import run_reddit_cleaning
+
+    try:
+        result = run_reddit_cleaning(**context)
+    except Exception as e:
+        logger.error(f"Cleaning failed: {e}")
+        result = {
+            'initial_rows': 0,
+            'final_rows': 0,
+            'removed_rows': 0,
+            'removal_rate': 0.0
+        }
 
     context['ti'].xcom_push(key='cleaning_result', value=result)
-    logger.info("✅ Cleaning completed (placeholder)")
+    logger.info(f"✅ Cleaning completed: {result.get('initial_rows', 0)} → {result.get('final_rows', 0)} rows")
     return result
 
 
@@ -185,112 +188,75 @@ def validate_cleaned_data(**context):
 
 
 # ============================================================================
-#                           4. TEMPORAL SPLITS
+#                           4. TEMPORAL SPLITS - REMOVED
 # ============================================================================
-
-def create_temporal_splits(**context):
-    """Create temporal splits (train/val/test)"""
-    logger.info("=" * 60)
-    logger.info("STEP 4: Creating Temporal Splits")
-    logger.info("=" * 60)
-
-    # Placeholder - will call actual split script
-    logger.warning("⚠️ Temporal splits logic not yet fully implemented")
-
-    result = {
-        'train_rows': 0,
-        'val_rows': 0,
-        'test_rows': 0,
-        'window_start': None,
-        'window_end': None
-    }
-
-    context['ti'].xcom_push(key='splits_result', value=result)
-    logger.info("✅ Temporal splits created (placeholder)")
-    return result
-
-
-def validate_splits(**context):
-    """Validate temporal splits"""
-    logger.info("Validating temporal splits...")
-
-    output_dir = Path("data/silver/reddit")
-    train_path = output_dir / "train_data.csv"
-    val_path = output_dir / "validation_data.csv"
-    test_path = output_dir / "test_data.csv"
-
-    all_exist = all([train_path.exists(), val_path.exists(), test_path.exists()])
-
-    if not all_exist:
-        logger.warning("Split files not found - skipping validation")
-        return {'validation_status': 'skipped'}
-
-    stats = {
-        'validation_status': 'passed',
-        'splits_valid': True
-    }
-
-    context['ti'].xcom_push(key='splits_validation', value=stats)
-    logger.info("✅ Splits validation passed")
-    return stats
+# Temporal splits removed - data goes directly from cleaning to EDA
 
 
 # ============================================================================
-#                           5. EDA ANALYSIS
+#                           3. EDA ANALYSIS + NLP
 # ============================================================================
 
 def should_run_eda(**context):
-    """Check if today is Monday (EDA day)"""
+    """Run EDA daily (incremental analysis)"""
     execution_date = context['execution_date']
     day_of_week = execution_date.weekday()  # 0=Monday, 6=Sunday
 
-    if day_of_week == 0:  # Monday
-        logger.info("✅ Today is Monday - running EDA analysis")
-        return 'run_eda_analysis'
-    else:
-        logger.info(f"ℹ️ Today is not Monday (day {day_of_week}) - skipping EDA")
-        return 'skip_eda'
+    # Run EDA every day
+    logger.info(f"✅ Running EDA/NLP analysis (day {day_of_week}) - Daily mode")
+    return 'run_eda_analysis'
 
 
 def run_eda_analysis(**context):
-    """Execute EDA analysis"""
+    """Execute EDA and NLP analysis on cleaned data"""
     logger.info("=" * 60)
-    logger.info("STEP 5: EDA Analysis")
+    logger.info("STEP 3: EDA/NLP Analysis (DAILY)")
     logger.info("=" * 60)
 
-    # Placeholder - will call actual EDA script
-    logger.warning("⚠️ EDA logic not yet fully implemented")
+    # Import EDA wrapper (from dags/wrappers/)
+    from wrappers.eda_wrapper import execute_eda
 
-    result = {
-        'plots_generated': 0,
-        'cryptos_analyzed': 0
-    }
+    # Run EDA on complete master dataset
+    try:
+        result = execute_eda(**context)
+    except Exception as e:
+        logger.error(f"EDA analysis failed: {e}")
+        # Return default values if script fails
+        result = {
+            'plots_generated': 0,
+            'cryptos_analyzed': 0
+        }
 
     context['ti'].xcom_push(key='eda_result', value=result)
-    logger.info("✅ EDA analysis completed (placeholder)")
+    logger.info(f"✅ EDA analysis completed: {result['plots_generated']} plots generated")
     return result
 
 
 def save_eda_plots(**context):
-    """Save EDA plots to gold layer"""
+    """Save EDA plots to silver layer organized by date"""
     logger.info("Saving EDA plots...")
 
+    execution_date = context['execution_date']
+    date_folder = execution_date.strftime('%Y-%m-%d')
+
     plots_source = Path("EDA_Task/plots")
-    plots_dest = Path("data/gold/eda")
+    # New structure: data/silver/reddit/plots/YYYY-MM-DD/
+    plots_dest = Path(f"data/silver/reddit/plots/{date_folder}")
     plots_dest.mkdir(parents=True, exist_ok=True)
 
     if not plots_source.exists():
         logger.warning(f"Plots directory not found: {plots_source}")
-        return {'plots_copied': 0}
+        return {'plots_copied': 0, 'destination': str(plots_dest)}
 
     plots_copied = 0
     for plot_file in plots_source.glob("*.png"):
         dest_file = plots_dest / plot_file.name
         shutil.copy2(plot_file, dest_file)
         plots_copied += 1
+        logger.info(f"Copied {plot_file.name} to {plots_dest}")
 
-    logger.info(f"✅ Copied {plots_copied} plots to gold layer")
-    return {'plots_copied': plots_copied}
+    logger.info(f"✅ Copied {plots_copied} plots to {plots_dest}")
+    return {'plots_copied': plots_copied, 'destination': str(plots_dest)}
 
 
 # ============================================================================
@@ -306,32 +272,26 @@ def log_pipeline_completion(**context):
     ti = context['ti']
     execution_date = context['execution_date']
 
-    # Retrieve all results from XCom
+    # Retrieve results from XCom (simplified pipeline)
     extraction_result = ti.xcom_pull(task_ids='extract_reddit_data', key='extraction_result') or {}
-    consolidation_result = ti.xcom_pull(task_ids='consolidate_data', key='consolidation_result') or {}
     cleaning_result = ti.xcom_pull(task_ids='clean_reddit_data', key='cleaning_result') or {}
-    splits_result = ti.xcom_pull(task_ids='create_temporal_splits', key='splits_result') or {}
     eda_result = ti.xcom_pull(task_ids='run_eda_analysis', key='eda_result') or {}
 
     logger.info(f"Execution date: {execution_date}")
     logger.info("")
     logger.info("Step Results:")
     logger.info(f"  1. Reddit Extraction:   {extraction_result.get('posts_extracted', 0)} posts")
-    logger.info(f"  2. Consolidation:       {consolidation_result.get('total_records', 0)} total records")
-    logger.info(f"  3. Cleaning:            {cleaning_result.get('final_rows', 0)} clean records")
-    logger.info(f"  4. Temporal Splits:     Train={splits_result.get('train_rows', 0)}, Val={splits_result.get('val_rows', 0)}, Test={splits_result.get('test_rows', 0)}")
-    logger.info(f"  5. EDA Analysis:        {eda_result.get('plots_generated', 0)} plots generated")
+    logger.info(f"  2. Cleaning:            {cleaning_result.get('final_rows', 0)} clean records")
+    logger.info(f"  3. EDA Analysis:        {eda_result.get('plots_generated', 0)} plots generated")
     logger.info("")
-    logger.info("✅ Complete pipeline executed successfully")
+    logger.info("✅ Simplified pipeline executed successfully")
     logger.info("=" * 80)
 
     summary = {
         'status': 'success',
         'execution_date': execution_date.isoformat(),
         'extraction': extraction_result,
-        'consolidation': consolidation_result,
         'cleaning': cleaning_result,
-        'splits': splits_result,
         'eda': eda_result
     }
 
@@ -381,19 +341,30 @@ default_args = {
 }
 
 with DAG(
-    dag_id='complete_crypto_pipeline_unified',
-    description='Complete unified crypto analysis pipeline - All tasks in one DAG',
+    dag_id='simplified_crypto_pipeline',
+    description='Simplified crypto analysis pipeline - Extraction → Cleaning → EDA/NLP (1 successful run per day)',
     schedule_interval='0 6 * * *',  # Daily at 6 AM
     start_date=datetime(2025, 1, 1),
-    catchup=True,
+    catchup=False,  # Disabled to prevent backfilling old dates
     max_active_runs=1,
     default_args=default_args,
-    tags=['unified', 'pipeline', 'complete', 'crypto']
+    tags=['simplified', 'pipeline', 'crypto', 'nlp', 'eda']
 ) as dag:
 
     # ========== Pipeline Start ==========
     start_pipeline = DummyOperator(
         task_id='start_pipeline'
+    )
+
+    # ========== Guard: Check if already executed today ==========
+    check_execution_guard = BranchPythonOperator(
+        task_id='check_execution_guard',
+        python_callable=check_if_already_executed,
+        provide_context=True
+    )
+
+    skip_pipeline_already_executed = DummyOperator(
+        task_id='skip_pipeline_already_executed'
     )
 
     # ========== Step 1: Reddit Extraction ==========
@@ -403,30 +374,7 @@ with DAG(
         provide_context=True
     )
 
-    # ========== Step 2: Data Consolidation ==========
-    check_bronze = BranchPythonOperator(
-        task_id='check_bronze_data',
-        python_callable=check_bronze_data_availability,
-        provide_context=True
-    )
-
-    skip_consolidation = DummyOperator(
-        task_id='skip_consolidation'
-    )
-
-    consolidate = PythonOperator(
-        task_id='consolidate_data',
-        python_callable=consolidate_data,
-        provide_context=True
-    )
-
-    validate_master = PythonOperator(
-        task_id='validate_master_dataset',
-        python_callable=validate_master_dataset,
-        provide_context=True
-    )
-
-    # ========== Step 3: Data Cleaning ==========
+    # ========== Step 2: Data Cleaning ==========
     clean_data = PythonOperator(
         task_id='clean_reddit_data',
         python_callable=clean_reddit_data,
@@ -439,20 +387,7 @@ with DAG(
         provide_context=True
     )
 
-    # ========== Step 4: Temporal Splits ==========
-    create_splits = PythonOperator(
-        task_id='create_temporal_splits',
-        python_callable=create_temporal_splits,
-        provide_context=True
-    )
-
-    validate_splits_task = PythonOperator(
-        task_id='validate_splits',
-        python_callable=validate_splits,
-        provide_context=True
-    )
-
-    # ========== Step 5: EDA Analysis (Monday only) ==========
+    # ========== Step 3: EDA Analysis (Daily) ==========
     check_eda_schedule = BranchPythonOperator(
         task_id='check_eda_schedule',
         python_callable=should_run_eda,
@@ -480,7 +415,7 @@ with DAG(
         task_id='pipeline_success',
         python_callable=log_pipeline_completion,
         provide_context=True,
-        trigger_rule='none_failed_or_skipped'
+        trigger_rule='none_failed_min_one_success'  # Execute even if some branch tasks are skipped
     )
 
     pipeline_failure = PythonOperator(
@@ -491,32 +426,23 @@ with DAG(
     )
 
     # ========== Define Task Dependencies ==========
-    # Main pipeline flow
-    start_pipeline >> extract_reddit
-    extract_reddit >> check_bronze
+    # Simplified pipeline: Extraction → Cleaning → EDA
 
-    # Consolidation branch
-    check_bronze >> [skip_consolidation, consolidate]
-    consolidate >> validate_master
+    # Guard check - prevents duplicate executions for same day
+    start_pipeline >> check_execution_guard
+    check_execution_guard >> [skip_pipeline_already_executed, extract_reddit]
 
-    # After consolidation (or skip), continue to cleaning
-    [skip_consolidation, validate_master] >> clean_data
-
-    # Cleaning and validation
+    # Main pipeline flow: Extract → Clean → EDA
+    extract_reddit >> clean_data
     clean_data >> validate_cleaning
 
-    # Temporal splits
-    validate_cleaning >> create_splits
-    create_splits >> validate_splits_task
-
-    # EDA check (Monday only)
-    validate_splits_task >> check_eda_schedule
+    # EDA Analysis (daily)
+    validate_cleaning >> check_eda_schedule
     check_eda_schedule >> [skip_eda, run_eda]
     run_eda >> save_plots
 
     # Pipeline completion
     [skip_eda, save_plots] >> pipeline_success
 
-    # Failure handling - all critical tasks can trigger failure
-    [extract_reddit, consolidate, clean_data,
-     create_splits, run_eda] >> pipeline_failure
+    # Failure handling - critical tasks can trigger failure
+    [extract_reddit, clean_data, run_eda] >> pipeline_failure
