@@ -51,3 +51,11 @@ psycopg2-binary
 # ------------------------------
 requests
 pytz
+
+# ------------------------------
+# NLP & Sentiment Analysis
+# ------------------------------
+transformers
+torch
+sentencepiece
+sacremoses
