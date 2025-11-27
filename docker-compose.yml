@@ -60,6 +60,7 @@ services:
       - ./EDA_Task:/opt/airflow/EDA_Task
       - ./extraction:/opt/airflow/extraction
       - ./data_cleaning:/opt/airflow/data_cleaning
+      - ./Finetuning:/opt/airflow/Finetuning
       - ./.env:/opt/airflow/.env
     depends_on:
       postgres:
@@ -94,6 +95,7 @@ services:
       - ./EDA_Task:/opt/airflow/EDA_Task
       - ./extraction:/opt/airflow/extraction
       - ./data_cleaning:/opt/airflow/data_cleaning
+      - ./Finetuning:/opt/airflow/Finetuning
       - ./.env:/opt/airflow/.env
     depends_on:
       postgres:

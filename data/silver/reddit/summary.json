@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2025-11-24T18:18:27.278505",
+    "generated_at": "2025-11-27T19:28:06.161899",
     "input_file": "/opt/airflow/data_consolidation/outputs/master_dataset.csv",
     "output_file": "/opt/airflow/data/silver/reddit/cleaned_reddit_dataset.csv",
     "checkpoint_file": "/opt/airflow/data/silver/reddit/checkpoint.json"
@@ -41,6 +41,6 @@
       "min_length": 10,
       "max_length": 24298
     },
-    "memory_usage_mb": 19.23
+    "memory_usage_mb": 21.1
   }
 }

@@ -1,7 +1,8 @@
 """
-Simplified Crypto Analysis Pipeline - Streamlined 3-step process
-This DAG contains: Extraction → Cleaning → EDA/NLP Analysis
-Removed: Data consolidation and Temporal splits (as per requirements)
+Complete Crypto Analysis Pipeline with Sentiment Analysis
+This DAG contains: Extraction → Cleaning → Sentiment Analysis → EDA/NLP
+- Incremental sentiment analysis using fine-tuned RoBERTa model
+- Plots organized by date in data/silver/reddit/plots/
 """
 from airflow import DAG
 from airflow.operators.python import PythonOperator, BranchPythonOperator
@@ -194,7 +195,35 @@ def validate_cleaned_data(**context):
 
 
 # ============================================================================
-#                           3. EDA ANALYSIS + NLP
+#                           3. SENTIMENT ANALYSIS
+# ============================================================================
+
+def run_sentiment_analysis(**context):
+    """Add sentiment column to cleaned dataset"""
+    logger.info("=" * 60)
+    logger.info("STEP 3: Sentiment Analysis")
+    logger.info("=" * 60)
+
+    from wrappers.sentiment_analysis_wrapper import run_sentiment_analysis as sentiment_wrapper
+
+    try:
+        result = sentiment_wrapper(**context)
+    except Exception as e:
+        logger.error(f"Sentiment analysis failed: {e}")
+        result = {
+            'status': 'failed',
+            'total_rows': 0,
+            'processed_rows': 0,
+            'reason': str(e)
+        }
+
+    context['ti'].xcom_push(key='sentiment_result', value=result)
+    logger.info(f"✅ Sentiment analysis completed: {result.get('processed_rows', 0)} rows processed")
+    return result
+
+
+# ============================================================================
+#                           4. EDA ANALYSIS + NLP
 # ============================================================================
 
 def should_run_eda(**context):
@@ -208,9 +237,9 @@ def should_run_eda(**context):
 
 
 def run_eda_analysis(**context):
-    """Execute EDA and NLP analysis on cleaned data"""
+    """Execute EDA and NLP analysis on cleaned data with sentiment"""
     logger.info("=" * 60)
-    logger.info("STEP 3: EDA/NLP Analysis (DAILY)")
+    logger.info("STEP 4: EDA/NLP Analysis (DAILY)")
     logger.info("=" * 60)
 
     # Import EDA wrapper (from dags/wrappers/)
@@ -272,9 +301,10 @@ def log_pipeline_completion(**context):
     ti = context['ti']
     execution_date = context['execution_date']
 
-    # Retrieve results from XCom (simplified pipeline)
+    # Retrieve results from XCom (with sentiment analysis)
     extraction_result = ti.xcom_pull(task_ids='extract_reddit_data', key='extraction_result') or {}
     cleaning_result = ti.xcom_pull(task_ids='clean_reddit_data', key='cleaning_result') or {}
+    sentiment_result = ti.xcom_pull(task_ids='run_sentiment_analysis', key='sentiment_result') or {}
     eda_result = ti.xcom_pull(task_ids='run_eda_analysis', key='eda_result') or {}
 
     logger.info(f"Execution date: {execution_date}")
@@ -282,9 +312,10 @@ def log_pipeline_completion(**context):
     logger.info("Step Results:")
     logger.info(f"  1. Reddit Extraction:   {extraction_result.get('posts_extracted', 0)} posts")
     logger.info(f"  2. Cleaning:            {cleaning_result.get('final_rows', 0)} clean records")
-    logger.info(f"  3. EDA Analysis:        {eda_result.get('plots_generated', 0)} plots generated")
+    logger.info(f"  3. Sentiment Analysis:  {sentiment_result.get('processed_rows', 0)} rows analyzed")
+    logger.info(f"  4. EDA Analysis:        {eda_result.get('plots_generated', 0)} plots generated")
     logger.info("")
-    logger.info("✅ Simplified pipeline executed successfully")
+    logger.info("✅ Complete pipeline executed successfully")
     logger.info("=" * 80)
 
     summary = {
@@ -292,6 +323,7 @@ def log_pipeline_completion(**context):
         'execution_date': execution_date.isoformat(),
         'extraction': extraction_result,
         'cleaning': cleaning_result,
+        'sentiment': sentiment_result,
         'eda': eda_result
     }
 
@@ -387,7 +419,14 @@ with DAG(
         provide_context=True
     )
 
-    # ========== Step 3: EDA Analysis (Daily) ==========
+    # ========== Step 3: Sentiment Analysis ==========
+    sentiment_analysis = PythonOperator(
+        task_id='run_sentiment_analysis',
+        python_callable=run_sentiment_analysis,
+        provide_context=True
+    )
+
+    # ========== Step 4: EDA Analysis (Daily) ==========
     check_eda_schedule = BranchPythonOperator(
         task_id='check_eda_schedule',
         python_callable=should_run_eda,
@@ -426,18 +465,19 @@ with DAG(
     )
 
     # ========== Define Task Dependencies ==========
-    # Simplified pipeline: Extraction → Cleaning → EDA
+    # Pipeline: Extraction → Cleaning → Sentiment → EDA
 
     # Guard check - prevents duplicate executions for same day
     start_pipeline >> check_execution_guard
     check_execution_guard >> [skip_pipeline_already_executed, extract_reddit]
 
-    # Main pipeline flow: Extract → Clean → EDA
+    # Main pipeline flow: Extract → Clean → Sentiment → EDA
     extract_reddit >> clean_data
     clean_data >> validate_cleaning
+    validate_cleaning >> sentiment_analysis
 
     # EDA Analysis (daily)
-    validate_cleaning >> check_eda_schedule
+    sentiment_analysis >> check_eda_schedule
     check_eda_schedule >> [skip_eda, run_eda]
     run_eda >> save_plots
 
@@ -445,4 +485,4 @@ with DAG(
     [skip_eda, save_plots] >> pipeline_success
 
     # Failure handling - critical tasks can trigger failure
-    [extract_reddit, clean_data, run_eda] >> pipeline_failure
+    [extract_reddit, clean_data, sentiment_analysis, run_eda] >> pipeline_failure
