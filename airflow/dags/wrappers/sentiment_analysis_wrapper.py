@@ -94,19 +94,19 @@ def run_sentiment_analysis(**context):
 
     # 3. Check if sentiment column exists
     if 'sentiment' not in df.columns:
-        logger.info("❌ 'sentiment' column NOT found - analyzing ALL rows")
+        logger.info("'sentiment' column NOT found - analyzing ALL rows")
         df['sentiment'] = None
         df['sentiment_confidence'] = None
         rows_to_process = df.copy()
     else:
-        logger.info("✅ 'sentiment' column exists - analyzing NEW rows only")
+        logger.info(" 'sentiment' column exists - analyzing NEW rows only")
         # Find rows without sentiment or not in checkpoint
         mask = (df['sentiment'].isna()) | (~df['unified_id'].isin(processed_ids))
         rows_to_process = df[mask].copy()
         logger.info(f"Found {len(rows_to_process)} new rows to process")
 
     if len(rows_to_process) == 0:
-        logger.info("✅ No new rows to process - all up to date!")
+        logger.info(" No new rows to process - all up to date!")
         return {
             "status": "success",
             "total_rows": len(df),
@@ -129,7 +129,7 @@ def run_sentiment_analysis(**context):
         model = RobertaForSequenceClassification.from_pretrained(str(model_path))
         model.to(device)
         model.eval()
-        logger.info("✅ Model loaded successfully")
+        logger.info(" Model loaded successfully")
     except Exception as e:
         logger.error(f"Failed to load model: {e}")
         return {"status": "failed", "reason": f"Model loading error: {e}"}
@@ -147,7 +147,7 @@ def run_sentiment_analysis(**context):
         df.loc[rows_to_process.index, 'sentiment'] = sentiments
         df.loc[rows_to_process.index, 'sentiment_confidence'] = confidences
 
-        logger.info("✅ Sentiment analysis completed")
+        logger.info(" Sentiment analysis completed")
 
     except Exception as e:
         logger.error(f"Error during sentiment analysis: {e}")
@@ -194,7 +194,7 @@ def run_sentiment_analysis(**context):
         logger.info("Master dataset does not exist - creating new file")
     
     df.to_csv(output_csv_path, index=False)
-    logger.info(f"✅ CSV saved to OUTPUT: {output_csv_path}")
+    logger.info(f" CSV saved to OUTPUT: {output_csv_path}")
 
     # 7. Update checkpoint
     processed_ids.update(df['unified_id'].dropna().tolist())
@@ -206,7 +206,7 @@ def run_sentiment_analysis(**context):
 
     with open(checkpoint_path, 'w') as f:
         json.dump(checkpoint, f, indent=2)
-    logger.info(f"✅ Checkpoint saved: {len(processed_ids)} total IDs")
+    logger.info(f" Checkpoint saved: {len(processed_ids)} total IDs")
 
     # 8. Summary
     result = {

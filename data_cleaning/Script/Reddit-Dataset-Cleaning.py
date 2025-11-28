@@ -33,7 +33,7 @@ SUMMARY_FILE = SILVER_DIR / "summary.json"
 
 # Create silver directory structure
 SILVER_DIR.mkdir(parents=True, exist_ok=True)
-logger.info(f"📁 Silver directory created/verified: {SILVER_DIR}")
+logger.info(f"Silver directory created/verified: {SILVER_DIR}")
 
 # ============================================================================
 # CHECKPOINT MANAGEMENT
@@ -43,9 +43,9 @@ def load_checkpoint():
     if CHECKPOINT_FILE.exists():
         with open(CHECKPOINT_FILE, 'r', encoding='utf-8') as f:
             checkpoint = json.load(f)
-            logger.info(f"✅ Loaded checkpoint: {len(checkpoint.get('processed_ids', []))} IDs already processed")
+            logger.info(f" Loaded checkpoint: {len(checkpoint.get('processed_ids', []))} IDs already processed")
             return checkpoint
-    logger.info("📝 No checkpoint found - starting fresh")
+    logger.info(" No checkpoint found - starting fresh")
     return {
         'processed_ids': [],
         'last_run': None,
@@ -62,13 +62,13 @@ def save_checkpoint(processed_ids, stats):
     }
     with open(CHECKPOINT_FILE, 'w', encoding='utf-8') as f:
         json.dump(checkpoint, f, indent=2, ensure_ascii=False)
-    logger.info(f"💾 Checkpoint saved: {len(processed_ids)} processed IDs")
+    logger.info(f" Checkpoint saved: {len(processed_ids)} processed IDs")
 
 def save_summary(summary_data):
     """Save summary statistics to JSON"""
     with open(SUMMARY_FILE, 'w', encoding='utf-8') as f:
         json.dump(summary_data, f, indent=2, ensure_ascii=False)
-    logger.info(f"📊 Summary saved to: {SUMMARY_FILE}")
+    logger.info(f" Summary saved to: {SUMMARY_FILE}")
 
 # ============================================================================
 # STEP 1: LOAD DATASET & CHECKPOINT
@@ -84,7 +84,7 @@ processed_ids = set(checkpoint.get('processed_ids', []))
 df = pd.read_csv(INPUT_FILE)
 
 # Display initial statistics
-logger.info(f"📊 Initial Dataset Statistics: {len(df):,} rows, {len(df.columns)} columns")
+logger.info(f" Initial Dataset Statistics: {len(df):,} rows, {len(df.columns)} columns")
 logger.debug(f"Columns: {list(df.columns)}")
 logger.debug(f"Memory usage: {df.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
 
@@ -92,15 +92,15 @@ logger.debug(f"Memory usage: {df.memory_usage(deep=True).sum() / 1024**2:.2f} MB
 if processed_ids:
     initial_count_before_filter = len(df)
     df = df[~df['unified_id'].isin(processed_ids)]
-    logger.info(f"🔍 Filtered out {initial_count_before_filter - len(df):,} already processed rows")
+    logger.info(f" Filtered out {initial_count_before_filter - len(df):,} already processed rows")
 
     if len(df) == 0:
-        logger.info("✅ No new data to process. All data already processed!")
+        logger.info(" No new data to process. All data already processed!")
         exit(0)
 
 # Store initial count for comparison
 initial_count = len(df)
-logger.info(f"📥 New data to process: {initial_count:,} rows")
+logger.info(f"New data to process: {initial_count:,} rows")
 
 # ============================================================================
 # STEP 2: DATA TYPE VALIDATION & PARSING
@@ -125,7 +125,7 @@ if invalid_dates > 0:
     logger.warning(f"Found {invalid_dates} invalid dates - removing these rows")
     df = df.dropna(subset=['created_date'])
 
-logger.info(f"📅 Date range: {df['created_date'].min()} to {df['created_date'].max()}")
+logger.info(f" Date range: {df['created_date'].min()} to {df['created_date'].max()}")
 
 # ============================================================================
 # STEP 3: HANDLE MISSING VALUES
@@ -143,7 +143,7 @@ before_missing = len(df)
 df = df.dropna(subset=critical_fields)
 removed_missing = before_missing - len(df)
 if removed_missing > 0:
-    logger.info(f"✂️ Removed {removed_missing} rows with missing critical fields")
+    logger.info(f" Removed {removed_missing} rows with missing critical fields")
 
 # Fill non-critical missing values
 df['subreddit'] = df['subreddit'].fillna('unknown')
@@ -164,13 +164,13 @@ logger.info("[STEP 4] Applying basic text filters...")
 before_short = len(df)
 df = df[df['text_content'].str.len() >= 10]
 removed_short = before_short - len(df)
-logger.info(f"✂️ Removed {removed_short} posts shorter than 10 characters")
+logger.info(f" Removed {removed_short} posts shorter than 10 characters")
 
 # Remove exact duplicates
 before_dupes = len(df)
 df = df.drop_duplicates(subset=['text_content', 'created_date'], keep='first')
 removed_dupes = before_dupes - len(df)
-logger.info(f"✂️ Removed {removed_dupes} exact duplicate posts")
+logger.info(f"Removed {removed_dupes} exact duplicate posts")
 
 # ============================================================================
 # STEP 5: BOT DETECTION & REMOVAL
@@ -188,13 +188,13 @@ bot_regex = '|'.join(bot_patterns)
 bot_mask = df['author'].str.lower().str.match(bot_regex, na=False)
 bot_count = bot_mask.sum()
 bot_authors = df[bot_mask]['author'].unique()
-logger.info(f"🤖 Identified {bot_count} posts from {len(bot_authors)} bot accounts")
+logger.info(f"Identified {bot_count} posts from {len(bot_authors)} bot accounts")
 if len(bot_authors) <= 20:
     logger.debug(f"Bot accounts: {', '.join(bot_authors[:20])}")
 
 # Remove bot accounts
 df = df[~bot_mask]
-logger.info(f"✂️ Removed {bot_count} bot-generated posts")
+logger.info(f" Removed {bot_count} bot-generated posts")
 
 # ============================================================================
 # STEP 6: SPAM & HIGH-FREQUENCY POSTER DETECTION
@@ -207,13 +207,13 @@ posts_per_day = df.groupby(['author', 'date_only']).size().reset_index(name='dai
 
 # Identify accounts posting more than 50 times per day
 spam_accounts = posts_per_day[posts_per_day['daily_post_count'] > 50]['author'].unique()
-logger.info(f"📢 Found {len(spam_accounts)} accounts posting >50 times/day")
+logger.info(f" Found {len(spam_accounts)} accounts posting >50 times/day")
 
 # Remove spam accounts
 before_spam = len(df)
 df = df[~df['author'].isin(spam_accounts)]
 removed_spam = before_spam - len(df)
-logger.info(f"✂️ Removed {removed_spam} posts from high-frequency spammers")
+logger.info(f" Removed {removed_spam} posts from high-frequency spammers")
 
 # Detect repeated spam messages
 text_frequency = df.groupby('text_content')['author'].nunique().reset_index(name='unique_authors')
@@ -229,7 +229,7 @@ spam_texts = spam_text_analysis[
 before_repeated_spam = len(df)
 df = df[~df['text_content'].isin(spam_texts)]
 removed_repeated_spam = before_repeated_spam - len(df)
-logger.info(f"✂️ Removed {removed_repeated_spam} repeated spam messages")
+logger.info(f" Removed {removed_repeated_spam} repeated spam messages")
 
 # Drop temporary column
 df = df.drop(columns=['date_only'])
@@ -254,9 +254,9 @@ def remove_excessive_emojis(text):
     return re.sub(emoji_pattern, '', text)
 
 # Apply text cleaning
-logger.info("🧹 Removing URLs...")
+logger.info("Removing URLs...")
 df['text_content'] = df['text_content'].apply(remove_urls)
-logger.info("🧹 Removing excessive emojis...")
+logger.info("Removing excessive emojis...")
 df['text_content'] = df['text_content'].apply(remove_excessive_emojis)
 
 # Remove extra whitespace
@@ -268,7 +268,7 @@ before_clean_short = len(df)
 df = df[df['text_content'].str.len() >= 10]
 removed_clean_short = before_clean_short - len(df)
 if removed_clean_short > 0:
-    logger.info(f"✂️ Removed {removed_clean_short} posts that became too short after cleaning")
+    logger.info(f" Removed {removed_clean_short} posts that became too short after cleaning")
 
 # ============================================================================
 # STEP 8: FINAL VALIDATION
@@ -278,11 +278,11 @@ logger.info("[STEP 8] Final validation...")
 # Check for any remaining null values in critical columns
 remaining_nulls = df[critical_fields].isnull().sum().sum()
 if remaining_nulls > 0:
-    logger.warning(f"⚠️ {remaining_nulls} null values remain in critical fields")
+    logger.warning(f" {remaining_nulls} null values remain in critical fields")
     df = df.dropna(subset=critical_fields)
 
 # Verify data types
-logger.info("✅ Verified data types:")
+logger.info(" Verified data types:")
 logger.debug(f"unified_id: {df['unified_id'].dtype}")
 logger.debug(f"created_date: {df['created_date'].dtype}")
 logger.debug(f"author: {df['author'].dtype}")
@@ -297,9 +297,9 @@ df = df.reset_index(drop=True)
 
 # Load existing CSV if it exists and append new data
 if OUTPUT_CSV.exists():
-    logger.info(f"📂 Loading existing data from {OUTPUT_CSV}")
+    logger.info(f"Loading existing data from {OUTPUT_CSV}")
     existing_df = pd.read_csv(OUTPUT_CSV)
-    logger.info(f"📊 Existing data: {len(existing_df):,} rows")
+    logger.info(f" Existing data: {len(existing_df):,} rows")
 
     # Combine old and new data
     combined_df = pd.concat([existing_df, df], ignore_index=True)
@@ -309,17 +309,17 @@ if OUTPUT_CSV.exists():
     combined_df = combined_df.drop_duplicates(subset=['unified_id'], keep='first')
     final_dedup_removed = before_final_dedup - len(combined_df)
     if final_dedup_removed > 0:
-        logger.info(f"✂️ Removed {final_dedup_removed} duplicates during merge")
+        logger.info(f" Removed {final_dedup_removed} duplicates during merge")
 
     df_to_save = combined_df
-    logger.info(f"📊 Combined dataset: {len(df_to_save):,} rows")
+    logger.info(f" Combined dataset: {len(df_to_save):,} rows")
 else:
     df_to_save = df
-    logger.info(f"📝 Creating new dataset with {len(df_to_save):,} rows")
+    logger.info(f" Creating new dataset with {len(df_to_save):,} rows")
 
 # Save to CSV
 df_to_save.to_csv(OUTPUT_CSV, index=False)
-logger.info(f"💾 Saved cleaned dataset to: {OUTPUT_CSV}")
+logger.info(f" Saved cleaned dataset to: {OUTPUT_CSV}")
 
 # ============================================================================
 # STEP 10: UPDATE CHECKPOINT
@@ -412,12 +412,12 @@ logger.info("=" * 80)
 logger.info("CLEANING SUMMARY")
 logger.info("=" * 80)
 
-logger.info(f"\n📊 This Run Statistics:")
+logger.info(f"\n This Run Statistics:")
 logger.info(f"New rows processed:  {initial_count:,}")
 logger.info(f"Rows after cleaning: {final_count:,}")
 logger.info(f"Rows removed:        {total_removed:,} ({removal_rate:.2f}%)")
 
-logger.info(f"\n📋 Breakdown of Removed Rows:")
+logger.info(f"\nBreakdown of Removed Rows:")
 logger.info(f"Invalid dates:       {invalid_dates:,}")
 logger.info(f"Missing critical:    {removed_missing:,}")
 logger.info(f"Too short (<10 chr): {removed_short:,}")
@@ -427,7 +427,7 @@ logger.info(f"High-freq posters:   {removed_spam:,}")
 logger.info(f"Repeated spam:       {removed_repeated_spam:,}")
 logger.info(f"Post-cleaning short: {removed_clean_short:,}")
 
-logger.info(f"\n📈 Cumulative Dataset Statistics:")
+logger.info(f"\nCumulative Dataset Statistics:")
 logger.info(f"Total rows:          {len(df_to_save):,}")
 logger.info(f"Total processed IDs: {len(all_processed_ids):,}")
 logger.info(f"Unique authors:      {df_to_save['author'].nunique():,}")
@@ -439,10 +439,10 @@ logger.info(f"Avg text length:     {df_to_save['text_content'].str.len().mean():
 logger.info(f"Memory usage:        {df_to_save.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
 
 logger.info("\n" + "=" * 80)
-logger.info("✅ CLEANING PIPELINE COMPLETED SUCCESSFULLY")
+logger.info(" CLEANING PIPELINE COMPLETED SUCCESSFULLY")
 logger.info("=" * 80)
-logger.info(f"\n📁 Output files:")
+logger.info(f"\n Output files:")
 logger.info(f"  - CSV: {OUTPUT_CSV}")
 logger.info(f"  - Checkpoint: {CHECKPOINT_FILE}")
 logger.info(f"  - Summary: {SUMMARY_FILE}")
-logger.info("🎯 Dataset is ready for NLP analysis!")
+logger.info("Dataset is ready for NLP analysis!")
