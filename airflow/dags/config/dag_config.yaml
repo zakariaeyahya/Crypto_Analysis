@@ -34,3 +34,46 @@ reddit_extraction:
   task_id: 'extract_reddit_crypto_posts'
   pool: 'default_pool'
   priority_weight: 1
+
+# Configuration pour les nouveaux DAGs
+# NOTE: Kaggle download is NOT part of Airflow pipeline
+# Kaggle data must be downloaded manually - consolidation will auto-detect if present
+data_consolidation:
+  dag_id: 'data_consolidation'
+  description: 'Consolidate Reddit and Kaggle data (auto-detect) into master dataset'
+  schedule_interval: '0 7 * * *'  # Daily at 7 AM
+  start_date: '2025-01-01'
+  catchup: true
+  max_active_runs: 1
+
+data_cleaning:
+  dag_id: 'data_cleaning'
+  description: 'Clean master dataset to create silver layer'
+  schedule_interval: '0 8 * * *'  # Daily at 8 AM
+  start_date: '2025-01-01'
+  catchup: true
+  max_active_runs: 1
+
+temporal_splits:
+  dag_id: 'temporal_splits'
+  description: 'Create temporal splits for train/val/test'
+  schedule_interval: '0 9 * * *'  # Daily at 9 AM
+  start_date: '2025-01-01'
+  catchup: true
+  max_active_runs: 1
+
+eda_analysis:
+  dag_id: 'eda_analysis'
+  description: 'Exploratory Data Analysis and visualization'
+  schedule_interval: '0 10 * * 1'  # Monday at 10 AM (weekly)
+  start_date: '2025-01-01'
+  catchup: false
+  max_active_runs: 1
+
+complete_pipeline:
+  dag_id: 'complete_crypto_pipeline'
+  description: 'Complete end-to-end crypto analysis pipeline orchestrator'
+  schedule_interval: '0 6 * * *'  # Daily at 6 AM
+  start_date: '2025-01-01'
+  catchup: true
+  max_active_runs: 1

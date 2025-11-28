@@ -29,7 +29,7 @@ jobs:
         
         # Check for print statements (excluding comments and docstrings)
         if grep -rn "print(" --include="*.py" extraction/ airflow/ | grep -v "^[[:space:]]*#" | grep -v '"""' | grep -v "'''"; then
-          echo "❌ ERROR: Found print() statements in code. Use logger instead."
+          echo " ERROR: Found print() statements in code. Use logger instead."
           exit 1
         fi
         

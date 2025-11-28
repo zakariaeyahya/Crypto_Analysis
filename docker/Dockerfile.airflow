@@ -21,6 +21,9 @@ RUN pip install --no-cache-dir -r /requirements.txt
 # Copy extraction modules
 COPY --chown=airflow:root extraction/ /opt/airflow/extraction/
 
+# Copy data_consolidation module
+COPY --chown=airflow:root data_consolidation/ /opt/airflow/data_consolidation/
+
 # Copy DAGs
 COPY --chown=airflow:root airflow/dags/ /opt/airflow/dags/
 
@@ -31,8 +34,11 @@ COPY --chown=airflow:root airflow/plugins/ /opt/airflow/plugins/
 COPY --chown=airflow:root scripts/start_airflow_combined.sh /start.sh
 RUN chmod +x /start.sh
 
-# Copy GitHub push script
-COPY --chown=airflow:root scripts/push_to_github.py /opt/airflow/scripts/push_to_github.py
+# Create scripts directory (for optional scripts)
+RUN mkdir -p /opt/airflow/scripts
+
+# Copy GitHub push script (if exists - optional)
+# COPY --chown=airflow:root scripts/push_to_github.py /opt/airflow/scripts/push_to_github.py
 
 # Set PYTHONPATH
 ENV PYTHONPATH="/opt/airflow:${PYTHONPATH}"

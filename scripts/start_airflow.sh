@@ -16,7 +16,7 @@ if docker-compose ps | grep -q "Up"; then
     echo "✓ Airflow services started successfully"
     echo "Access Airflow UI at: http://localhost:8080"
 else
-    echo "❌ Error: Some services failed to start"
+    echo " Error: Some services failed to start"
     docker-compose ps
     exit 1
 fi
