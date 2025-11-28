@@ -62,7 +62,7 @@ def check_if_already_executed(**context):
 
         if existing_runs:
             logger.warning("=" * 60)
-            logger.warning("⚠️  PIPELINE ALREADY EXECUTED SUCCESSFULLY TODAY")
+            logger.warning("PIPELINE ALREADY EXECUTED SUCCESSFULLY TODAY")
             logger.warning("=" * 60)
             logger.warning(f"Found {len(existing_runs)} successful run(s) for {execution_date.strftime('%Y-%m-%d')}")
             for run in existing_runs:
@@ -73,7 +73,7 @@ def check_if_already_executed(**context):
             logger.warning("=" * 60)
             return 'skip_pipeline_already_executed'
         else:
-            logger.info("✅ No successful runs found for today - proceeding with execution")
+            logger.info(" No successful runs found for today - proceeding with execution")
             logger.info("=" * 60)
             return 'extract_reddit_data'
 
@@ -109,7 +109,7 @@ def extract_reddit_data(**context):
 
     result = {'posts_extracted': len(df), 'extraction_date': execution_date.isoformat()}
     context['ti'].xcom_push(key='extraction_result', value=result)
-    logger.info(f"✅ Reddit extraction completed: {len(df)} posts")
+    logger.info(f" Reddit extraction completed: {len(df)} posts")
     return result
 
 
@@ -160,7 +160,7 @@ def clean_reddit_data(**context):
         }
 
     context['ti'].xcom_push(key='cleaning_result', value=result)
-    logger.info(f"✅ Cleaning completed: {result.get('initial_rows', 0)} → {result.get('final_rows', 0)} rows")
+    logger.info(f" Cleaning completed: {result.get('initial_rows', 0)} → {result.get('final_rows', 0)} rows")
     return result
 
 
@@ -184,7 +184,7 @@ def validate_cleaned_data(**context):
     }
 
     context['ti'].xcom_push(key='cleaning_validation', value=result)
-    logger.info(f"✅ Cleaning validation passed: {result['total_records']} records")
+    logger.info(f" Cleaning validation passed: {result['total_records']} records")
     return result
 
 
@@ -218,7 +218,7 @@ def run_sentiment_analysis(**context):
         }
 
     context['ti'].xcom_push(key='sentiment_result', value=result)
-    logger.info(f"✅ Sentiment analysis completed: {result.get('processed_rows', 0)} rows processed")
+    logger.info(f" Sentiment analysis completed: {result.get('processed_rows', 0)} rows processed")
     return result
 
 
@@ -232,7 +232,7 @@ def should_run_eda(**context):
     day_of_week = execution_date.weekday()  # 0=Monday, 6=Sunday
 
     # Run EDA every day
-    logger.info(f"✅ Running EDA/NLP analysis (day {day_of_week}) - Daily mode")
+    logger.info(f" Running EDA/NLP analysis (day {day_of_week}) - Daily mode")
     return 'run_eda_analysis'
 
 
@@ -257,7 +257,7 @@ def run_eda_analysis(**context):
         }
 
     context['ti'].xcom_push(key='eda_result', value=result)
-    logger.info(f"✅ EDA analysis completed: {result['plots_generated']} plots generated")
+    logger.info(f" EDA analysis completed: {result['plots_generated']} plots generated")
     return result
 
 
@@ -284,7 +284,7 @@ def save_eda_plots(**context):
         plots_copied += 1
         logger.info(f"Copied {plot_file.name} to {plots_dest}")
 
-    logger.info(f"✅ Copied {plots_copied} plots to {plots_dest}")
+    logger.info(f" Copied {plots_copied} plots to {plots_dest}")
     return {'plots_copied': plots_copied, 'destination': str(plots_dest)}
 
 
@@ -315,7 +315,7 @@ def log_pipeline_completion(**context):
     logger.info(f"  3. Sentiment Analysis:  {sentiment_result.get('processed_rows', 0)} rows analyzed")
     logger.info(f"  4. EDA Analysis:        {eda_result.get('plots_generated', 0)} plots generated")
     logger.info("")
-    logger.info("✅ Complete pipeline executed successfully")
+    logger.info(" Complete pipeline executed successfully")
     logger.info("=" * 80)
 
     summary = {
@@ -348,7 +348,7 @@ def handle_pipeline_failure(**context):
     logger.error(f"Execution date: {execution_date}")
     logger.error(f"Exception: {exception}")
     logger.error("")
-    logger.error("⚠️ Pipeline execution failed - check logs above for details")
+    logger.error("Pipeline execution failed - check logs above for details")
     logger.error("=" * 80)
 
     return {

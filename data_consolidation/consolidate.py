@@ -111,7 +111,7 @@ class DataConsolidator:
             df = pd.read_csv(latest_file, nrows=None)
             df['source_type'] = 'tweet'
             df['source_platform'] = 'kaggle'
-            logger.info(f"✅ Loaded {len(df)} Kaggle records from {latest_file.name}")
+            logger.info(f"Loaded {len(df)} Kaggle records from {latest_file.name}")
             return df
         except Exception as e:
             logger.error(f"Failed to load Kaggle data: {e}")
@@ -353,9 +353,9 @@ def consolidate_bronze_datasets(execution_date: datetime, append: bool = True) -
     kaggle_count = len(kaggle_df)
     
     if kaggle_count > 0:
-        logger.info(f"✅ Kaggle data automatically detected and included: {kaggle_count} records")
+        logger.info(f"Kaggle data automatically detected and included: {kaggle_count} records")
     else:
-        logger.info("ℹ️ No Kaggle data detected - continuing with Reddit only")
+        logger.info("No Kaggle data detected - continuing with Reddit only")
     
     # Standardize schemas
     if not reddit_df.empty:

@@ -178,7 +178,7 @@ if "type" in df.columns:
     plot_path = PLOTS_DIR / "01_posts_comments_distribution.png"
     plt.savefig(plot_path, dpi=300, bbox_inches='tight')
     plt.close()
-    logger.info(f"✅ Saved plot: {plot_path}")
+    logger.info(f"Saved plot: {plot_path}")
 else:
     logger.info("Column 'type' not found in the dataset. Skipping posts/comments distribution chart.")
 
@@ -213,7 +213,7 @@ if "crypto_freq_df" in globals() and not crypto_freq_df.empty:
     plot_path = PLOTS_DIR / "02_top7_cryptos.png"
     plt.savefig(plot_path, dpi=300, bbox_inches='tight')
     plt.close()
-    logger.info(f"✅ Saved plot: {plot_path}")
+    logger.info(f"Saved plot: {plot_path}")
 else:
     logger.info("Crypto frequency DataFrame is empty or not defined. Skipping top 7 chart.")
 
@@ -259,7 +259,7 @@ plt.tight_layout()
 plot_path = PLOTS_DIR / "03_daily_trends.png"
 plt.savefig(plot_path, dpi=300, bbox_inches='tight')
 plt.close()
-logger.info(f"✅ Saved plot: {plot_path}")
+logger.info(f"Saved plot: {plot_path}")
 
 # === Posts and Comments Distribution by Cryptocurrency (Top 10) ===
 
@@ -307,7 +307,7 @@ if "subreddit" in df.columns and "type" in df.columns:
     plot_path = PLOTS_DIR / "04_crypto_distribution_top10.png"
     plt.savefig(plot_path, dpi=300, bbox_inches='tight')
     plt.close()
-    logger.info(f"✅ Saved plot: {plot_path}")
+    logger.info(f"Saved plot: {plot_path}")
 else:
     logger.info("Columns 'subreddit' and/or 'type' not found in the dataset. Skipping crypto distribution chart.")
 

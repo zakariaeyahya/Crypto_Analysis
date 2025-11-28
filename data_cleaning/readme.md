@@ -31,7 +31,7 @@ The following table details the specific criteria for row removal and the number
 
 ---
 
-## 📊 Final Dataset Statistics
+##  Final Dataset Statistics
 
 The resulting clean dataset has the following characteristics:
 
@@ -46,7 +46,7 @@ The resulting clean dataset has the following characteristics:
 
 ---
 
-## ✅ Status
+##  Status
 
 **CLEANING PIPELINE COMPLETED SUCCESSFULLY**
 
