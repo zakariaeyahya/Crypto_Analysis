@@ -16,7 +16,6 @@ data/gold/
 airflow/logs/
 extraction.log
 
-# Environment files (use Railway variables instead)
 .env
 .env.local
 .env.airflow
