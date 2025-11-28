@@ -1,54 +1,295 @@
-# Apache Airflow - Crypto Data Extraction Automation
-
-## Table of Contents
-
-1. [Overview](#overview)
-2. [Architecture](#architecture)
-3. [File Structure](#file-structure)
-4. [File Descriptions](#file-descriptions)
-5. [Installation](#installation)
-6. [Execution](#execution)
-7. [Configuration](#configuration)
-8. [Troubleshooting](#troubleshooting)
-
----
+# Apache Airflow - Crypto Analysis Pipeline
 
 ## Overview
 
-This project automates cryptocurrency data extraction from Reddit using **Apache Airflow** orchestrated by **Docker Compose**. The architecture follows the **Medallion pattern** (Bronze → Silver → Gold).
+Complete automated crypto analysis pipeline using **Apache Airflow** in a single unified DAG. Extracts Reddit cryptocurrency data, consolidates with optional Kaggle data, cleans it, creates temporal splits, and performs exploratory analysis.
 
-### Goals
-- Automate daily Reddit posts extraction (r/CryptoCurrency)
-- Ensure data quality with schema validation
-- Handle errors with automatic retries
-- Track metrics in Airflow UI
-- Support backfill (re-extraction of past dates)
+**Key Features:**
+- Single Unified DAG (all pipeline steps in one workflow)
+- Medallion Architecture: Bronze (raw) → Silver (cleaned) → Gold (analytics)
+- Automatic retries with fault tolerance
+- Kaggle auto-detection (optional data source)
+- Weekly EDA (Monday only)
+- Complete metrics tracking
 
-### Tech Stack
-- **Apache Airflow 2.8.1** - Workflow orchestration
-- **Docker Compose** - Containerization
-- **PostgreSQL** - Airflow metadata storage (NOT extraction data)
-- **LocalExecutor** - Task execution (simple, no Redis/Celery)
-- **Python 3.11** - Development language
+**Tech Stack:** Airflow 2.8.1 | Docker Compose | PostgreSQL | LocalExecutor | Python 3.11
 
 ---
 
 ## Architecture
 
-**Simple 3-service setup (LocalExecutor):**
-
+### Docker Services
 ```
-├── postgres    - Airflow metadata database
-├── webserver   - Web UI (http://localhost:8080)
-└── scheduler   - DAG scheduling + task execution
-```
-
-**Data Flow:**
-```
-Scheduler → Execute DAGs → extraction/ modules → data/bronze/*.csv
+┌─────────────────────────────────────────────┐
+│  PostgreSQL  │  Webserver   │  Scheduler   │
+│  (Metadata)  │  (Port 8080) │  (Executor)  │
+└─────────────────────────────────────────────┘
 ```
 
-**IMPORTANT:** PostgreSQL stores **ONLY Airflow metadata** (DAG runs, logs, states). Extraction data (Reddit) is stored in `data/bronze/` as CSV files.
+### Data Flow
+```
+Scheduler → DAG → Tasks → Scripts → CSV Files
+                           ↓
+           data/bronze/reddit/ | kaggle/
+           data/silver/reddit/
+           data/gold/eda/
+```
+
+**Note:** PostgreSQL stores ONLY Airflow metadata. Data is saved as CSV files.
+
+---
+
+## DAG Structure: complete_crypto_pipeline_unified
+
+**Schedule:** Daily at 6:00 AM (`0 6 * * *`)
+
+**Pipeline (5 Steps, 17 Tasks):**
+```
+START
+  ↓
+[1] Reddit Extraction → extract_reddit_data
+  ↓
+[2] Consolidation → check_bronze_data → consolidate_data → validate_master_dataset
+  ↓
+[3] Cleaning → clean_reddit_data → validate_cleaned_data
+  ↓
+[4] Temporal Splits → create_temporal_splits → validate_splits
+  ↓
+[5] EDA (Monday) → check_eda_schedule → run_eda_analysis → save_eda_plots
+  ↓
+SUCCESS → pipeline_success
+```
+
+---
+
+## Tasks Description
+
+### Step 1: Reddit Extraction
+**`extract_reddit_data`** - Fetch r/CryptoCurrency posts (100/run), save to `data/bronze/reddit/year=YYYY/month=MM/day=DD/`
+
+### Step 2: Data Consolidation
+**`check_bronze_data`** - Branch: verify Reddit data exists, detect optional Kaggle data
+**`consolidate_data`** - Merge Reddit + Kaggle, deduplicate, save to `master_dataset.csv`
+**`validate_master_dataset`** - Validate schema and statistics
+
+**Schema:** unified_id | text_content | created_date | author | source_type | source_platform | subreddit | score
+
+### Step 3: Data Cleaning
+**`clean_reddit_data`** - Remove bots/spam, filter text length, clean URLs → `cleaned_reddit_dataset.csv`
+**`validate_cleaned_data`** - Check quality score and row count
+
+### Step 4: Temporal Splits
+**`create_temporal_splits`** - 30-day window: Train (70%) | Val (13%) | Test (17%)
+**`validate_splits`** - Verify temporal order, no ID overlap
+
+### Step 5: EDA Analysis
+**`check_eda_schedule`** - Branch: run only on Monday
+**`run_eda_analysis`** - Generate crypto trends, activity plots
+**`save_eda_plots`** - Copy to `data/gold/eda/`
+
+### Control Tasks
+**`start_pipeline`** - Entry point
+**`pipeline_success`** - Log metrics, create `pipeline_summary.json`
+**`pipeline_failure`** - Handle errors
+
+---
+
+## Installation
+
+### Prerequisites
+- Docker Desktop
+- Reddit API credentials: https://www.reddit.com/prefs/apps
+
+### Setup (5 Steps)
+
+**1. Configure `.env.airflow`:**
+```bash
+AIRFLOW__WEBSERVER__SECRET_KEY=<generate_with_command_below>
+CLIENT_ID=your_reddit_client_id
+CLIENT_SECRET=your_reddit_client_secret
+REDDIT_USERNAME=your_username
+REDDIT_SECRET=your_password
+```
+
+Generate secret key:
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+**2. Build:**
+```bash
+docker-compose build
+```
+
+**3. Initialize database:**
+```bash
+docker-compose up airflow-init
+```
+
+**4. Start services:**
+```bash
+docker-compose up -d
+```
+
+**5. Verify:**
+```bash
+docker-compose ps
+```
+
+---
+
+## Running Airflow
+
+### Access Web UI
+- URL: **http://localhost:8080**
+- Login: `airflow` / `airflow`
+
+### Activate DAG
+1. Find `complete_crypto_pipeline_unified`
+2. Toggle switch to **ON**
+3. Runs daily at 6 AM or trigger manually
+
+### Monitor Execution
+- **Graph View**: Visual pipeline (color-coded states)
+- **Task Logs**: Click task → Log tab
+- **XCom**: Click task → XCom tab (view metrics)
+
+**Task Colors:**
+- 🟢 Green = Success
+- 🔵 Blue = Running
+- 🔴 Red = Failed
+- ⚪ Gray = Pending
+
+---
+
+## Configuration
+
+### Change Schedule
+Edit `complete_crypto_pipeline_unified.py`:
+```python
+schedule_interval='0 6 * * *',  # Daily at 6 AM
+```
+
+**Examples:**
+- `0 */2 * * *` - Every 2 hours
+- `0 0 * * 0` - Weekly Sunday
+- `*/30 * * * *` - Every 30 minutes
+
+### Modify Retries
+```python
+default_args = {
+    'retries': 1,
+    'retry_delay': timedelta(minutes=10),
+}
+```
+
+### Backfill Past Dates
+```bash
+docker-compose exec airflow-scheduler airflow dags backfill \
+  complete_crypto_pipeline_unified \
+  --start-date 2025-01-01 \
+  --end-date 2025-01-10
+```
+
+---
+
+## Monitoring
+
+### View Logs
+```bash
+# Scheduler logs
+docker-compose logs -f airflow-scheduler
+
+# Webserver logs
+docker-compose logs -f airflow-webserver
+```
+
+### Check Pipeline Summary
+After run, check: `data/gold/pipeline_summary.json`
+
+Contains extraction, consolidation, cleaning, splits, and EDA metrics.
+
+### Useful Commands
+```bash
+# List DAGs
+docker-compose exec airflow-scheduler airflow dags list
+
+# List tasks
+docker-compose exec airflow-scheduler airflow tasks list complete_crypto_pipeline_unified
+
+# Test DAG
+docker-compose exec airflow-scheduler airflow dags test complete_crypto_pipeline_unified 2025-01-22
+
+# Check errors
+docker-compose exec airflow-scheduler airflow dags list-import-errors
+
+# Restart services
+docker-compose restart airflow-scheduler
+docker-compose restart airflow-webserver
+
+# Stop
+docker-compose down
+
+# Stop + remove data (CAUTION!)
+docker-compose down -v
+```
+
+---
+
+## Troubleshooting
+
+### 1. DAG Not Appearing
+```bash
+# Check file exists
+docker-compose exec airflow-scheduler ls -la /opt/airflow/dags/
+
+# Check errors
+docker-compose exec airflow-scheduler airflow dags list-import-errors
+
+# Restart
+docker-compose restart airflow-scheduler
+```
+
+### 2. Import Errors
+```bash
+# Check modules
+docker-compose exec airflow-scheduler ls -la /opt/airflow/extraction/
+
+# Verify PYTHONPATH
+docker-compose exec airflow-scheduler python -c "import sys; print(sys.path)"
+
+# Rebuild
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+### 3. Data Not Saved
+```bash
+# Check directory
+docker-compose exec airflow-scheduler ls -la /opt/airflow/data/bronze/reddit/
+
+# Check permissions
+docker-compose exec airflow-scheduler ls -la /opt/airflow/data/
+```
+
+### 4. Placeholder Warnings
+Tasks showing `⚠️ not yet implemented` are expected. Create these modules for full functionality:
+- `data_consolidation/consolidate.py`
+- `airflow/dags/wrappers/cleaning_wrapper.py`
+- `airflow/dags/wrappers/temporal_splits_wrapper.py`
+- `airflow/dags/wrappers/eda_wrapper.py`
+
+### 5. Web UI Not Loading
+```bash
+# Check status
+docker-compose ps
+
+# Check logs
+docker-compose logs airflow-webserver
+
+# Restart
+docker-compose restart airflow-webserver
+```
 
 ---
 
@@ -56,401 +297,90 @@ Scheduler → Execute DAGs → extraction/ modules → data/bronze/*.csv
 
 ```
 Crypto_Analysis/
-├── extraction/                      # Extraction modules (existing)
-│   ├── models/
-│   │   ├── config.py               # RedditConfig
-│   │   ├── exceptions.py           # Custom exceptions
-│   │   └── validators.py           # Schema validation
-│   └── services/
-│       ├── reddit_extractor.py     # RedditExtractor
-│       └── twitter_extractor.py    # (Non-functional)
-│
-├── airflow/                         # Airflow configuration
+├── airflow/
 │   ├── dags/
-│   │   ├── reddit_extraction_dag.py     # Daily Reddit DAG
-│   │   └── config/
-│   │       └── dag_config.yaml          # DAG configuration
-│   ├── plugins/                          # Airflow plugins (optional)
-│   ├── logs/                             # Airflow logs (auto-created)
-│   └── config/
-│       └── airflow.cfg                   # Advanced config (optional)
-│
+│   │   └── complete_crypto_pipeline_unified.py  ← SINGLE DAG
+│   ├── logs/                                     ← Auto-generated
+│   └── plugins/
 ├── docker/
-│   ├── Dockerfile.airflow               # Custom Airflow image
-│   └── requirements-airflow.txt         # Python dependencies
-│
-├── data/                                 # Extracted data (Medallion)
-│   ├── bronze/                           # Raw data
-│   │   └── reddit/year=YYYY/month=MM/day=DD/
-│   ├── silver/                           # Cleaned data
-│   └── gold/                             # Enriched data
-│
-├── .env                                  # Main env vars (existing)
-├── .env.airflow                          # Airflow env vars
-├── docker-compose.yml                    # Docker orchestration
-└── README_AIRFLOW.md                     # This file
+│   ├── Dockerfile.airflow
+│   └── requirements-airflow.txt
+├── data/                                         ← Medallion
+│   ├── bronze/reddit/                            ← Raw
+│   ├── bronze/kaggle/                            ← Optional
+│   ├── silver/reddit/                            ← Cleaned
+│   └── gold/eda/                                 ← Analytics
+├── extraction/                                   ← Extraction modules
+├── docker-compose.yml
+├── .env.airflow
+└── README_AIRFLOW.md
 ```
 
 ---
 
-## File Descriptions
+## Quick Start Checklist
 
-### 1. `docker/requirements-airflow.txt`
-
-**Purpose:** Python dependencies for Airflow and extractors.
-
-**Content:**
-```txt
-apache-airflow
-apache-airflow-providers-postgres
-praw
-pandas
-numpy
-python-dotenv
-pyyaml
-psycopg2-binary
-requests
-pytz
-```
+- [ ] Install Docker Desktop
+- [ ] Get Reddit API credentials
+- [ ] Edit `.env.airflow` with credentials
+- [ ] Generate secret: `python -c "import secrets; print(secrets.token_urlsafe(32))"`
+- [ ] Build: `docker-compose build`
+- [ ] Init: `docker-compose up airflow-init`
+- [ ] Start: `docker-compose up -d`
+- [ ] Access: http://localhost:8080 (airflow/airflow)
+- [ ] Activate DAG toggle
+- [ ] Trigger manual run
+- [ ] Verify data in `data/bronze/reddit/`
 
 ---
 
-### 2. `docker/Dockerfile.airflow`
+## Pipeline Outputs
 
-**Purpose:** Custom Airflow Docker image with extraction modules.
+### Bronze Layer
+`data/bronze/reddit/year=YYYY/month=MM/day=DD/*.csv` - Raw Reddit extractions
 
-**What it does:**
-1. Start from official Airflow 2.8.1 image
-2. Install gcc (for Python package compilation)
-3. Install Python dependencies
-4. Copy `extraction/` folder into container
-5. Set PYTHONPATH to import modules
+### Silver Layer
+- `data/silver/reddit/cleaned_reddit_dataset.csv` - Cleaned data
+- `data/silver/reddit/train_data.csv` - Training split (70%)
+- `data/silver/reddit/validation_data.csv` - Validation split (13%)
+- `data/silver/reddit/test_data.csv` - Test split (17%)
+
+### Gold Layer
+- `data/gold/eda/*.png` - EDA visualizations
+- `data/gold/pipeline_summary.json` - Complete metrics
 
 ---
 
-### 3. `.env.airflow`
+## Advanced Configuration
 
-**Purpose:** Environment variables for Airflow and credentials.
-
-**Key variables:**
+### Environment Variables (.env.airflow)
 ```bash
-AIRFLOW_UID=50000
+# Core
 AIRFLOW__CORE__EXECUTOR=LocalExecutor
 AIRFLOW__CORE__LOAD_EXAMPLES=False
-AIRFLOW__WEBSERVER__SECRET_KEY=<GENERATE_ME>
 
+# Database
 AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
 
-CLIENT_ID=your_client_id
-CLIENT_SECRET=your_client_secret
-REDDIT_USERNAME=your_username
-REDDIT_SECRET=your_password
-
-REDDIT_SUBREDDIT=CryptoCurrency
-MAX_POSTS=100
-CRYPTO_KEYWORDS=bitcoin,ethereum,crypto
+# Reddit API
+CLIENT_ID=your_id
+CLIENT_SECRET=your_secret
+REDDIT_USERNAME=username
+REDDIT_SECRET=password
 ```
 
-**IMPORTANT:** Generate secret key with:
-```bash
-python -c "import secrets; print(secrets.token_urlsafe(32))"
-```
-
----
-
-### 4. `docker-compose.yml`
-
-**Purpose:** Orchestrate 3 Docker services.
-
-**Services:**
-
-1. **postgres** - Airflow metadata database
-   - Image: `postgres:13`
-   - Volume: `postgres-db-volume`
-
-2. **airflow-webserver** - Web UI
-   - Build: `docker/Dockerfile.airflow`
-   - Port: `8080`
-   - Volumes: dags, logs, plugins, data, .env
-
-3. **airflow-scheduler** - Scheduler + Executor
-   - Build: `docker/Dockerfile.airflow`
-   - Volumes: dags, logs, plugins, data, .env
-   - Executes tasks with LocalExecutor
-
----
-
-### 5. `airflow/dags/config/dag_config.yaml`
-
-**Purpose:** Centralized DAG configuration.
-
-**Structure:**
-```yaml
-default_args:
-  owner: 'crypto-team'
-  depends_on_past: false
-  email_on_failure: false
-  email_on_retry: false
-  retries: 3
-  retry_delay_minutes: 5
-  execution_timeout_minutes: 30
-
-reddit_extraction:
-  dag_id: 'reddit_crypto_extraction'
-  description: 'Daily extraction of cryptocurrency posts from r/CryptoCurrency'
-  schedule_interval: '0 6 * * *'
-  start_date: '2025-01-01'
-  catchup: true
-  max_active_runs: 1
-  subreddit: 'CryptoCurrency'
-  max_posts: 100
-  sort_by: 'hot'
-  time_filter: 'day'
-  crypto_keywords:
-    - 'bitcoin'
-    - 'ethereum'
-    - 'crypto'
-    - 'cryptocurrency'
-    - 'blockchain'
-    - 'BTC'
-    - 'ETH'
-  output_format: 'csv'
-  partition_by:
-    - 'year'
-    - 'month'
-    - 'day'
-  task_id: 'extract_reddit_crypto_posts'
-  pool: 'default_pool'
-  priority_weight: 1
-```
-
----
-
-### 6. `airflow/dags/reddit_extraction_dag.py`
-
-**Purpose:** Daily Reddit extraction DAG.
-
-**Implementation:**
+### DAG Configuration
 ```python
-from airflow import DAG
-from airflow.operators.python import PythonOperator
-from datetime import datetime, timedelta
-from pathlib import Path
-import yaml
-
-from extraction.models import RedditConfig
-from extraction.services.reddit_extractor import RedditExtractor
-
-
-def extract_reddit_data(**context):
-    config = RedditConfig()
-    extractor = RedditExtractor(config)
-
-    df = extractor.fetch_posts(
-        subreddit_name='CryptoCurrency',
-        query='bitcoin OR ethereum',
-        limit=100
-    )
-
-    extractor.save_to_bronze(df, 'reddit_posts', execution_date=context['execution_date'])
-    return {'posts_extracted': len(df)}
-
-
-config_path = Path(__file__).parent / 'config' / 'dag_config.yaml'
-with open(config_path, 'r') as f:
-    config = yaml.safe_load(f)
-
-reddit_config = config['reddit_extraction']
-default_args = config['default_args']
-default_args['retry_delay'] = timedelta(minutes=default_args.pop('retry_delay_minutes'))
-
-with DAG(
-    dag_id=reddit_config['dag_id'],
-    description=reddit_config['description'],
-    schedule_interval=reddit_config['schedule_interval'],
-    start_date=datetime.strptime(reddit_config['start_date'], '%Y-%m-%d'),
-    catchup=reddit_config['catchup'],
-    max_active_runs=reddit_config['max_active_runs'],
-    default_args=default_args,
-    tags=['reddit', 'crypto', 'extraction']
-) as dag:
-
-    extract_task = PythonOperator(
-        task_id=reddit_config['task_id'],
-        python_callable=extract_reddit_data,
-        provide_context=True
-    )
+default_args = {
+    'owner': 'crypto-team',
+    'retries': 1,
+    'retry_delay': timedelta(minutes=10),
+    'execution_timeout': timedelta(hours=4)
+}
 ```
-
----
-
-## Installation
-
-### Prerequisites
-- Docker Desktop (Windows/Mac) or Docker Engine (Linux)
-- Git
-- Reddit API credentials: https://www.reddit.com/prefs/apps
-
-### Steps
-
-**1. Configure credentials**
-```bash
-notepad .env.airflow
-
-python -c "import secrets; print(secrets.token_urlsafe(32))"
-```
-
-**2. Build Docker image**
-```bash
-docker-compose build
-```
-
-**3. Initialize Airflow database**
-```bash
-docker-compose up airflow-init
-```
-
-**4. Start services**
-```bash
-docker-compose up -d
-```
-
-**5. Verify services**
-```bash
-docker-compose ps
-```
-
----
-
-## Execution
-
-### Access Airflow UI
-- URL: http://localhost:8080
-- Username: `airflow`
-- Password: `airflow`
-
-### Activate DAGs
-1. In Airflow UI, toggle DAGs ON
-2. DAGs will run according to schedule
-3. Or trigger manually: Click DAG → Trigger button
-
-### Monitor
-- **Graph view**: See task status
-- **Logs**: Click task → View Logs
-- **XCom**: See returned metrics
-
-### Useful Commands
-```bash
-docker-compose logs -f airflow-scheduler
-docker-compose logs -f airflow-webserver
-
-docker-compose exec airflow-webserver bash
-
-docker-compose exec airflow-scheduler airflow dags list
-
-docker-compose exec airflow-scheduler airflow dags test reddit_crypto_extraction 2025-01-01
-
-docker-compose restart airflow-scheduler
-
-docker-compose down
-
-docker-compose down -v
-```
-
----
-
-## Configuration
-
-### Schedules (Cron)
-
-Format: `minute hour day_of_month month day_of_week`
-
-Examples:
-- `0 6 * * *` - Daily at 6:00 AM
-- `*/30 * * * *` - Every 30 minutes
-- `0 0 1 * *` - 1st of each month at midnight
-
-### Retries
-
-Configured in `dag_config.yaml`:
-```yaml
-default_args:
-  retries: 3
-  retry_delay_minutes: 5
-```
-
-### Backfill
-
-Run DAG for past dates:
-```bash
-docker-compose exec airflow-scheduler airflow dags backfill \
-  reddit_crypto_extraction \
-  --start-date 2025-01-01 \
-  --end-date 2025-01-10
-```
-
----
-
-## Troubleshooting
-
-### 1. DAGs not appearing in UI
-
-**Solutions:**
-```bash
-docker-compose exec airflow-scheduler ls -la /opt/airflow/dags/
-docker-compose exec airflow-scheduler airflow dags list
-docker-compose logs airflow-scheduler | grep ERROR
-docker-compose restart airflow-scheduler
-```
-
-### 2. Module not found error
-
-**Solutions:**
-```bash
-docker-compose exec airflow-scheduler ls -la /opt/airflow/extraction/
-docker-compose exec airflow-scheduler python -c "import sys; print(sys.path)"
-docker-compose build --no-cache
-docker-compose up -d
-```
-
-### 3. Data not saved
-
-**Solutions:**
-```bash
-docker-compose exec airflow-scheduler ls -la /opt/airflow/data/bronze/
-```
-
----
-
-## Next Steps
-
-**1. Configure credentials in `.env.airflow`**
-```bash
-notepad .env.airflow
-```
-
-**2. Generate secret key**
-```bash
-python -c "import secrets; print(secrets.token_urlsafe(32))"
-```
-
-**3. Build and start**
-```bash
-docker-compose build
-docker-compose up airflow-init
-docker-compose up -d
-```
-
-**4. Access UI**
-```
-http://localhost:8080
-Username: airflow
-Password: airflow
-```
-
-**5. Activate DAG in UI and test**
 
 ---
 
 **Author:** Zakariae
-**Last Updated:** 2025-01-13
+**Version:** Unified Pipeline v2.0
+**Updated:** 2025-01-22

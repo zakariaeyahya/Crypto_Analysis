@@ -1,0 +1,72 @@
+submission_id,title,text,url,post_author,score,num_comments,upvote_ratio,subreddit,query,source,created_utc,created_datetime
+1p8aovb,"Bitcoin addresses with over 1,000 coins surge during recent market dip",,https://cryptobriefing.com/bitcoin-whale-accumulation-market-dip-2024/,KIG45,1,0,1.0,CryptoCurrency,bitcoin OR ethereum,reddit_post,1764271321.0,2025-11-27T19:22:01
+1p89kxv,How Btc fluctuations are puzzling traders as Btc stuck around 91k and nobody knows which way it's breaking,"Bitcoin is hovering in the low 90k range right now (around 91k as I write this) after a brutal drawdown from the October all time high near 126k. That peak-to-trough move of roughly one third has been described by BeinCrypto as the steepest pullback of this bull cycle so far, and you can feel the uncertainty in the way people are trading.
+
+Some on-chain and technical analysts are arguing that, despite how nasty this correction has been, the broader uptrend from the past year and a half is still intact. They’re basically framing this as a classic bull market pullback – ugly in the short term, but still within the kind of drawdowns we saw in previous cycles before new highs.
+
+The other camp is more cautious. Bitcoin has run straight into resistance in this low-90k area and stalled. If buyers can’t step in soon and turn this into a clean higher low, there’s a real chance we end up retesting the recent lows down in the low-80k region – and a decisive break below 80k is exactly the kind of level some analysts have warned could accelerate selling.
+
+A lot of traders are starting to treat this as a potential range rather than a straight trend. The idea is something like: resistance up around the low-90s, support down near the prior lows, and opportunities only at the extremes – fade euphoria near the top of the range and bid fear near the bottom – until the macro picture or flows force a real breakout.
+
+The problem is that short term players are going to get wrecked whichever way it eventually breaks. If price squeezes above the current resistance, anyone who’s been shorting every lower high gets steamrolled. If we lose those low-80s supports, all the “buy every dip” crowd gets dragged into a much deeper drawdown than they signed up for.
+
+Right now it feels like a waiting game. Macro data and the next Fed decision are hanging over everything, liquidity is thinner than it was near the top, and volatility is sleeping just enough to make people overconfident. Whether this turns into a proper higher-low reset or the start of a larger unwind probably depends less on the next meme line on the chart and more on whether real spot and ETF demand actually shows up again.",https://www.reddit.com/r/CryptoCurrency/comments/1p89kxv/how_btc_fluctuations_are_puzzling_traders_as_btc/,hodorrny,0,6,0.17,CryptoCurrency,bitcoin OR ethereum,reddit_post,1764268512.0,2025-11-27T18:35:12
+1p89h16,Jim Cramer Picked The Literal Bottom Of The Bitcoin Dip… Again! Every. Single. Time…,Source: [https://x.com/BitcoinArchive/status/1994041825586524308](https://x.com/BitcoinArchive/status/1994041825586524308),https://www.reddit.com/gallery/1p89h16,kirtash93,46,10,0.93,CryptoCurrency,bitcoin OR ethereum,reddit_post,1764268243.0,2025-11-27T18:30:43
+1p89dz9,Hashed CEO built a valuation dashboard that says ETH is 58% undervalued – but the models are all over the place,"Simon Kim from Hashed just launched this dashboard called ETHval that tries to calculate Ethereums “intrinsic value” using 8 different models. Right now ETH is trading around 3034 dollars but his composite fair value shows about 4777 which means its roughly 58 percent undervalued according to his weighted analysis.
+
+The thing is the models give wildly different results. Some are super bullish like the Metcalfes Law model valuing ETH at around 9586 which would be about a 216 percent gain from here. The staking rewards DCF model puts it at roughly 9102 and both of these are in the “aggressive upside” camp, with the Metcalfe model specifically tagged as high reliability on the dashboard.
+
+But then you got other models saying ETH is actually overvalued. The price to earnings ratio model values it at only about 957 making it roughly 68 percent overvalued. The revenue yield model says around 1532 so about 49 percent overvalued. And these income style models also get high reliability scores.
+
+So how does he get to “58 percent undervalued”? He weights the models differently. High reliability models get multiplied by 9, medium by 5 and low by 2. Since those aggressive DCF and Metcalfe style models are weighted heavily they pull the composite value way up even though a couple of conservative models are pointing down.
+
+Kim was pretty honest about it saying the crypto industry deserves better than pure price speculation and that the models are far from perfect and open to feedback. At least hes transparent about the assumptions and reliability tags instead of just throwing out a single target price with no context.
+
+The dashboard overall gives you five buy signals one hold and two sell signals. But whether you believe ETH is undervalued really depends on which model you think actually maps reality better… the revenue and fee based ones or the long term network effect and staking based ones.",https://www.reddit.com/r/CryptoCurrency/comments/1p89dz9/hashed_ceo_built_a_valuation_dashboard_that_says/,Gullible-Tale9114,1,0,1.0,CryptoCurrency,bitcoin OR ethereum,reddit_post,1764268038.0,2025-11-27T18:27:18
+1p88w3b,Cathie Wood says ARK’s $1.5M Bitcoin bull price hasn’t changed as markets eye rally,,https://cointelegraph.com/news/cathie-wood-bitcoin-15m-bull-target-holds-amid-market-rebound,DryMyBottom,2,3,0.75,CryptoCurrency,bitcoin OR ethereum,reddit_post,1764266799.0,2025-11-27T18:06:39
+1p86qsi,JPMorgan opens leveraged Bitcoin access to retail while closing crypto CEO’s account,,https://cryptoslate.com/jpmorgan-opens-leveraged-bitcoin-access-to-retail-while-closing-crypto-ceos-account/,DirectionMundane5468,56,5,0.99,CryptoCurrency,bitcoin OR ethereum,reddit_post,1764261606.0,2025-11-27T16:40:06
+1p86p8i,Ethereum raises block gas limit to 60M as network capacity climbs ahead of Fusaka,,https://cointelegraph.com/news/ethereum-validators-push-gas-limit-60m-scaling,DirectionMundane5468,11,3,0.88,CryptoCurrency,bitcoin OR ethereum,reddit_post,1764261500.0,2025-11-27T16:38:20
+1p85gqk,Bitcoin sees ‘significant step forward’ as $97K BTC price targets return,,https://cointelegraph.com/news/bitcoin-significant-step-forward-97k-btc-price-targets-return,KIG45,35,10,0.9,CryptoCurrency,bitcoin OR ethereum,reddit_post,1764258524.0,2025-11-27T15:48:44
+1p83q1n,Ethereum Raise Gas Limit,,https://peakd.com/hive-167922/@taskmaster4450/ethereum-raise-gas-limit-dyg,davideownzall,1,0,0.67,CryptoCurrency,bitcoin OR ethereum,reddit_post,1764254174.0,2025-11-27T14:36:14
+1p7ycjr,[AMA] ETH Strategy - Wartime Ethereum,"Hello [r/CryptoCurrency](https://www.reddit.com/r/CryptoCurrency/)! ETH Strategy is an onchain protocol that accumulates ETH. We have about 12,000 ETH so far, making us one of the largest ETH treasury companies, our major point of differentiation is being completely onchain. 
+
+To simplify a complicated protocol, we want to build the best long-term leveraged bet on Ethereum. We believe ETH is going to 10k and we want to structure a trade to take advantage of that. 
+
+The other half of the protocol is to provide downside-protected yield to people who want to farm crypto's volatility without being exposed to price.  
+
+I am stableshaman on Twitter I love Defi, in particular lending and stablecoins (obviously). I will pass on questions to our other team members: 
+
+Cloutedmind, Econdegen, Napenjoyer and 0xTex
+
+We would love to answer any questions about ETH Strategy, Defi or in particular options, as structured options trades are a hyper-fixation for the team. 
+
+Super excited, ask away! ",https://www.reddit.com/r/CryptoCurrency/comments/1p7ycjr/ama_eth_strategy_wartime_ethereum/,Shaman_ETH_Strategy,20,13,0.81,CryptoCurrency,bitcoin OR ethereum,reddit_post,1764237018.0,2025-11-27T09:50:18
+1p7y9ku,"Ethereum Surges Past $3,000 with Fusaka Update Boost",,https://en.coin-turk.com/ethereum-surges-past-3000-with-fusaka-update-boost/,DryMyBottom,18,11,0.67,CryptoCurrency,bitcoin OR ethereum,reddit_post,1764236702.0,2025-11-27T09:45:02
+1p7xzrm,"Bitcoin rebounds above $91,000 as December rate cut odds rise",,https://www.theblock.co/post/380655/bitcoin-rebounds-above-91000,Every_Hunt_160,36,13,0.87,CryptoCurrency,bitcoin OR ethereum,reddit_post,1764235603.0,2025-11-27T09:26:43
+1p7ws9m,Conversion of USDT trc 20 to USDT erc 20 from legit site,"Hello guys,
+
+1. **Which is the most reliable and legit CEX or DEX platform to convert USDT TRC-20 to ERC-20 with minimum fees?**
+2. Are **Binance, OKX, Bybit, or KuCoin** good options for this kind of conversion? Has anyone tried depositing via TRC-20 and withdrawing via ERC-20 to minimize fees?
+3. Does converting directly using a centralized exchange help avoid expensive bridging costs?
+4. For decentralized alternatives, is it worth using **bridges like Synapse, Orbiter, or Multichain**? Are they safe and affordable, or do they end up charging more due to Ethereum gas?
+5. **What is the best time to carry out the transaction?** (e.g., low gas fee timings—early morning UTC or late night IST?)
+6. Has anyone faced any issues sending **TRC-20 USDT to wallets configured for ERC-20** mistakenly? What precautions should I take to avoid such fund loss?
+7. Any **recommended strategy or step-by-step method** to perform this conversion smoothly?
+
+# My Objective:
+
+I am looking for:  
+✔️ A **trusted platform (DEX or CEX)**  
+✔️ **Lowest possible conversion fees**  
+✔️ High **security and legitimacy**  
+✔️ **Step-wise advice or actual user experience**
+
+# Additional Concerns:
+
+* Is it safer to use **Binance (TRC-20 deposit → ERC-20 withdrawal)** compared to DeFi bridges?
+* Are swap providers like **1inch or Changelly** reliable in this particular case?
+* Should I wait for optimal gas timing before making the swap?I’d really appreciate it if anyone could share their experience, recommend the best platform, or provide tips on how to execute this conversion efficiently without overpaying in gas or withdrawal fees.
+
+Thanks in advance to everyone who can help! Looking forward to your suggestions and best practices.
+
+Scammer please stay away",https://www.reddit.com/r/CryptoCurrency/comments/1p7ws9m/conversion_of_usdt_trc_20_to_usdt_erc_20_from/,spez666,0,5,0.4,CryptoCurrency,bitcoin OR ethereum,reddit_post,1764230953.0,2025-11-27T08:09:13
