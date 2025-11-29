@@ -4,7 +4,8 @@ import torch
 import re
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, classification_report
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, AdamW, get_scheduler
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_scheduler
+from torch.optim import AdamW
 from torch.utils.data import DataLoader, Dataset
 from tqdm.auto import tqdm
 import gc  # Garbage Collector
@@ -50,23 +51,26 @@ def clean_tweet(text):
     text = text.lower()  # Convert to lowercase
     return text.strip()
 
-def load_and_prepare_data(path, sample_size=50000):
+def load_and_prepare_data(path, sample_size=None):
     """Loads, cleans, and prepares data from the CSV file."""
     logging.info("Loading and cleaning data...")
     # The CSV file has no header, so we name the columns manually
     df = pd.read_csv(path, header=None, names=['text', 'sentiment'])
 
+    # 1. Filter for positive and negative sentiments only
+    logging.info(f"Original dataset size: {len(df)}")
+    df = df[df['sentiment'].isin([0, 2])].copy()
+    logging.info(f"Dataset size after filtering for positive/negative: {len(df)}")
+
     if sample_size:
         logging.info(f"Using a sample of {sample_size} tweets.")
         df = df.sample(n=sample_size, random_state=42)
 
-    # Map numerical sentiments to labels
-    sentiment_map = {0: 'negative', 1: 'neutral', 2: 'positive'}
-    label_map = {'negative': 0, 'neutral': 1, 'positive': 2}
-
-    df['sentiment_label'] = df['sentiment'].map(sentiment_map)
-    df['label'] = df['sentiment_label'].map(label_map)
-
+    # 2. Map sentiments to new binary labels (0 for negative, 1 for positive)
+    label_map = {'negative': 0, 'positive': 1}
+    df['label'] = df['sentiment'].map({0: 0, 2: 1}) # 0 -> negative, 2 -> positive
+    df['sentiment_label'] = df['label'].map({v: k for k, v in label_map.items()})
+    
     df.dropna(subset=['label', 'text'], inplace=True)
     df['label'] = df['label'].astype(int)
 
