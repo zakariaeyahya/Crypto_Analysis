@@ -1,8 +1,8 @@
 """
 Complete Crypto Analysis Pipeline with Sentiment Analysis
-This DAG contains: Extraction → Cleaning → Sentiment Analysis → EDA/NLP
+This DAG contains: Extraction → Cleaning → Sentiment Analysis
 - Incremental sentiment analysis using fine-tuned RoBERTa model
-- Plots organized by date in data/silver/reddit/plots/
+- EDA/NLP step has been removed from the pipeline
 """
 from airflow import DAG
 from airflow.operators.python import PythonOperator, BranchPythonOperator
@@ -13,7 +13,6 @@ import yaml
 import logging
 import sys
 import json
-import shutil
 
 # Add modules to path
 sys.path.insert(0, '/opt/airflow')
@@ -100,7 +99,7 @@ def extract_reddit_data(**context):
     logger.info("Fetching posts from r/CryptoCurrency")
     df = extractor.fetch_posts(
         subreddit_name='CryptoCurrency',
-        query='bitcoin OR ethereum',
+        query='bitcoin OR solana',
         limit=500  # Increased to 500 to get more posts
     )
 
@@ -191,7 +190,7 @@ def validate_cleaned_data(**context):
 # ============================================================================
 #                           4. TEMPORAL SPLITS - REMOVED
 # ============================================================================
-# Temporal splits removed - data goes directly from cleaning to EDA
+# Temporal splits removed - data goes directly from cleaning to sentiment
 
 
 # ============================================================================
@@ -223,69 +222,9 @@ def run_sentiment_analysis(**context):
 
 
 # ============================================================================
-#                           4. EDA ANALYSIS + NLP
+#                           4. EDA ANALYSIS + NLP - REMOVED
 # ============================================================================
-
-def should_run_eda(**context):
-    """Run EDA daily (incremental analysis)"""
-    execution_date = context['execution_date']
-    day_of_week = execution_date.weekday()  # 0=Monday, 6=Sunday
-
-    # Run EDA every day
-    logger.info(f" Running EDA/NLP analysis (day {day_of_week}) - Daily mode")
-    return 'run_eda_analysis'
-
-
-def run_eda_analysis(**context):
-    """Execute EDA and NLP analysis on cleaned data with sentiment"""
-    logger.info("=" * 60)
-    logger.info("STEP 4: EDA/NLP Analysis (DAILY)")
-    logger.info("=" * 60)
-
-    # Import EDA wrapper (from dags/wrappers/)
-    from wrappers.eda_wrapper import execute_eda
-
-    # Run EDA on complete master dataset
-    try:
-        result = execute_eda(**context)
-    except Exception as e:
-        logger.error(f"EDA analysis failed: {e}")
-        # Return default values if script fails
-        result = {
-            'plots_generated': 0,
-            'cryptos_analyzed': 0
-        }
-
-    context['ti'].xcom_push(key='eda_result', value=result)
-    logger.info(f" EDA analysis completed: {result['plots_generated']} plots generated")
-    return result
-
-
-def save_eda_plots(**context):
-    """Save EDA plots to silver layer organized by date"""
-    logger.info("Saving EDA plots...")
-
-    execution_date = context['execution_date']
-    date_folder = execution_date.strftime('%Y-%m-%d')
-
-    plots_source = Path("EDA_Task/plots")
-    # New structure: data/silver/reddit/plots/YYYY-MM-DD/
-    plots_dest = Path(f"data/silver/reddit/plots/{date_folder}")
-    plots_dest.mkdir(parents=True, exist_ok=True)
-
-    if not plots_source.exists():
-        logger.warning(f"Plots directory not found: {plots_source}")
-        return {'plots_copied': 0, 'destination': str(plots_dest)}
-
-    plots_copied = 0
-    for plot_file in plots_source.glob("*.png"):
-        dest_file = plots_dest / plot_file.name
-        shutil.copy2(plot_file, dest_file)
-        plots_copied += 1
-        logger.info(f"Copied {plot_file.name} to {plots_dest}")
-
-    logger.info(f" Copied {plots_copied} plots to {plots_dest}")
-    return {'plots_copied': plots_copied, 'destination': str(plots_dest)}
+# EDA/NLP step removed - pipeline ends after sentiment analysis
 
 
 # ============================================================================
@@ -301,11 +240,10 @@ def log_pipeline_completion(**context):
     ti = context['ti']
     execution_date = context['execution_date']
 
-    # Retrieve results from XCom (with sentiment analysis)
+    # Retrieve results from XCom (without EDA)
     extraction_result = ti.xcom_pull(task_ids='extract_reddit_data', key='extraction_result') or {}
     cleaning_result = ti.xcom_pull(task_ids='clean_reddit_data', key='cleaning_result') or {}
     sentiment_result = ti.xcom_pull(task_ids='run_sentiment_analysis', key='sentiment_result') or {}
-    eda_result = ti.xcom_pull(task_ids='run_eda_analysis', key='eda_result') or {}
 
     logger.info(f"Execution date: {execution_date}")
     logger.info("")
@@ -313,7 +251,6 @@ def log_pipeline_completion(**context):
     logger.info(f"  1. Reddit Extraction:   {extraction_result.get('posts_extracted', 0)} posts")
     logger.info(f"  2. Cleaning:            {cleaning_result.get('final_rows', 0)} clean records")
     logger.info(f"  3. Sentiment Analysis:  {sentiment_result.get('processed_rows', 0)} rows analyzed")
-    logger.info(f"  4. EDA Analysis:        {eda_result.get('plots_generated', 0)} plots generated")
     logger.info("")
     logger.info(" Complete pipeline executed successfully")
     logger.info("=" * 80)
@@ -323,8 +260,7 @@ def log_pipeline_completion(**context):
         'execution_date': execution_date.isoformat(),
         'extraction': extraction_result,
         'cleaning': cleaning_result,
-        'sentiment': sentiment_result,
-        'eda': eda_result
+        'sentiment': sentiment_result
     }
 
     # Save summary to file
@@ -374,13 +310,13 @@ default_args = {
 
 with DAG(
     dag_id='simplified_crypto_pipeline',
-    description='Simplified crypto analysis pipeline - Extraction → Cleaning → EDA/NLP (1 successful run per day)',
+    description='Simplified crypto analysis pipeline - Extraction → Cleaning → Sentiment (1 successful run per day)',
     schedule_interval='0 6 * * *',  # Daily at 6 AM
     start_date=datetime(2025, 1, 1),
     catchup=False,  # Disabled to prevent backfilling old dates
     max_active_runs=1,
     default_args=default_args,
-    tags=['simplified', 'pipeline', 'crypto', 'nlp', 'eda']
+    tags=['simplified', 'pipeline', 'crypto', 'sentiment']
 ) as dag:
 
     # ========== Pipeline Start ==========
@@ -426,29 +362,6 @@ with DAG(
         provide_context=True
     )
 
-    # ========== Step 4: EDA Analysis (Daily) ==========
-    check_eda_schedule = BranchPythonOperator(
-        task_id='check_eda_schedule',
-        python_callable=should_run_eda,
-        provide_context=True
-    )
-
-    skip_eda = DummyOperator(
-        task_id='skip_eda'
-    )
-
-    run_eda = PythonOperator(
-        task_id='run_eda_analysis',
-        python_callable=run_eda_analysis,
-        provide_context=True
-    )
-
-    save_plots = PythonOperator(
-        task_id='save_eda_plots',
-        python_callable=save_eda_plots,
-        provide_context=True
-    )
-
     # ========== Pipeline Completion ==========
     pipeline_success = PythonOperator(
         task_id='pipeline_success',
@@ -465,24 +378,19 @@ with DAG(
     )
 
     # ========== Define Task Dependencies ==========
-    # Pipeline: Extraction → Cleaning → Sentiment → EDA
+    # Pipeline: Extraction → Cleaning → Sentiment
 
     # Guard check - prevents duplicate executions for same day
     start_pipeline >> check_execution_guard
     check_execution_guard >> [skip_pipeline_already_executed, extract_reddit]
 
-    # Main pipeline flow: Extract → Clean → Sentiment → EDA
+    # Main pipeline flow: Extract → Clean → Sentiment
     extract_reddit >> clean_data
     clean_data >> validate_cleaning
     validate_cleaning >> sentiment_analysis
 
-    # EDA Analysis (daily)
-    sentiment_analysis >> check_eda_schedule
-    check_eda_schedule >> [skip_eda, run_eda]
-    run_eda >> save_plots
-
     # Pipeline completion
-    [skip_eda, save_plots] >> pipeline_success
+    sentiment_analysis >> pipeline_success
 
     # Failure handling - critical tasks can trigger failure
-    [extract_reddit, clean_data, sentiment_analysis, run_eda] >> pipeline_failure
+    [extract_reddit, clean_data, sentiment_analysis] >> pipeline_failure

@@ -48,14 +48,14 @@ def analyze_sentiment_batch(texts, model, tokenizer, device, batch_size=32):
 
 def run_sentiment_analysis(**context):
     """
-    Main function: Add sentiment column to master dataset
+    Main function: Add sentiment column to Reddit dataset
 
     Logic:
     1. Load data/silver/reddit/cleaned_reddit_dataset.csv (INPUT)
     2. Check if 'sentiment' column exists
     3. If NO → Analyze ALL rows
     4. If YES → Analyze only NEW rows (using checkpoint)
-    5. Save updated CSV to data/silver/consolidation/master_dataset.csv (OUTPUT)
+    5. Save updated CSV to data/silver/reddit/reddit_sentiment_dataset.csv (OUTPUT)
     """
     logger.info("=" * 60)
     logger.info("SENTIMENT ANALYSIS - Incremental Update")
@@ -64,9 +64,9 @@ def run_sentiment_analysis(**context):
     # Paths
     # INPUT: Read from cleaned Reddit dataset
     input_csv_path = Path("data/silver/reddit/cleaned_reddit_dataset.csv")
-    # OUTPUT: Save to master dataset in consolidation folder
-    output_csv_path = Path("data/silver/consolidation/master_dataset.csv")
-    checkpoint_path = Path("data/silver/consolidation/sentiment_checkpoint.json")
+    # OUTPUT: Save to reddit sentiment dataset in silver/reddit folder
+    output_csv_path = Path("data/silver/reddit/reddit_sentiment_dataset.csv")
+    checkpoint_path = Path("data/silver/reddit/sentiment_checkpoint.json")
     model_path = Path("Finetuning/output/models/best_model")
 
     # Check input file exists
@@ -153,45 +153,45 @@ def run_sentiment_analysis(**context):
         logger.error(f"Error during sentiment analysis: {e}")
         return {"status": "failed", "reason": f"Analysis error: {e}"}
 
-    # 6. Save updated CSV to master_dataset.csv (OUTPUT)
+    # 6. Save updated CSV to reddit_sentiment_dataset.csv (OUTPUT)
     logger.info(f"Saving updated CSV to OUTPUT: {output_csv_path}")
     # Ensure directory exists before saving
     output_csv_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # If master_dataset.csv already exists, merge with existing data
+
+    # If reddit_sentiment_dataset.csv already exists, merge with existing data
     if output_csv_path.exists():
-        logger.info(f"Master dataset exists - merging with existing data...")
+        logger.info(f"Reddit sentiment dataset exists - merging with existing data...")
         existing_df = pd.read_csv(output_csv_path)
-        
+
         # Merge: Update existing rows or append new ones
         # Use unified_id as key for merging
         if 'unified_id' in existing_df.columns and 'unified_id' in df.columns:
             # Create a mapping of unified_id to sentiment from new analysis (faster than iterating)
             sentiment_updates = df.set_index('unified_id')[['sentiment', 'sentiment_confidence']]
-            
+
             # Update existing dataframe with new sentiment values using merge
             existing_df = existing_df.set_index('unified_id')
             existing_df.update(sentiment_updates)
             existing_df = existing_df.reset_index()
-            
+
             # Find new rows (not in existing dataset)
             existing_ids = set(existing_df['unified_id'])
             new_rows = df[~df['unified_id'].isin(existing_ids)]
-            
+
             if len(new_rows) > 0:
-                logger.info(f"Adding {len(new_rows)} new rows to master dataset")
+                logger.info(f"Adding {len(new_rows)} new rows to reddit sentiment dataset")
                 existing_df = pd.concat([existing_df, new_rows], ignore_index=True)
-            
+
             df = existing_df
-            logger.info(f"Merged with existing master dataset: {len(df)} total rows")
+            logger.info(f"Merged with existing reddit sentiment dataset: {len(df)} total rows")
         else:
             # If no unified_id, just append and deduplicate
             df = pd.concat([existing_df, df], ignore_index=True)
             if 'unified_id' in df.columns:
                 df = df.drop_duplicates(subset=['unified_id'], keep='last')
-            logger.info(f"Appended to existing master dataset: {len(df)} total rows")
+            logger.info(f"Appended to existing reddit sentiment dataset: {len(df)} total rows")
     else:
-        logger.info("Master dataset does not exist - creating new file")
+        logger.info("Reddit sentiment dataset does not exist - creating new file")
     
     df.to_csv(output_csv_path, index=False)
     logger.info(f" CSV saved to OUTPUT: {output_csv_path}")

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"d:\\bureau\\BD_AI1\\ci3\\taln\\Crypto\\Crypto_Analysis\\airflow\\logs\\dag_id=simplified_crypto_pipeline\" /b)",
+      "Bash(findstr:*)",
+      "Bash(cat:*)",
+      "Bash(python:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
