@@ -297,6 +297,11 @@ class RedditExtractor:
             filename: Base filename without extension
             execution_date: Date for partitioning (defaults to today)
         """
+        # Skip saving if DataFrame is empty
+        if df.empty:
+            logger.info("[INFO] No new data to save - skipping file creation")
+            return
+
         if execution_date is None:
             execution_date = datetime.now()
 
