@@ -1,0 +1,23 @@
+# Extraction
+tweepy
+praw
+kagglehub[pandas-datasets]
+
+# Configuration
+python-dotenv
+
+# Data Processing
+pandas
+numpy
+
+# NLP
+nltk
+transformers
+
+# Visualisation
+matplotlib
+seaborn
+
+requests
+pandas
+yfinance

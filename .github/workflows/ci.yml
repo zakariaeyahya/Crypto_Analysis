@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Check for print statements
+      run: |
+        echo "Checking for print() statements..."
+        
+        # Check for print statements (excluding comments and docstrings)
+        if grep -rn "print(" --include="*.py" extraction/ airflow/ | grep -v "^[[:space:]]*#" | grep -v '"""' | grep -v "'''"; then
+          echo " ERROR: Found print() statements in code. Use logger instead."
+          exit 1
+        fi
+        
+        echo "✓ No print statements found"
+    
+    - name: Validate structure
+      run: |
+        echo "Checking project structure..."
+        [ -d "extraction/services" ] || exit 1
+        [ -d "extraction/models" ] || exit 1
+        [ -d "extraction/views" ] || exit 1
+        [ -f "requirements.txt" ] || exit 1
+        echo "✓ Structure is valid"
+    
+    - name: Check syntax
+      run: |
+        python -m py_compile extraction/services/*.py

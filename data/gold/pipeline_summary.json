@@ -1,0 +1,25 @@
+{
+  "status": "success",
+  "execution_date": "2025-12-01T15:25:19.268133+00:00",
+  "extraction": {
+    "posts_extracted": 0,
+    "extraction_date": "2025-12-01T15:25:19.268133+00:00"
+  },
+  "cleaning": {
+    "initial_rows": 13,
+    "final_rows": 0,
+    "removed_rows": 0,
+    "removal_rate": 0.0,
+    "already_processed": 13
+  },
+  "sentiment": {
+    "status": "success",
+    "total_rows": 27150,
+    "processed_rows": 13,
+    "sentiment_distribution": {
+      "neutral": 16534,
+      "negative": 10616
+    },
+    "avg_confidence": 0.9127372722731111
+  }
+}

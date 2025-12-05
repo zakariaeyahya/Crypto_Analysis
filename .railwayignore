@@ -1,0 +1,50 @@
+# Railway ignore file - similar to .gitignore
+# Files and directories to exclude from deployment
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Data files (will be stored in volumes)
+data/bronze/
+data/silver/
+data/gold/
+
+# Logs
+*.log
+airflow/logs/
+extraction.log
+
+.env
+.env.local
+.env.airflow
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Scripts (keep only deployment scripts)
+scripts/
+!scripts/start_airflow_combined.sh
+
+# Tests
+tests/
+test_*.py
+
+# CI/CD
+.github/
+
