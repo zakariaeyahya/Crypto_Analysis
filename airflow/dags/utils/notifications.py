@@ -18,7 +18,7 @@ def send_success_email(context: Dict[str, Any]) -> None:
     dag_id = context.get('dag').dag_id if context.get('dag') else 'unknown'
     task_id = context.get('task_instance').task_id if context.get('task_instance') else 'unknown'
     
-    logger.info(f"✅ DAG {dag_id} - Task {task_id} completed successfully")
+    logger.info(f"  DAG {dag_id} - Task {task_id} completed successfully")
     # TODO: Implement actual email sending if email configured
     # For now, just log
 
@@ -34,7 +34,7 @@ def send_failure_alert(context: Dict[str, Any]) -> None:
     task_id = context.get('task_instance').task_id if context.get('task_instance') else 'unknown'
     exception = context.get('exception', 'Unknown error')
     
-    logger.error(f"❌ DAG {dag_id} - Task {task_id} failed: {exception}")
+    logger.error(f"  DAG {dag_id} - Task {task_id} failed: {exception}")
     # TODO: Implement actual alerting (Slack, email, etc.)
     # For now, just log
 
