@@ -146,9 +146,9 @@ def extract_reddit_data(**context):
 
 def clean_reddit_data(**context):
     """
-    Step 2: Reddit data cleaning - CONSOLIDATION OF ALL DATA
-    Input: data/bronze/reddit/ (ALL scraped data from all days)
-    Output: data/silver/reddit/cleaned_reddit_dataset.csv (consolidated cleaned file)
+    Step 2: Reddit data cleaning - DATA FOR CURRENT EXECUTION DATE ONLY
+    Input: data/bronze/reddit/year=YYYY/month=MM/day=DD/ (data for execution date only)
+    Output: data/silver/reddit/cleaned_reddit_dataset_YYYYMMDD.csv (cleaned file for this day)
     """
     import logging
     import sys
@@ -159,10 +159,30 @@ def clean_reddit_data(**context):
     
     logger = logging.getLogger(__name__)
     logger.info("=" * 80)
-    logger.info("STEP 2: DATA CLEANING - CONSOLIDATION OF ALL DATA (SILVER LAYER)")
+    logger.info("STEP 2: DATA CLEANING - CURRENT DAY DATA ONLY (SILVER LAYER)")
     logger.info("=" * 80)
     
     try:
+        # Get execution date from context
+        execution_date = context.get('execution_date')
+        if execution_date is None:
+            execution_date = datetime.now()
+        else:
+            # Convert pendulum datetime to standard datetime if needed
+            if hasattr(execution_date, 'to_datetime_string'):
+                execution_date = execution_date.to_datetime_string()
+            if isinstance(execution_date, str):
+                execution_date = datetime.fromisoformat(execution_date.replace('Z', '+00:00'))
+            elif hasattr(execution_date, 'year'):
+                execution_date = datetime(
+                    execution_date.year,
+                    execution_date.month,
+                    execution_date.day,
+                    execution_date.hour,
+                    execution_date.minute,
+                    execution_date.second
+                )
+        
         # In Docker, __file__ is /opt/airflow/dags/complete_crypto_pipeline_unified.py
         # So parent.parent = /opt/airflow (where data is mounted)
         project_root = Path(__file__).parent.parent
@@ -170,49 +190,60 @@ def clean_reddit_data(**context):
         silver_dir = project_root / "data" / "silver" / "reddit"
         silver_dir.mkdir(parents=True, exist_ok=True)
         
-        logger.info("Loading ALL bronze data (all days)...")
+        # Get date components for partition path
+        year = str(execution_date.year)
+        month = str(execution_date.month).zfill(2)
+        day = str(execution_date.day).zfill(2)
         
-        # Load ALL bronze data from all dates
-        all_dataframes = []
+        # Load ONLY bronze data for the execution date
+        day_partition_dir = bronze_dir / f"year={year}" / f"month={month}" / f"day={day}"
         
-        # Iterate through all year/month/day partitions
-        for year_dir in bronze_dir.glob("year=*"):
-            year = year_dir.name.split("=")[1]
-            for month_dir in year_dir.glob("month=*"):
-                month = month_dir.name.split("=")[1]
-                for day_dir in month_dir.glob("day=*"):
-                    day = day_dir.name.split("=")[1]
-                    
-                    # Find all CSV files in this partition
-                    csv_files = list(day_dir.glob("*.csv"))
-                    for csv_file in csv_files:
-                        if "summary" not in csv_file.name:  # Skip summary files
-                            try:
-                                df = pd.read_csv(csv_file)
-                                if not df.empty:
-                                    # Add partition info
-                                    df['bronze_year'] = year
-                                    df['bronze_month'] = month
-                                    df['bronze_day'] = day
-                                    df['bronze_source_file'] = csv_file.name
-                                    all_dataframes.append(df)
-                                    logger.info(f"  Loaded: {csv_file} ({len(df)} rows)")
-                            except Exception as e:
-                                logger.warning(f"  Error loading {csv_file}: {e}")
+        logger.info(f"Loading bronze data for execution date: {execution_date.date()}")
+        logger.info(f"Partition path: {day_partition_dir}")
         
-        if not all_dataframes:
-            logger.warning("No bronze data found!")
+        if not day_partition_dir.exists():
+            logger.warning(f"No bronze data found for date {execution_date.date()}")
             return {
                 'initial_rows': 0,
                 'final_rows': 0,
                 'removed_rows': 0,
-                'removal_rate': 0.0
+                'removal_rate': 0.0,
+                'execution_date': execution_date.isoformat()
+            }
+        
+        # Load all CSV files from this day's partition
+        all_dataframes = []
+        csv_files = list(day_partition_dir.glob("*.csv"))
+        
+        for csv_file in csv_files:
+            if "summary" not in csv_file.name:  # Skip summary files
+                try:
+                    df = pd.read_csv(csv_file)
+                    if not df.empty:
+                        # Add partition info
+                        df['bronze_year'] = year
+                        df['bronze_month'] = month
+                        df['bronze_day'] = day
+                        df['bronze_source_file'] = csv_file.name
+                        all_dataframes.append(df)
+                        logger.info(f"  Loaded: {csv_file.name} ({len(df)} rows)")
+                except Exception as e:
+                    logger.warning(f"  Error loading {csv_file}: {e}")
+        
+        if not all_dataframes:
+            logger.warning(f"No bronze data found for date {execution_date.date()}!")
+            return {
+                'initial_rows': 0,
+                'final_rows': 0,
+                'removed_rows': 0,
+                'removal_rate': 0.0,
+                'execution_date': execution_date.isoformat()
             }
 
-        # Consolidate all dataframes
-        logger.info(f"Consolidating {len(all_dataframes)} files...")
+        # Consolidate dataframes for this day only
+        logger.info(f"Consolidating {len(all_dataframes)} files for {execution_date.date()}...")
         df_consolidated = pd.concat(all_dataframes, ignore_index=True)
-        logger.info(f"Consolidated data: {len(df_consolidated)} total rows")
+        logger.info(f"Consolidated data for this day: {len(df_consolidated)} total rows")
         
         # Load cleaning script (mounted at /opt/airflow/data_cleaning)
         cleaning_script = project_root / "data_cleaning" / "Script" / "Reddit-Dataset-Cleaning.py"
@@ -260,10 +291,11 @@ def clean_reddit_data(**context):
         
         logger.info(f"  Removed {before_dedup - after_dedup} duplicates")
         
-        # Save cleaned consolidated data
-        output_file = silver_dir / "cleaned_reddit_dataset.csv"
+        # Save cleaned data for this day only (with date in filename)
+        date_str = execution_date.strftime('%Y%m%d')
+        output_file = silver_dir / f"cleaned_reddit_dataset_{date_str}.csv"
         df_consolidated.to_csv(output_file, index=False)
-        logger.info(f"Consolidated cleaned data saved: {output_file}")
+        logger.info(f"Cleaned data for {execution_date.date()} saved: {output_file}")
         logger.info(f"  Total: {len(df_consolidated)} rows")
         
         # Update checkpoint
@@ -302,8 +334,8 @@ def clean_reddit_data(**context):
 
 def analyze_sentiment(**context):
     """
-    Step 3: Sentiment analysis with fine-tuned model
-    Input: data/silver/reddit/cleaned_reddit_dataset.csv (consolidated file from all days)
+    Step 3: Sentiment analysis with fine-tuned model - CURRENT DAY DATA ONLY
+    Input: data/silver/reddit/cleaned_reddit_dataset_YYYYMMDD.csv (cleaned file for execution date)
     Output: data/silver/reddit/sentiment_analysis_YYYYMMDD.csv (in SILVER, not GOLD)
     """
     import logging
@@ -314,7 +346,7 @@ def analyze_sentiment(**context):
     
     logger = logging.getLogger(__name__)
     logger.info("=" * 80)
-    logger.info("STEP 3: SENTIMENT ANALYSIS (SILVER LAYER)")
+    logger.info("STEP 3: SENTIMENT ANALYSIS - CURRENT DAY DATA ONLY (SILVER LAYER)")
     logger.info("=" * 80)
 
     try:
@@ -341,22 +373,28 @@ def analyze_sentiment(**context):
         # In Docker, __file__ is /opt/airflow/dags/complete_crypto_pipeline_unified.py
         # So parent.parent = /opt/airflow (where data is mounted)
         project_root = Path(__file__).parent.parent
-        silver_path = project_root / "data" / "silver" / "reddit" / "cleaned_reddit_dataset.csv"
         silver_dir = project_root / "data" / "silver" / "reddit"
         silver_dir.mkdir(parents=True, exist_ok=True)
         
-        # Output file with date - IN SILVER
+        # Input and output files for this execution date
         date_str = execution_date.strftime('%Y%m%d')
+        silver_path = silver_dir / f"cleaned_reddit_dataset_{date_str}.csv"
         output_file = silver_dir / f"sentiment_analysis_{date_str}.csv"
         
-        logger.info(f"Execution date: {execution_date}")
+        logger.info(f"Execution date: {execution_date.date()}")
         logger.info(f"Reading from: {silver_path}")
         logger.info(f"Saving to: {output_file}")
         
-        # Load cleaned data
+        # Check if input file exists
         if not silver_path.exists():
-            logger.warning(f"Silver file not found: {silver_path}")
-            return {'status': 'skipped', 'reason': 'no_silver_data'}
+            logger.warning(f"Cleaned data file not found for {execution_date.date()}: {silver_path}")
+            return {'status': 'skipped', 'reason': 'no_silver_data', 'execution_date': execution_date.isoformat()}
+        
+        # Check if output already exists (skip if already analyzed)
+        if output_file.exists():
+            logger.info(f"Sentiment analysis already exists for {execution_date.date()}")
+            logger.info(f"  Output file: {output_file}")
+            return {'status': 'skipped', 'reason': 'already_analyzed', 'execution_date': execution_date.isoformat()}
         
         logger.info("Loading cleaned data...")
         df = pd.read_csv(silver_path)
@@ -364,7 +402,7 @@ def analyze_sentiment(**context):
         
         if df.empty:
             logger.warning("No data to analyze")
-            return {'status': 'skipped', 'reason': 'empty_data'}
+            return {'status': 'skipped', 'reason': 'empty_data', 'execution_date': execution_date.isoformat()}
         
         # Import sentiment predictor (mounted at /opt/airflow/Finetuning)
         finetuning_path = project_root / "Finetuning"
@@ -425,19 +463,92 @@ def analyze_sentiment(**context):
         df['sentiment'] = [r['label'] for r in results]
         df['sentiment_confidence'] = [r['confidence'] for r in results]
         
-        # Save to silver layer
-        df.to_csv(output_file, index=False)
-        logger.info(f"Results saved: {output_file}")
-        logger.info(f"  Total: {len(df)} rows")
-        logger.info(f"  Positive: {len(df[df['sentiment'] == 'positive'])}")
-        logger.info(f"  Negative: {len(df[df['sentiment'] == 'negative'])}")
+        # Format output according to expected schema
+        logger.info("Formatting output to expected schema...")
+        
+        # Find unified_id (prefer submission_id, then id, then comment_id)
+        if 'submission_id' in df.columns:
+            df['unified_id'] = df['submission_id'].astype(str)
+        elif 'id' in df.columns:
+            df['unified_id'] = df['id'].astype(str)
+        elif 'comment_id' in df.columns:
+            df['unified_id'] = df['comment_id'].astype(str)
+        else:
+            # Create unified_id from index if no ID column found
+            df['unified_id'] = df.index.astype(str)
+        
+        # Map text_content (use combined_text)
+        df['text_content'] = df['combined_text']
+        
+        # Map created_date (prefer created_datetime, then created_utc)
+        if 'created_datetime' in df.columns:
+            df['created_date'] = pd.to_datetime(df['created_datetime']).dt.strftime('%Y-%m-%d %H:%M:%S')
+        elif 'created_utc' in df.columns:
+            df['created_date'] = pd.to_datetime(df['created_utc'], unit='s').dt.strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            df['created_date'] = execution_date.strftime('%Y-%m-%d %H:%M:%S')
+        
+        # Map author (prefer post_author, then author, then comment_author)
+        if 'post_author' in df.columns:
+            df['author'] = df['post_author']
+        elif 'author' in df.columns:
+            df['author'] = df['author']
+        elif 'comment_author' in df.columns:
+            df['author'] = df['comment_author']
+        else:
+            df['author'] = 'unknown'
+        
+        # Map source_type (post or comment)
+        if 'submission_id' in df.columns or 'title' in df.columns:
+            df['source_type'] = 'post'
+        elif 'comment_id' in df.columns:
+            df['source_type'] = 'comment'
+        else:
+            df['source_type'] = 'post'  # Default to post
+        
+        # Map subreddit
+        if 'subreddit' in df.columns:
+            df['subreddit'] = df['subreddit']
+        else:
+            df['subreddit'] = 'cryptocurrency'  # Default
+        
+        # crypto_mentions (empty for now, can be filled later)
+        df['crypto_mentions'] = ''
+        
+        # source_platform
+        df['source_platform'] = 'Reddit'
+        
+        # Create final DataFrame with only required columns in correct order
+        output_df = pd.DataFrame({
+            'unified_id': df['unified_id'],
+            'text_content': df['text_content'],
+            'created_date': df['created_date'],
+            'author': df['author'],
+            'source_type': df['source_type'],
+            'subreddit': df['subreddit'],
+            'crypto_mentions': df['crypto_mentions'],
+            'source_platform': df['source_platform'],
+            'sentiment': df['sentiment'],
+            'sentiment_confidence': df['sentiment_confidence']
+        })
+        
+        # Save results for this day to silver layer
+        output_df.to_csv(output_file, index=False)
+        logger.info(f"Sentiment analysis for {execution_date.date()} saved: {output_file}")
+        logger.info(f"  Total: {len(output_df)} rows")
+        logger.info(f"  Positive: {len(output_df[output_df['sentiment'] == 'positive'])}")
+        logger.info(f"  Negative: {len(output_df[output_df['sentiment'] == 'negative'])}")
+        logger.info(f"  Neutral: {len(output_df[output_df['sentiment'] == 'neutral'])}")
         
         return {
             'status': 'success',
-            'total_rows': len(df),
-            'positive_count': len(df[df['sentiment'] == 'positive']),
-            'negative_count': len(df[df['sentiment'] == 'negative']),
-            'output_file': str(output_file)
+            'total_rows': len(output_df),
+            'rows_analyzed': len(results),
+            'positive_count': len(output_df[output_df['sentiment'] == 'positive']),
+            'negative_count': len(output_df[output_df['sentiment'] == 'negative']),
+            'neutral_count': len(output_df[output_df['sentiment'] == 'neutral']),
+            'output_file': str(output_file),
+            'execution_date': execution_date.isoformat()
         }
         
     except Exception as e:
