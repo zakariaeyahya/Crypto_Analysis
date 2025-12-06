@@ -1,0 +1,243 @@
+submission_id,title,text,url,post_author,score,num_comments,upvote_ratio,subreddit,query,source,created_utc,created_datetime
+1pfu3p1,Strategy CEO says only a decades-long slump would force them to sell Bitcoin,,https://cryptobriefing.com/bitcoin-holding-strategy-decade-slump/,KIG45,162,76,0.92,CryptoCurrency,bitcoin,reddit_post,1765040464.0,2025-12-06T17:01:04
+1pfqqa4,Japan's Rate Hike Could Reshape Bitcoin's Destiny,,https://www.onesafe.io/blog/japan-rate-hike-bitcoin-impact,Every_Hunt_160,93,23,0.83,CryptoCurrency,bitcoin,reddit_post,1765031666.0,2025-12-06T14:34:26
+1pfonrh,Japan’s rate lift threatens Bitcoin as yen carry trades begin to unwind,,https://www.cryptopolitan.com/japans-rate-lift-threatens-bitcoin/,GreedVault,126,20,0.89,CryptoCurrency,bitcoin,reddit_post,1765025713.0,2025-12-06T12:55:13
+1pfjwmx,"Trump’s Security Strategy: Impact on Bitcoin, Gold, Bond Yields",,https://www.coindesk.com/markets/2025/12/05/trump-s-national-strategy-gives-reality-check-to-crypto-s-low-rate-obsession,DryMyBottom,0,1,0.2,CryptoCurrency,bitcoin,reddit_post,1765008073.0,2025-12-06T08:01:13
+1pfjknj,"2,000 Bitcoin on the move: Rare Casascius coins awaken after 13 years",,https://cointelegraph.com/news/dormant-casascius-coins-activate-179m-btc,Then_Helicopter4243,410,34,0.92,CryptoCurrency,bitcoin,reddit_post,1765006803.0,2025-12-06T07:40:03
+1pfdktm,Bitcoin thieves stole $1.1B using fake bird noises: Now Malaysia hunts heat signatures from the sky,,https://cryptoslate.com/bitcoin-thieves-quietly-stole-1-1b-using-fake-bird-noises-now-malaysia-hunts-heat-signatures-from-the-sky/,GreedVault,239,31,0.86,CryptoCurrency,bitcoin,reddit_post,1764987003.0,2025-12-06T02:10:03
+1pf96vc,Fractionalization: The Printing Press of Capital How blockchain is about to do to ownership what Gutenberg did to knowledge,"# Fractionalization: The Printing Press of Capital
+
+# How blockchain could reshape global ownership
+
+We have always lived in a world of tokens.
+
+The dollar bill in your wallet is a token: a scrap of cotton-linen worth nothing until collective belief and legal authority declare it a claim on real goods and services. A stock certificate, a car title, a land deed; the same principle. For five thousand years, civilization’s greatest financial innovation was this simple trick: turning immovable, indivisible assets into portable, legible symbols of ownership.
+
+It was revolutionary. Tokens made commerce explode, cities grow, and empires rise.
+
+Now we stand at the threshold of the second great token revolution; this time digital, cryptographically provable, and infinitely divisible.
+
+The implications are not merely large. They are civilizational.
+
+**The First Token Age**
+
+Every major leap in human prosperity has rested on better ways to represent and transfer value.
+
+Gold coins fractionalized bullion so a peasant could buy bread. Double-entry bookkeeping tokenized merchant ventures so strangers could pool risk across oceans. The joint-stock company tokenized entire expeditions (think Dutch East India Company) so a baker in Amsterdam could own 0.03 percent of a ship sailing to Java. Limited liability tokenized entrepreneurship itself, unleashing the Industrial Revolution.
+
+Each time the effect was the same: the minimum viable investment collapsed, the circle of potential owners expanded, and wealth creation accelerated.
+
+Yet one barrier remained stubbornly intact: most of the world’s productive assets were simply too large, too illiquid, or too gated to be touched by ordinary people. A tower in Manhattan, a painting by Monet, a warehouse of Bordeaux futures, a promising private company; unless you had eight or nine figures or the right Rolodex, you were locked out.
+
+That world is ending.
+
+**Tokenization 2.0**
+
+Blockchain makes three things possible that were previously impossible at scale:
+
+Perfect, tamper-proof provenance Instant, trust-minimized transfer Programmable, infinite fractionalization
+
+The first two are powerful. The third is world-changing.
+
+Take a $400 million apartment building in Miami. Today its ownership sits inside a closed LLC with perhaps a dozen wealthy investors who negotiated privately through lawyers and banks. The average person has zero access.
+
+Tomorrow that same building is divided into 400 million digital shares. You can buy one share for a dollar (or a hundred shares for a hundred dollars) and receive your pro-rata rent every month in stablecoins. Title is cleaner than any paper deed ever issued. Settlement happens in seconds, not months. The secondary market is open 24/7/365 to anyone on earth with an internet connection.
+
+Apply this logic to commercial real estate, farmland, fine art, intellectual property, private equity, machinery, ships, solar farms, patents, music catalogs; and you unlock tens of trillions of dollars that have sat frozen for generations.
+
+But the story gets bigger still.
+
+**The End of Gatekeepers**
+
+Capital allocation has never been a true meritocracy. It has been a geography problem, a relationship problem, a credential problem, an accreditation problem.
+
+If you were born in the right zip code, attended the right schools, or apprenticed at the right investment bank, doors opened. Everyone else was told (politely or bluntly) that the best deals simply weren’t available to “retail.”
+
+Fractionalization obliterates that architecture.
+
+A 27-year-old engineer in Lagos will soon own 0.002 percent of a data center in Iceland and earn yield in dollars. A schoolteacher in Buenos Aires will back a biotech startup in Shenzhen before its Series A. A rice farmer in Vietnam will co-own the combine that harvests his neighbor’s fields.
+
+And entrepreneurs themselves will no longer kneel before loan officers or cap-table gatekeepers.
+
+Picture a young woman in Kathmandu who wants to build an electric-motorbike fleet. She needs $60,000. Today her choices are brutal: a local bank demanding 22 percent interest and her parents’ house as collateral; or nothing.
+
+Tomorrow she uploads a fifteen-page deck, a video pitch in Nepali with English subtitles, and a smart-contract escrow. Within weeks she raises the money from hundreds of strangers: a developer in Estonia, a retiree in New Zealand, a dentist in Dubai, university students in Nigeria. No permission asked. No one can veto her because of her gender, her address, or the script her margins are written in.
+
+This is not charity. This is the globalization of angel investing and venture capital; at planetary scale, in real time, without gatekeepers.
+
+**The Objections (and Why They Will Not Stop It)**
+
+The old order will not surrender quietly.
+
+Regulators will warn of fraud, money laundering, and systemic risk; and they will not be wrong to worry. Early iterations will be messy. Pump-and-dump schemes, fake provenance, and exit scams will make headlines. In 1996 the top complaint about the internet was Nigerian-prince spam. In 2009 Bitcoin was dismissed as magic internet money for criminals. Both survived because the value proposition was too large to suppress.
+
+The same will happen here. The signal will overwhelm the noise.
+
+Securities laws written for 1934 will be amended or routed around, just as they were for crowdfunding in 2012. KYC and AML will move on-chain and become cheaper and more privacy-preserving than today’s banking stack. Insurance protocols and decentralized reputation systems will underwrite risk in ways no rating agency ever could.
+
+The transition will be chaotic. It will also be unstoppable.
+
+**The Civilizational Upshot**
+
+When Gutenberg made books cheap, literacy exploded and old hierarchies crumbled. When fractionalization makes ownership cheap, the same will happen to capital.
+
+We are about to witness:
+
+The largest peaceful transfer of wealth in history; from locked-up assets to billions of new owners. The fastest acceleration of global living standards since the Industrial Revolution. The emergence of a genuine meritocracy of ideas, where the best entrepreneurs; no matter where they sleep at night; can access the capital they deserve.
+
+This is not “crypto.” This is the final layer of the internet: an ownership layer sitting atop the information layer and the communication layer. When it is finished, every human with a smartphone will be a capitalist by default.
+
+For the first time since the enclosure acts and primogeniture laws of feudal Europe, the productive assets of the world will no longer be concentrated in the hands of a hereditary elite mediated by a priestly class of bankers and fund managers.
+
+They will be distributed, continuously, by markets that never close and never ask your postcode.
+
+That is what fractionalization really means.
+
+Wall Street’s monopoly is over. The age of permissioned capital is closing. The age of permissionless ownership has begun.
+
+We are not building another financial product. We are finishing the infrastructure of human freedom.
+
+Let’s get on with it.
+
+**Hey everyone, I have been writing a series of long-form pieces about the macro changes happening in global finance and how blockchain may reshape ownership in the coming decade. This essay is a philosophical what-if scenario, not financial advice.**
+
+**I wanted to share it here to spark discussion with people who think about the future of on-chain finance. Feedback and disagreement welcome.**",https://www.reddit.com/r/CryptoCurrency/comments/1pf96vc/fractionalization_the_printing_press_of_capital/,Wmpathos0321,5,8,0.86,CryptoCurrency,bitcoin,reddit_post,1764974926.0,2025-12-05T22:48:46
+1pf7d09,ETH Exodus: Only 8.84% Left on Exchanges - Supply Tightening as Stakers & DeFi Holders Pull Out,Source: [https://x.com/LeonWaidmann/status/1996765476936888337](https://x.com/LeonWaidmann/status/1996765476936888337),https://www.reddit.com/gallery/1pf7d09,kirtash93,19,17,0.68,CryptoCurrency,bitcoin,reddit_post,1764970398.0,2025-12-05T21:33:18
+1pf1hwv,"Bitcoin Price Craters to $88,000, But JPMorgan Maintains $170,000 Target",,https://bitcoinmagazine.com/markets/bitcoin-price-craters-to-88000,KIG45,251,89,0.82,CryptoCurrency,bitcoin,reddit_post,1764956571.0,2025-12-05T17:42:51
+1pew5s1,Another U.S. state pushes bill to allow Bitcoin in retirement funds,,https://www.thestreet.com/crypto/policy/another-us-state-pushes-bill-to-allow-bitcoin-in-retirement-funds,kirtash93,20,3,0.8,CryptoCurrency,bitcoin,reddit_post,1764944135.0,2025-12-05T14:15:35
+1pew2s7,Paraguay’s Bitcoin Mining Boom: Green Energy Miracle or Looming Energy Crisis?,,https://coinedition.com/paraguay-bitcoin-mining-green-energy-capacity-risk/,According_Time5120,2,1,0.6,CryptoCurrency,bitcoin,reddit_post,1764943920.0,2025-12-05T14:12:00
+1pevjca,"Precious Metals Soar, Bitcoin Stalls as Investors Hedge Fed 'Policy Error'",,https://decrypt.co/351021/precious-metals-soar-bitcoin-stalls-investors-hedge-fed-policy-error,GreedVault,12,2,0.87,CryptoCurrency,bitcoin,reddit_post,1764942572.0,2025-12-05T13:49:32
+1pevdgx,"Spot bitcoin ETFs see $195 million exit, largest daily outflow in 2 weeks",,https://www.theblock.co/post/381473/spot-bitcoin-etfs-see-195-million-exit?utm_source=telegram1&utm_medium=social,KazuFromUniswap,15,6,0.76,CryptoCurrency,bitcoin,reddit_post,1764942144.0,2025-12-05T13:42:24
+1peuw6a,"BTC, XRP, ETH, SOL News: Here's How Friday's Inflation Report Could Move Prices","While the market aim to recover from the downtrend as Bitcoin reclaim $93k as Altcoins showed mixed resilience with top like XRP, ETH and Hbar showing positive signs. Could Bitget livestream build more traders since more will be trading live for all to see, what could be the impact to trading?  
+Also, Institutional developments continue to increase as CZ's push to establish the US as a global crypto hub and Twenty One Capital's upcoming NYSE debut on December 9 with a $4B Bitcoin treasury. What do you think",https://www.coindesk.com/markets/2025/12/05/here-s-how-much-btc-eth-sol-xrp-may-move-on-friday-s-inflation-report,Comfortable_Fly_7943,2,1,0.6,CryptoCurrency,bitcoin,reddit_post,1764940863.0,2025-12-05T13:21:03
+1pery69,SpaceX just transferred out $100 million in Bitcoin,,https://finbold.com/spacex-just-transferred-out-100-million-in-bitcoin/,Abdeliq,486,50,0.95,CryptoCurrency,bitcoin,reddit_post,1764931420.0,2025-12-05T10:43:40
+1pers07,Bitcoin Exchange Supply Nears 5-year Low After $2 Billion Buy This Week,,https://beincrypto.com/bitcoin-price-benefit-from-low-exchange-supply/,Illperformance6969,75,15,0.93,CryptoCurrency,bitcoin,reddit_post,1764930776.0,2025-12-05T10:32:56
+1perbm2,JPMorgan says Strategy's resilience is key to bitcoin's price direction in the near term,,https://www.theblock.co/post/381442/jpmorgan-strategy-bitcoin-price-outlook,DryMyBottom,8,0,0.79,CryptoCurrency,bitcoin,reddit_post,1764929045.0,2025-12-05T10:04:05
+1peqjst,"Strategy won’t be forced to sell Bitcoin if stock drops, Bitwise CIO says",,https://cointelegraph.com/news/strategy-wont-sell-bitcoin-if-stock-drops-bitwise-cio,Every_Hunt_160,71,15,0.89,CryptoCurrency,bitcoin,reddit_post,1764926049.0,2025-12-05T09:14:09
+1pepeym,Larry Fink Highlights Bitcoin’s Appeal and the Inevitable Rise of Tokenization,,https://en.coin-turk.com/larry-fink-highlights-bitcoins-appeal-and-the-inevitable-rise-of-tokenization/,DryMyBottom,1,1,0.54,CryptoCurrency,bitcoin,reddit_post,1764921603.0,2025-12-05T08:00:03
+1peh9f4,"Bitcoin is quietly becoming the ultimate expert witness, forcing judges to accept a new standard of truth",,https://cryptoslate.com/bitcoin-is-quietly-becoming-the-ultimate-expert-witness-forcing-judges-to-accept-a-new-standard-of-truth/,DirectionMundane5468,0,4,0.3,CryptoCurrency,bitcoin,reddit_post,1764895989.0,2025-12-05T00:53:09
+1peh1x8,"""We Believe Ethereum Prices Have Actually Bottomed""","[https://www.youtube.com/watch?v=PtCcS9c-GP4](https://www.youtube.com/watch?v=PtCcS9c-GP4)
+
+Tom Lee, Fundstrat Global Head of Research, Fundstrat Capital Chief Investment Officer, and Bitmine Immersion Chairman of the Board, made this statement during a talk about the Crypto Supercycle and how Ethereum is poised to lead. With the Ethereum/Bitcoin ratio breakout, Ethereum is becoming the future of finance. Tokenization is going to be huge.
+
+Started at 7:50 on why he thinks Crypto prices have bottomed.
+
+He talks about how Bitmine (BMNR) works at 24:25.
+
+Ethereum is experiencing a 1971 moment similar to when the dollar was taken off the gold standard, and Wall Street ensured the dollar would remain the reserve currency. In 2025, everything is expected to become tokenized, and Wall Street is going to take advantage of this and create products on a smart contract platform, building it on Ethereum.
+
+Digital asset Treasuries, such as Bitmine, are playing a role in transforming Wall Street. Staking, providing security, and acting as a bridge between the traditional finance and the DeFi world. Bitmine is the largest holder of Ethereum in the world.
+
+Stablecoin issuers will want to stake Ethereum because it serves as the underlying base monetary layer.",https://www.reddit.com/r/CryptoCurrency/comments/1peh1x8/we_believe_ethereum_prices_have_actually_bottomed/,Progress_8,26,51,0.61,CryptoCurrency,bitcoin,reddit_post,1764895409.0,2025-12-05T00:43:29
+1peaph0,Bitcoin may avoid a major drawdown this cycle,,https://peakd.com/hive-167922/@pele23/bitcoin-may-avoid-a-major-drawdown-this-cycle-gyd,x___rain,0,0,0.2,CryptoCurrency,bitcoin,reddit_post,1764879752.0,2025-12-04T20:22:32
+1pe85ir,BlackRock CEO Larry Fink reveals sovereign wealth funds are buying Bitcoin for the long term,,https://cryptobriefing.com/blackrock-ceo-larry-fink-sovereign-wealth-funds-bitcoin/,KIG45,324,61,0.95,CryptoCurrency,bitcoin,reddit_post,1764873880.0,2025-12-04T18:44:40
+1pe0v3e,"I'm starting to think that we might not even have a bear cycle. We just had a mild appetizer of a bull cycle, which will be followed by the main event, fueled by quantitative easing, rate cuts, flooding of liquidity, and sovereign and institutions arms race.",,https://i.redd.it/nyf4h269175g1.jpeg,fan_of_hakiksexydays,267,193,0.77,CryptoCurrency,bitcoin,reddit_post,1764857165.0,2025-12-04T14:06:05
+1pdzjgp,Larry Fink softens crypto stance as BlackRock boasts biggest US bitcoin ETF: 'My thought process has evolved',,https://finance.yahoo.com/news/larry-fink-softens-crypto-stance-as-blackrock-boasts-biggest-us-bitcoin-etf-my-thought-process-has-evolved-184909682.html,Ok_Seat5245,50,4,0.92,CryptoCurrency,bitcoin,reddit_post,1764853632.0,2025-12-04T13:07:12
+1pdw8li,CryptoQuant says Strategy prepares for a bitcoin bear market as it sets up US dollar reserve,,https://www.theblock.co/post/381270/cryptoquant-strategy-bitcoin-bear-market-us-dollar-reserve,DryMyBottom,7,3,0.74,CryptoCurrency,bitcoin,reddit_post,1764842595.0,2025-12-04T10:03:15
+1pducuv,Ripple CEO Predicts Bitcoin’s Meteoric Rise by 2026,,https://en.coin-turk.com/ripple-ceo-predicts-bitcoins-meteoric-rise-by-2026/,DryMyBottom,10,28,0.57,CryptoCurrency,bitcoin,reddit_post,1764835151.0,2025-12-04T07:59:11
+1pdszsk,Bitcoin ETFs Reclaim Momentum as Solana ETFs Outshine Ether,,https://news.bitcoin.com/bitcoin-etfs-reclaim-momentum-as-solana-etfs-outshine-ether/,WiseChest8227,3,3,0.62,CryptoCurrency,bitcoin,reddit_post,1764830128.0,2025-12-04T06:35:28
+1pdp965,Bitcoin just got completely absorbed by traditional finance and it happened in like nine days.,"Between November 24 and December 2nd we saw three massive moves. JPMorgan filed to launch leveraged products tied to BlackRock's Bitcoin ETF. Nasdaq proposed to quadruple the limits on Bitcoin ETF options from 250,000 to 1 million contracts. Then Vanguard, who always said no to crypto, suddenly reversed course and opened Bitcoin and other crypto ETFs to their \~50 million clients on a platform that oversees around $11 trillion.
+
+This is wild because Vanguard's leadership was publicly against Bitcoin ETFs just last year. Now they’re effectively offering access to spot Bitcoin exposure to tens of millions of investors. Bank of America is letting 15,000 financial advisors recommend Bitcoin starting January 2026 with allocations between 1 to 4 percent of portfolios.
+
+What makes this interesting is the timing. This all happened while retail investors were panic selling and getting rekt. Institutions basically waited for retail to capitulate then swooped in with their infrastructure fully built out. Sovereign wealth funds like Abu Dhabi Investment Council increased their Bitcoin positions as regular people were exiting.
+
+But here’s the catch – while institutions are embracing Bitcoin through ETFs and derivatives, index providers like MSCI are simultaneously trying to exclude companies like Strategy that buy Bitcoin directly for their treasuries. MSCI proposed removing these companies from major indices, which would force them out of a lot of passive funds.
+
+so bitcoin is getting institutionalized but mainly through fee generating products that banks and asset managers control. the original model of companies holding bitcoin directly on balance sheets is facing obstacles, while ETF models that generate recurring revenue for financial firms are getting pushed hard.
+
+if you’re actually trying to see how that shows up in your own taxes and portfolio (ETFs vs holding btc / eth outright) messing around with something like awaken tax is way more useful than doomscrolling headlines ngl it at least forces you to see how your “btc exposure” is split between fee products and actual coins.
+
+Bitcoin was supposed to work around the traditional system but now it’s basically being absorbed into it.
+
+Thoughts on this shift?",https://www.reddit.com/r/CryptoCurrency/comments/1pdp965/bitcoin_just_got_completely_absorbed_by/,Gullible-Tale9114,1709,304,0.94,CryptoCurrency,bitcoin,reddit_post,1764818433.0,2025-12-04T03:20:33
+1pdo0he,The crypto market’s $205 billion surge Wednesday was the direct effect of the under-the-radar liquidity injection by the FED.,"Data confirms the Fed conducted a $13.5 billion overnight repurchase agreement (repo) operation on December 1. This intervention marks the second-largest liquidity injection since the 2020 crisis, exceeding levels seen even during the dotcom bubble.
+
+Cantor’s ‘Solana Alpha’ 
+While the Fed provided the fuel, Wall Street provided the spark. 
+
+Cantor Fitzgerald, the prime brokerage giant known for managing Tether’s Treasury portfolio, disclosed a $1.28 million position in the Volatility Shares Solana ETF via regulatory filings.
+
+Source: https://coinedition.com/crypto-market-rebounds-today-fed-qt-ending-cantor-solana-etf-bitcoin-rally/",https://www.reddit.com/r/CryptoCurrency/comments/1pdo0he/the_crypto_markets_205_billion_surge_wednesday/,According_Time5120,54,22,0.86,CryptoCurrency,bitcoin,reddit_post,1764815006.0,2025-12-04T02:23:26
+1pdlgs0,"Gold is not the problem, your MoE is.","None of our problems stem from Gold. Many of our problems come from our fraudulent Means of Exchange (MoE), where a few control value and issuance. A MoE that is even used as a weapon against other MoEs. None of that is true for Gold. Yet every BTC Mouthpiece is shouting ""Digital Gold"", ""Gold is the enemy"", ""Bitcoin will replace Gold"" etc. 
+
+Isn't it kinda weird? Wouldn't you expect that Bitcoin should replace the corrupt and malfunctioning MoE if we want things to improve?
+Even the Whitepaper calls it a p2p cash system. And Gold isn't mentioned at all except one analogy with gold mining.",https://www.reddit.com/r/CryptoCurrency/comments/1pdlgs0/gold_is_not_the_problem_your_moe_is/,DangerHighVoltage111,2,17,0.57,CryptoCurrency,bitcoin,reddit_post,1764808043.0,2025-12-04T00:27:23
+1pdl6vh,What would happen if Berkshire Hathaway made investment in Strategy ?,"The stock and bitcoin would skyrocket.  Now Buffett is against bitcoin but then again would he turn down making some quick billions ? The Strategy shorts would be squeezed like hell.
+
+Now Berkshire shares may drop as the market may question whether Buffett has gone insane.  But if shares do drop Berkshire then would just buy them back like they have done before.  Could a Strategy deal be the one last genius move of Buffett ?  
+
+Buffett may not have as much say anymore now that he seems to be retired and handed over the reigns.  Could a new deal then cement Greg Abel as his own man, the new leader that has brass balls ?
+",https://www.reddit.com/r/CryptoCurrency/comments/1pdl6vh/what_would_happen_if_berkshire_hathaway_made/,Nearing_retirement,0,8,0.24,CryptoCurrency,bitcoin,reddit_post,1764807335.0,2025-12-04T00:15:35
+1pdjobo,Bitcoin ETFs named BlackRock’s top money makers,,https://www.moneymanagement.com.au/news/funds-management/bitcoin-etfs-named-blackrocks-top-money-makers,Realistic_Poetry5800,41,5,0.87,CryptoCurrency,bitcoin,reddit_post,1764803488.0,2025-12-03T23:11:28
+1pdiyfo,"BlackRock’s Fink calls Bitcoin an ‘asset of fear’, softens crypto stance",,https://cointelegraph.com/news/blackrock-ceo-larry-fink-bitcoin-strategy-shift,Abdeliq,17,5,0.79,CryptoCurrency,bitcoin,reddit_post,1764801739.0,2025-12-03T22:42:19
+1pdggo2,Bitcoin’s strongest trading day since May cues possible rally to $107K,,https://cointelegraph.com/news/bitcoin-s-strongest-trading-day-since-may-cues-possible-rally-to-dollar107k,goldyluckinblokchain,234,42,0.84,CryptoCurrency,bitcoin,reddit_post,1764795878.0,2025-12-03T21:04:38
+1pd556x,What Do You Want For Xmas?,Source: [https://x.com/naiivememe/status/1996072863577874588](https://x.com/naiivememe/status/1996072863577874588),https://i.redd.it/uqee2db1yz4g1.png,kirtash93,1440,65,0.96,CryptoCurrency,bitcoin,reddit_post,1764770948.0,2025-12-03T14:09:08
+1pd3y97,Bitcoin Reclaims $93K as Bullish Sentiment Returns,,https://cryptopotato.com/bitcoin-reclaims-93k-as-bullish-sentiment-returns/,sadiq_238,66,12,0.84,CryptoCurrency,bitcoin,reddit_post,1764768012.0,2025-12-03T13:20:12
+1pd1rrk,"Further, 3iQ launch $100M fund that compounds returns in Bitcoin",,https://cointelegraph.com/news/further-3iq-launch-100m-bitcoin-denominated-crypto-fund,Then_Helicopter4243,4,2,0.7,CryptoCurrency,bitcoin,reddit_post,1764761480.0,2025-12-03T11:31:20
+1pd0acq,BlackRock's Spot Bitcoin ETF Options Secure U.S. Top 10 Ranking With 7.7M Active Contracts,,https://www.coindesk.com/markets/2025/12/03/blackrock-s-spot-bitcoin-etf-secures-top-10-spot-in-u-s-options-universe-with-7-7m-ibit-active-contracts,DryMyBottom,8,0,0.83,CryptoCurrency,bitcoin,reddit_post,1764756127.0,2025-12-03T10:02:07
+1pczuga,Bitcoin Bounces Back As Vanguard Decision Opens Door To Flood Of Capital,,https://www.forbes.com/sites/digital-assets/2025/12/02/bitcoin-bounces-back-as-vanguard-decision-opens-door-to-flood-of-capital/,Every_Hunt_160,353,38,0.94,CryptoCurrency,bitcoin,reddit_post,1764754434.0,2025-12-03T09:33:54
+1pcydc2,Glassnode’s Report Unveils Surprising Resilience in Bitcoin Amidst Market Challenges,,https://en.coin-turk.com/glassnodes-report-unveils-surprising-resilience-in-bitcoin-amidst-market-challenges/,DryMyBottom,12,3,0.93,CryptoCurrency,bitcoin,reddit_post,1764748682.0,2025-12-03T07:58:02
+1pcvr2c,Bitcoin surges to $93K after Sunday flush as analysts eye six-figure targets.,,https://i.redd.it/jvvwr0yecx4g1.jpeg,Odd-Radio-8500,152,38,0.85,CryptoCurrency,bitcoin,reddit_post,1764739447.0,2025-12-03T05:24:07
+1pckv84,Michael Burry renews crypto attacks calling Bitcoin “worth nothing”,,https://www.cryptopolitan.com/michael-burry-refer-to-bitcoin-worth-nothing/,partymsl,210,145,0.87,CryptoCurrency,bitcoin,reddit_post,1764710358.0,2025-12-02T21:19:18
+1pced69,"Bitcoin retakes $91,000 as $140 million in bearish bets vanish in 60 minutes",,https://www.cryptopolitan.com/global-markets-bitcoin-after-fed-ends-qt/,KIG45,523,57,0.94,CryptoCurrency,bitcoin,reddit_post,1764696042.0,2025-12-02T17:20:42
+1pc8c9r,"Bitcoin miners face worst profitability crunch on record, analyst says",,https://www.theblock.co/post/381049/bitcoin-miners-profitability-crunch,kirtash93,17,13,0.84,CryptoCurrency,bitcoin,reddit_post,1764681863.0,2025-12-02T13:24:23
+1pc4o2r,"Grayscale predicts new bitcoin highs in 2026, dismisses 4-year cycle view",,https://www.theblock.co/post/381028/grayscale-predicts-new-bitcoin-highs,DryMyBottom,39,12,0.85,CryptoCurrency,bitcoin,reddit_post,1764669710.0,2025-12-02T10:01:50
+1pc2rns,Strategy Amasses $1.44 Billion Reserve and Buys More Bitcoin,,https://en.coin-turk.com/strategy-amasses-1-44-billion-reserve-and-buys-more-bitcoin/,DryMyBottom,271,36,0.95,CryptoCurrency,bitcoin,reddit_post,1764662226.0,2025-12-02T07:57:06
+1pc0lzr,Vanguard Will Now Allow Crypto ETFs on Its Platform,"I’m honestly surprised this isn’t getting bigger headlines. This is massive news. Maybe some folks expected it, but I didn’t. Bitcoin and digital assets just became accessible to trillions in retirement money now that Vanguard, the second-largest asset manager, allows it. The impact won’t show up overnight, but advisors will slowly ease into those small .5 percent allocations. Vanguard used to be firmly against crypto, so seeing this shift feels like a real turning point. We saw what happened when the ETFs initially launched, so you can’t deny the potential positive impact this could have ",https://finance.yahoo.com/news/vanguard-now-allow-crypto-etfs-211500405.html,NuggedClarp,137,32,0.97,CryptoCurrency,bitcoin,reddit_post,1764654436.0,2025-12-02T05:47:16
+1pc057x,Bitcoin's rise to $96.9K could trigger $9.6B short position liquidation,,https://cryptobriefing.com/bitcoin-96900-liquidation-risk-short-squeeze/,Odd-Radio-8500,461,103,0.82,CryptoCurrency,bitcoin,reddit_post,1764652919.0,2025-12-02T05:21:59
+1pbhv9w,BTC price dips under $84K as Bitcoin faces ‘pivotal’ week for 2025 candle,,https://cointelegraph.com/news/btc-price-dips-under-84k-bitcoin-faces-pivotal-week-2025-candle,Realistic_Poetry5800,162,50,0.9,CryptoCurrency,bitcoin,reddit_post,1764607814.0,2025-12-01T16:50:14
+1pbhf5r,"Alert: how your conviction is being flipped into profit, just not for you!","Because the timeline is wild right now. One minute the crypto gurus say “UP ONLY,” the next minute they're cheering the crash, calling it “healthy,” and insisting “this dip is a blessing.”
+As a wise Chilean sage (with a suspiciously good sense of humor) once whispered:
+“There’s no I in team… but there is a cry in crypto.”
+
+Let’s break down how your conviction is being flipped into profit, just not for you.
+
+❌ Reality Check #1: Big Institutions Aren’t “Joining the Movement.” They’re Farming It. People keep spreading fantasy tales about Larry Fink becoming a Bitcoin disciple, or Jamie Dimon suddenly “seeing the light.”
+Stop.
+These giants didn’t “convert.” They simply realised there is an entire army of crypto-believers who will generate free revenue for them.
+BlackRock’s IBIT?
+Now their #1 revenue product.
+They rake in hundreds of millions per year in fees.
+Do they care about decentralization? The mission? The philosophy?
+No. They care about fee income.
+If BTC nukes tomorrow, it’s ETF holders who get obliterated, not BlackRock, not Fidelity.
+And the centralization?
+These institutions + mega-whales now control a massive slice of total BTC supply. Add Binance and other CEXs, and you’re staring at concentrations of power that wipe the whitepaper’s ideals clean off the table.
+❌ Reality Check #2: Billions in BTC Recently Moved to Exchanges. That Means One Thing.
+Massive inflows from cold wallets → exchanges = preparing to sell.
+This includes major players that publicly say “HODL forever” while quietly positioning to dump.
+They preach patience.
+They tell followers not to panic.
+Then they offload coins behind the scenes.
+It’s not leadership.
+It’s exit liquidity management.
+And guess whose exit liquidity you are?
+❌ Reality Check #3: The 2024 Bull Run Was Built on Leverage and Marketing, Not Organic Demand.
+MicroStrategy didn’t lead a revolution.
+They leveraged debt to buy more BTC → causing price spikes → which inflated the value of their existing holdings → which allowed them to take on more debt → which pumped the market again.
+That isn’t spiritual crypto enlightenment.
+That’s a pyramid-shaped financial engineering loop.
+Meanwhile, politicians, influencers, and lobbyists hyped the rally while quietly securing their own exits.
+Now the loop is cracking—and suddenly the same mouths are… quieter, or “reevaluating strategy.”
+❌ Reality Check #4: The Loudest Voices in Crypto Are Often the Most Trapped.
+Anyone with 40–70% of their portfolio in crypto has no choice but to preach bullish narratives.
+They can’t tell you to be cautious—because they weren’t.
+They can’t admit they’re unsure—because doubt hurts their bags.
+So they pivot, spin, and improvise narratives faster than you can refresh a chart.
+Crypto doesn’t have fundamentals the same way stocks do.
+There’s no earnings.
+No dividends.
+No cash flow.
+It’s mostly sentiment, crowd behavior, inertia, and historical patterns.
+So influencers aren't “guiding you.”
+They’re managing their own risk by managing your beliefs.
+⚠️ This Isn’t Anti-Crypto. It’s Anti-Delusion.
+Own crypto if you want. Many people do in balanced, reasonable amounts.
+But don’t confuse community with cult, and don’t let billion-dollar institutions or billionaire whales weaponize your conviction so they can rotate out while you “HOLD for the cause.”
+In investing, belief isn’t a strategy.
+Narratives don’t pay bills.
+And charisma isn’t a risk-management tool.
+Stay sharp. Stay diversified. Stay sceptical.
+Crypto isn’t the problem.
+Blind faith is.",https://www.reddit.com/r/CryptoCurrency/comments/1pbhf5r/alert_how_your_conviction_is_being_flipped_into/,Senior-Preference678,4,10,0.58,CryptoCurrency,bitcoin,reddit_post,1764606802.0,2025-12-01T16:33:22

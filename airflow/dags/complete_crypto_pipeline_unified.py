@@ -19,7 +19,9 @@ import json
 import importlib.util
 
 # Add project root to Python path
-project_root = Path(__file__).parent.parent.parent
+# In Docker, __file__ is /opt/airflow/dags/complete_crypto_pipeline_unified.py
+# So parent.parent = /opt/airflow (where all volumes are mounted)
+project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 # Configure logging
@@ -54,6 +56,7 @@ def extract_reddit_data(**context):
     """
     import logging
     import pandas as pd
+    from datetime import datetime
     from extraction.services.reddit_extractor import RedditExtractor
     from extraction.models.config import RedditConfig
     
@@ -66,7 +69,6 @@ def extract_reddit_data(**context):
         # Get execution date from context
         execution_date = context.get('execution_date')
         if execution_date is None:
-            from datetime import datetime
             execution_date = datetime.now()
         else:
             # Convert pendulum datetime to standard datetime if needed
@@ -161,7 +163,9 @@ def clean_reddit_data(**context):
     logger.info("=" * 80)
     
     try:
-        project_root = Path(__file__).parent.parent.parent
+        # In Docker, __file__ is /opt/airflow/dags/complete_crypto_pipeline_unified.py
+        # So parent.parent = /opt/airflow (where data is mounted)
+        project_root = Path(__file__).parent.parent
         bronze_dir = project_root / "data" / "bronze" / "reddit"
         silver_dir = project_root / "data" / "silver" / "reddit"
         silver_dir.mkdir(parents=True, exist_ok=True)
@@ -210,7 +214,7 @@ def clean_reddit_data(**context):
         df_consolidated = pd.concat(all_dataframes, ignore_index=True)
         logger.info(f"Consolidated data: {len(df_consolidated)} total rows")
         
-        # Load cleaning script
+        # Load cleaning script (mounted at /opt/airflow/data_cleaning)
         cleaning_script = project_root / "data_cleaning" / "Script" / "Reddit-Dataset-Cleaning.py"
         
         if not cleaning_script.exists():
@@ -334,7 +338,9 @@ def analyze_sentiment(**context):
                 )
         
         # Paths - OUTPUT IN SILVER, NOT GOLD
-        project_root = Path(__file__).parent.parent.parent
+        # In Docker, __file__ is /opt/airflow/dags/complete_crypto_pipeline_unified.py
+        # So parent.parent = /opt/airflow (where data is mounted)
+        project_root = Path(__file__).parent.parent
         silver_path = project_root / "data" / "silver" / "reddit" / "cleaned_reddit_dataset.csv"
         silver_dir = project_root / "data" / "silver" / "reddit"
         silver_dir.mkdir(parents=True, exist_ok=True)
@@ -360,7 +366,7 @@ def analyze_sentiment(**context):
             logger.warning("No data to analyze")
             return {'status': 'skipped', 'reason': 'empty_data'}
         
-        # Import sentiment predictor
+        # Import sentiment predictor (mounted at /opt/airflow/Finetuning)
         finetuning_path = project_root / "Finetuning"
         sys.path.insert(0, str(finetuning_path))
         
