@@ -1,0 +1,50 @@
+================================================================================
+RAPPORT D'ANALYSE INITIALE - DATASET CRYPTO_SENT.CSV
+================================================================================
+Date de génération: 2025-12-09 12:20:25
+
+1. RÉSUMÉ GÉNÉRAL
+--------------------------------------------------------------------------------
+Nombre total d'enregistrements: 64,378
+Nombre de colonnes: 8
+Colonnes: Unnamed: 0, id, created_at, text, sentiment, score, text_length, word_count
+
+2. VALEURS MANQUANTES
+--------------------------------------------------------------------------------
+Unnamed: 0: 0 (0.00%)
+id: 0 (0.00%)
+created_at: 0 (0.00%)
+text: 0 (0.00%)
+sentiment: 0 (0.00%)
+score: 0 (0.00%)
+text_length: 0 (0.00%)
+word_count: 0 (0.00%)
+
+3. DISTRIBUTION DES SENTIMENTS
+--------------------------------------------------------------------------------
+neutral: 29,237 (45.41%)
+positive: 16,605 (25.79%)
+negative: 8,188 (12.72%)
+extremely_positive: 7,959 (12.36%)
+extremely_negative: 2,389 (3.71%)
+
+4. STATISTIQUES DES SCORES
+--------------------------------------------------------------------------------
+Moyenne: 0.1189
+Médiane: 0.0000
+Écart-type: 0.3735
+Min: -0.9648
+Max: 0.9786
+
+5. PÉRIODE TEMPORELLE
+--------------------------------------------------------------------------------
+Date minimale: 2009-12-08 16:05:02
+Date maximale: 2018-02-19 18:40:04
+Durée: 2995 jours
+
+6. STATISTIQUES DES TEXTES
+--------------------------------------------------------------------------------
+Longueur moyenne: 106.1 caractères
+Longueur médiane: 123.0 caractères
+Longueur min: 1 caractères
+Longueur max: 158 caractères
