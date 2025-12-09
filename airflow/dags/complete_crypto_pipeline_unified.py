@@ -88,6 +88,32 @@ def extract_reddit_data(**context):
         
         logger.info(f"Execution date: {execution_date}")
         
+        # Check if already executed today by checking output files
+        from pathlib import Path
+        project_root = Path(__file__).parent.parent
+        date_str = execution_date.strftime('%Y%m%d')
+        today_date_str = datetime.now().strftime('%Y%m%d')
+        
+        # If execution date is today, check if already processed
+        if execution_date.strftime('%Y%m%d') == today_date_str:
+            # Check if cleaned data file exists for today
+            silver_dir = project_root / "data" / "silver" / "reddit"
+            cleaned_file = silver_dir / f"cleaned_reddit_dataset_{date_str}.csv"
+            
+            if cleaned_file.exists():
+                # Check file modification time
+                import os
+                file_time = datetime.fromtimestamp(os.path.getmtime(cleaned_file))
+                if file_time.date() == datetime.now().date():
+                    logger.info(f"DAG already executed today ({datetime.now().date()})")
+                    logger.info(f"Cleaned file exists and was modified today: {cleaned_file}")
+                    logger.info("Skipping extraction - already processed today")
+                    return {
+                        'status': 'skipped',
+                        'reason': 'already_executed_today',
+                        'execution_date': execution_date.isoformat()
+                    }
+        
         # Initialize extractor
         config = RedditConfig()
         extractor = RedditExtractor(config)
@@ -201,6 +227,29 @@ def clean_reddit_data(**context):
         logger.info(f"Loading bronze data for execution date: {execution_date.date()}")
         logger.info(f"Partition path: {day_partition_dir}")
         
+        # Check if already executed today
+        date_str = execution_date.strftime('%Y%m%d')
+        today_date_str = datetime.now().strftime('%Y%m%d')
+        
+        if execution_date.strftime('%Y%m%d') == today_date_str:
+            output_file = silver_dir / f"cleaned_reddit_dataset_{date_str}.csv"
+            if output_file.exists():
+                import os
+                file_time = datetime.fromtimestamp(os.path.getmtime(output_file))
+                if file_time.date() == datetime.now().date():
+                    logger.info(f"DAG already executed today ({datetime.now().date()})")
+                    logger.info(f"Cleaned file exists and was modified today: {output_file}")
+                    logger.info("Skipping cleaning - already processed today")
+                    return {
+                        'status': 'skipped',
+                        'reason': 'already_executed_today',
+                        'execution_date': execution_date.isoformat(),
+                        'initial_rows': 0,
+                        'final_rows': 0,
+                        'removed_rows': 0,
+                        'removal_rate': 0.0
+                    }
+        
         if not day_partition_dir.exists():
             logger.warning(f"No bronze data found for date {execution_date.date()}")
             return {
@@ -267,16 +316,36 @@ def clean_reddit_data(**context):
         
         # Filter out already processed IDs
         id_column = None
-        for col in ['submission_id', 'id', 'unified_id']:
+        for col in ['submission_id', 'id', 'unified_id', 'comment_id']:
             if col in df_consolidated.columns:
                 id_column = col
                 break
         
-        if id_column:
+        if id_column and processed_ids:
             initial_count = len(df_consolidated)
-            df_consolidated = df_consolidated[~df_consolidated[id_column].isin(processed_ids)]
+            
+            # Convert IDs to unified format (p_ for posts, c_ for comments) to match checkpoint
+            if id_column == 'submission_id':
+                df_consolidated['temp_unified_id'] = 'p_' + df_consolidated[id_column].astype(str)
+            elif id_column == 'comment_id':
+                df_consolidated['temp_unified_id'] = 'c_' + df_consolidated[id_column].astype(str)
+            elif id_column == 'unified_id':
+                # Already in unified format
+                df_consolidated['temp_unified_id'] = df_consolidated[id_column].astype(str)
+            else:
+                # Try to determine if it's a post or comment
+                if 'title' in df_consolidated.columns or 'post_author' in df_consolidated.columns:
+                    df_consolidated['temp_unified_id'] = 'p_' + df_consolidated[id_column].astype(str)
+                else:
+                    df_consolidated['temp_unified_id'] = 'c_' + df_consolidated[id_column].astype(str)
+            
+            # Filter using unified format
+            df_consolidated = df_consolidated[~df_consolidated['temp_unified_id'].isin(processed_ids)].copy()
+            df_consolidated = df_consolidated.drop(columns=['temp_unified_id'], errors='ignore')
+            
             new_count = len(df_consolidated)
             logger.info(f"  {initial_count - new_count} rows already processed (checkpoint)")
+            logger.info(f"  {new_count} new rows to process")
         
         # Apply cleaning transformations
         logger.info("Cleaning in progress...")
@@ -298,10 +367,23 @@ def clean_reddit_data(**context):
         logger.info(f"Cleaned data for {execution_date.date()} saved: {output_file}")
         logger.info(f"  Total: {len(df_consolidated)} rows")
         
-        # Update checkpoint
-        if id_column:
-            new_ids = set(df_consolidated[id_column].dropna().astype(str))
-            processed_ids.update(new_ids)
+        # Update checkpoint with unified format IDs
+        if id_column and not df_consolidated.empty:
+            # Convert IDs to unified format (p_ for posts, c_ for comments)
+            if id_column == 'submission_id':
+                new_unified_ids = set(('p_' + df_consolidated[id_column].dropna().astype(str)).tolist())
+            elif id_column == 'comment_id':
+                new_unified_ids = set(('c_' + df_consolidated[id_column].dropna().astype(str)).tolist())
+            elif id_column == 'unified_id':
+                new_unified_ids = set(df_consolidated[id_column].dropna().astype(str).tolist())
+            else:
+                # Try to determine if it's a post or comment
+                if 'title' in df_consolidated.columns or 'post_author' in df_consolidated.columns:
+                    new_unified_ids = set(('p_' + df_consolidated[id_column].dropna().astype(str)).tolist())
+                else:
+                    new_unified_ids = set(('c_' + df_consolidated[id_column].dropna().astype(str)).tolist())
+            
+            processed_ids.update(new_unified_ids)
             checkpoint_data = {
                 'processed_ids': list(processed_ids),
                 'last_run': datetime.now().isoformat(),
@@ -309,7 +391,7 @@ def clean_reddit_data(**context):
             }
             with open(checkpoint_file, 'w', encoding='utf-8') as f:
                 json.dump(checkpoint_data, f, indent=2, ensure_ascii=False)
-            logger.info(f"Checkpoint updated: {len(processed_ids)} total IDs")
+            logger.info(f"Checkpoint updated: {len(processed_ids)} total IDs ({len(new_unified_ids)} new IDs added)")
         
         result = {
             'initial_rows': before_dedup,
@@ -334,19 +416,20 @@ def clean_reddit_data(**context):
 
 def analyze_sentiment(**context):
     """
-    Step 3: Sentiment analysis with fine-tuned model - CURRENT DAY DATA ONLY
+    Step 3: Sentiment analysis with fine-tuned model - CONSOLIDATED OUTPUT
     Input: data/silver/reddit/cleaned_reddit_dataset_YYYYMMDD.csv (cleaned file for execution date)
-    Output: data/silver/reddit/sentiment_analysis_YYYYMMDD.csv (in SILVER, not GOLD)
+    Output: data/silver/reddit/sentiment_analysis.csv (CONSOLIDATED file with all data)
     """
     import logging
     import pandas as pd
     from pathlib import Path
     from datetime import datetime
     import sys
+    import json
     
     logger = logging.getLogger(__name__)
     logger.info("=" * 80)
-    logger.info("STEP 3: SENTIMENT ANALYSIS - CURRENT DAY DATA ONLY (SILVER LAYER)")
+    logger.info("STEP 3: SENTIMENT ANALYSIS - CONSOLIDATED OUTPUT (SILVER LAYER)")
     logger.info("=" * 80)
 
     try:
@@ -376,25 +459,36 @@ def analyze_sentiment(**context):
         silver_dir = project_root / "data" / "silver" / "reddit"
         silver_dir.mkdir(parents=True, exist_ok=True)
         
-        # Input and output files for this execution date
+        # Input file for this execution date, output is consolidated file
         date_str = execution_date.strftime('%Y%m%d')
+        today_date_str = datetime.now().strftime('%Y%m%d')
         silver_path = silver_dir / f"cleaned_reddit_dataset_{date_str}.csv"
-        output_file = silver_dir / f"sentiment_analysis_{date_str}.csv"
+        output_file = silver_dir / "sentiment_analysis.csv"  # Single consolidated file
+        sentiment_checkpoint_file = silver_dir / "sentiment_checkpoint.json"
         
         logger.info(f"Execution date: {execution_date.date()}")
         logger.info(f"Reading from: {silver_path}")
-        logger.info(f"Saving to: {output_file}")
+        logger.info(f"Saving to: {output_file} (CONSOLIDATED)")
+        
+        # Check if already executed today
+        if execution_date.strftime('%Y%m%d') == today_date_str:
+            if output_file.exists():
+                import os
+                file_time = datetime.fromtimestamp(os.path.getmtime(output_file))
+                if file_time.date() == datetime.now().date():
+                    logger.info(f"DAG already executed today ({datetime.now().date()})")
+                    logger.info(f"Sentiment analysis file was modified today: {output_file}")
+                    logger.info("Skipping sentiment analysis - already processed today")
+                    return {
+                        'status': 'skipped',
+                        'reason': 'already_executed_today',
+                        'execution_date': execution_date.isoformat()
+                    }
         
         # Check if input file exists
         if not silver_path.exists():
             logger.warning(f"Cleaned data file not found for {execution_date.date()}: {silver_path}")
             return {'status': 'skipped', 'reason': 'no_silver_data', 'execution_date': execution_date.isoformat()}
-        
-        # Check if output already exists (skip if already analyzed)
-        if output_file.exists():
-            logger.info(f"Sentiment analysis already exists for {execution_date.date()}")
-            logger.info(f"  Output file: {output_file}")
-            return {'status': 'skipped', 'reason': 'already_analyzed', 'execution_date': execution_date.isoformat()}
         
         logger.info("Loading cleaned data...")
         df = pd.read_csv(silver_path)
@@ -403,6 +497,57 @@ def analyze_sentiment(**context):
         if df.empty:
             logger.warning("No data to analyze")
             return {'status': 'skipped', 'reason': 'empty_data', 'execution_date': execution_date.isoformat()}
+        
+        # Find ID column for deduplication
+        id_column = None
+        for col in ['submission_id', 'id', 'unified_id', 'comment_id']:
+            if col in df.columns:
+                id_column = col
+                break
+        
+        # Load existing consolidated file and checkpoint to avoid re-analyzing
+        existing_ids = set()
+        if output_file.exists() and id_column:
+            logger.info("Loading existing consolidated sentiment analysis...")
+            try:
+                df_existing = pd.read_csv(output_file)
+                existing_ids = set(df_existing['unified_id'].dropna().astype(str))
+                logger.info(f"  Existing file contains {len(df_existing)} rows")
+                logger.info(f"  {len(existing_ids)} unique IDs already analyzed")
+            except Exception as e:
+                logger.warning(f"Could not read existing file: {e}")
+        
+        # Also check checkpoint
+        processed_ids = set()
+        if sentiment_checkpoint_file.exists():
+            with open(sentiment_checkpoint_file, 'r', encoding='utf-8') as f:
+                checkpoint = json.load(f)
+                processed_ids = set(checkpoint.get('processed_ids', []))
+            logger.info(f"Checkpoint loaded: {len(processed_ids)} IDs in checkpoint")
+        
+        # Combine existing IDs from file and checkpoint
+        all_processed_ids = existing_ids.union(processed_ids)
+        
+        # Filter out already processed rows
+        if id_column and all_processed_ids:
+            initial_count = len(df)
+            # Create unified_id for comparison
+            if id_column == 'submission_id':
+                df['temp_unified_id'] = 'p_' + df[id_column].astype(str)
+            elif id_column == 'comment_id':
+                df['temp_unified_id'] = 'c_' + df[id_column].astype(str)
+            else:
+                df['temp_unified_id'] = df[id_column].astype(str)
+            
+            df_new = df[~df['temp_unified_id'].isin(all_processed_ids)].copy()
+            logger.info(f"  {initial_count - len(df_new)} rows already analyzed (skipped)")
+            logger.info(f"  {len(df_new)} new rows to analyze")
+            df = df_new
+            df = df.drop(columns=['temp_unified_id'], errors='ignore')
+        
+        if df.empty:
+            logger.info("No new data to analyze (all already processed)")
+            return {'status': 'skipped', 'reason': 'all_processed', 'execution_date': execution_date.isoformat()}
         
         # Import sentiment predictor (mounted at /opt/airflow/Finetuning)
         finetuning_path = project_root / "Finetuning"
@@ -467,15 +612,20 @@ def analyze_sentiment(**context):
         logger.info("Formatting output to expected schema...")
         
         # Find unified_id (prefer submission_id, then id, then comment_id)
+        # Format: p_ for posts, c_ for comments
         if 'submission_id' in df.columns:
-            df['unified_id'] = df['submission_id'].astype(str)
-        elif 'id' in df.columns:
-            df['unified_id'] = df['id'].astype(str)
+            df['unified_id'] = 'p_' + df['submission_id'].astype(str)
         elif 'comment_id' in df.columns:
-            df['unified_id'] = df['comment_id'].astype(str)
+            df['unified_id'] = 'c_' + df['comment_id'].astype(str)
+        elif 'id' in df.columns:
+            # Try to determine if it's a post or comment based on other columns
+            if 'title' in df.columns or 'post_author' in df.columns:
+                df['unified_id'] = 'p_' + df['id'].astype(str)
+            else:
+                df['unified_id'] = 'c_' + df['id'].astype(str)
         else:
             # Create unified_id from index if no ID column found
-            df['unified_id'] = df.index.astype(str)
+            df['unified_id'] = 'p_' + df.index.astype(str)
         
         # Map text_content (use combined_text)
         df['text_content'] = df['combined_text']
@@ -532,18 +682,52 @@ def analyze_sentiment(**context):
             'sentiment_confidence': df['sentiment_confidence']
         })
         
-        # Save results for this day to silver layer
+        # Consolidate with existing file
+        if output_file.exists():
+            logger.info("Loading existing consolidated file for merging...")
+            try:
+                df_existing = pd.read_csv(output_file)
+                logger.info(f"  Existing file: {len(df_existing)} rows")
+                
+                # Combine new and existing data
+                df_combined = pd.concat([df_existing, output_df], ignore_index=True)
+                
+                # Remove duplicates by unified_id (keep newest)
+                before_dedup = len(df_combined)
+                df_combined = df_combined.drop_duplicates(subset=['unified_id'], keep='last')
+                after_dedup = len(df_combined)
+                
+                logger.info(f"  Combined: {len(df_combined)} total rows")
+                logger.info(f"  Removed {before_dedup - after_dedup} duplicates")
+                output_df = df_combined
+            except Exception as e:
+                logger.warning(f"Could not merge with existing file: {e}, creating new file...")
+        
+        # Save consolidated results to single file
         output_df.to_csv(output_file, index=False)
-        logger.info(f"Sentiment analysis for {execution_date.date()} saved: {output_file}")
+        logger.info(f"Consolidated sentiment analysis saved: {output_file}")
         logger.info(f"  Total: {len(output_df)} rows")
         logger.info(f"  Positive: {len(output_df[output_df['sentiment'] == 'positive'])}")
         logger.info(f"  Negative: {len(output_df[output_df['sentiment'] == 'negative'])}")
         logger.info(f"  Neutral: {len(output_df[output_df['sentiment'] == 'neutral'])}")
         
+        # Update checkpoint with newly processed IDs
+        new_ids = set(output_df['unified_id'].dropna().astype(str))
+        all_processed_ids.update(new_ids)
+        checkpoint_data = {
+            'processed_ids': list(all_processed_ids),
+            'last_run': datetime.now().isoformat(),
+            'total_processed': len(all_processed_ids),
+            'last_analysis_date': execution_date.isoformat()
+        }
+        with open(sentiment_checkpoint_file, 'w', encoding='utf-8') as f:
+            json.dump(checkpoint_data, f, indent=2, ensure_ascii=False)
+        logger.info(f"Checkpoint updated: {len(all_processed_ids)} total IDs processed")
+        
         return {
             'status': 'success',
             'total_rows': len(output_df),
-            'rows_analyzed': len(results),
+            'new_rows_analyzed': len(results),
             'positive_count': len(output_df[output_df['sentiment'] == 'positive']),
             'negative_count': len(output_df[output_df['sentiment'] == 'negative']),
             'neutral_count': len(output_df[output_df['sentiment'] == 'neutral']),
