@@ -1,0 +1,92 @@
+[
+  {
+    "crypto": "Bitcoin",
+    "time_scale": "daily (D → D+1)",
+    "pearson_r": 0.0371,
+    "pearson_p": 0.152302,
+    "spearman_r": 0.0123,
+    "spearman_p": 0.635366,
+    "granger_p_value": 0.40674,
+    "n_observations": 1488
+  },
+  {
+    "crypto": "Ethereum",
+    "time_scale": "daily (D → D+1)",
+    "pearson_r": 0.0508,
+    "pearson_p": 0.149683,
+    "spearman_r": 0.0847,
+    "spearman_p": 0.016239,
+    "granger_p_value": 0.82104,
+    "n_observations": 805
+  },
+  {
+    "crypto": "Solana",
+    "time_scale": "daily (D → D+1)",
+    "pearson_r": -0.0072,
+    "pearson_p": 0.884186,
+    "spearman_r": -0.0177,
+    "spearman_p": 0.719853,
+    "granger_p_value": 0.109916,
+    "n_observations": 413
+  },
+  {
+    "crypto": "Bitcoin",
+    "time_scale": "weekly (W → W+1)",
+    "pearson_r": 0.0634,
+    "pearson_p": 0.303636,
+    "spearman_r": -0.0595,
+    "spearman_p": 0.334583,
+    "granger_p_value": 0.085131,
+    "n_observations": 265
+  },
+  {
+    "crypto": "Ethereum",
+    "time_scale": "weekly (W → W+1)",
+    "pearson_r": 0.0594,
+    "pearson_p": 0.389577,
+    "spearman_r": 0.0371,
+    "spearman_p": 0.591226,
+    "granger_p_value": 0.032563,
+    "n_observations": 212
+  },
+  {
+    "crypto": "Solana",
+    "time_scale": "weekly (W → W+1)",
+    "pearson_r": 0.0291,
+    "pearson_p": 0.733244,
+    "spearman_r": 0.0924,
+    "spearman_p": 0.277307,
+    "granger_p_value": 0.105658,
+    "n_observations": 140
+  },
+  {
+    "crypto": "Bitcoin",
+    "time_scale": "monthly (M → M+1)",
+    "pearson_r": 0.5686,
+    "pearson_p": 1e-06,
+    "spearman_r": 0.4902,
+    "spearman_p": 4.5e-05,
+    "granger_p_value": 0.005778,
+    "n_observations": 63
+  },
+  {
+    "crypto": "Ethereum",
+    "time_scale": "monthly (M → M+1)",
+    "pearson_r": -0.0108,
+    "pearson_p": 0.932432,
+    "spearman_r": 0.0892,
+    "spearman_p": 0.483422,
+    "granger_p_value": 0.067993,
+    "n_observations": 64
+  },
+  {
+    "crypto": "Solana",
+    "time_scale": "monthly (M → M+1)",
+    "pearson_r": -0.0872,
+    "pearson_p": 0.547138,
+    "spearman_r": -0.0748,
+    "spearman_p": 0.605595,
+    "granger_p_value": 0.366438,
+    "n_observations": 50
+  }
+]

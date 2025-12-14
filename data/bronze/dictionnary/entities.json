@@ -1,0 +1,1038 @@
+{
+    "cryptos": {
+        "Bitcoin": [
+            "Bitcoin",
+            "BTC",
+            "minage de Bitcoin",
+            "#Bitcoin",
+            "#BTC",
+            "₿",
+            "XBT",
+            "Ƀ"
+        ],
+        "Ethereum": [
+            "Ethereum",
+            "ETH",
+            "gas fees",
+            "#Ethereum",
+            "#ETH",
+            "Ether",
+            "Ξ",
+            "PoS"
+        ],
+        "Tether": [
+            "Tether",
+            "USDT",
+            "#Tether",
+            "$USDT",
+            "stablecoin",
+            "₮"
+        ],
+        "XRP": [
+            "XRP",
+            "XRP",
+            "#Ripple",
+            "$XRP",
+            "Ripple"
+        ],
+        "Binance Coin": [
+            "Binance Coin",
+            "BNB",
+            "#BinanceCoin",
+            "$BNB",
+            "BNB Chain",
+            "BSC",
+            "Binance Smart Chain"
+        ],
+        "Solana": [
+            "Solana",
+            "SOL",
+            "$SOL",
+            "#Solana",
+            "Sol"
+        ],
+        "USD Coin": [
+            "USD Coin",
+            "USDC",
+            "$USDC",
+            "digital dollar",
+            "#USDC",
+            "Coinbase stablecoin"
+        ],
+        "Lido Staked Ether": [
+            "Lido Staked Ether",
+            "STETH",
+            "$stETH",
+            "LSD ETH",
+            "#STETH",
+            "Lido"
+        ],
+        "TRON": [
+            "TRON",
+            "TRX",
+            "$TRX",
+            "Tronix",
+            "#TRON",
+            "#TRX",
+            "Justin Sun"
+        ],
+        "Dogecoin": [
+            "Dogecoin",
+            "DOGE",
+            "$DOGE",
+            "#Dogecoin",
+            "meme coin",
+            "Ɖ"
+        ],
+        "Cardano": [
+            "Cardano",
+            "ADA",
+            "$ADA",
+            "#ADA",
+            "#Cardano",
+            "₳",
+            "PoS",
+            "Hosk"
+        ],
+        "Figure Heloc": [
+            "Figure Heloc",
+            "FIGR_HELOC",
+            "$FIGR_HELOC",
+            "HELOC",
+            "RWA"
+        ],
+        "Wrapped stETH": [
+            "Wrapped stETH",
+            "WSTETH",
+            "$WSTETH",
+            "#WrappedStETH",
+            "w-stETH",
+            "stETH",
+            "wstETH"
+        ],
+        "Wrapped Bitcoin": [
+            "Wrapped Bitcoin",
+            "WBTC",
+            "$WBTC",
+            "#WBTC",
+            "wrapped BTC",
+            "WBTC/ERC-20",
+            "wBTC"
+        ],
+        "Wrapped Beacon ETH": [
+            "Wrapped Beacon ETH",
+            "WBETH",
+            "$WBETH",
+            "#WBETH",
+            "Binance LSD"
+        ],
+        "WhiteBIT Coin": [
+            "WhiteBIT Coin",
+            "WBT",
+            "#WBT",
+            "WhiteBIT"
+        ],
+        "Hyperliquid": [
+            "Hyperliquid",
+            "HYPE",
+            "$HYPE",
+            "HyperLQD"
+        ],
+        "Chainlink": [
+            "Chainlink",
+            "LINK",
+            "$LINK",
+            "#Chainlink",
+            "Oracle"
+        ],
+        "Zcash": [
+            "Zcash",
+            "ZEC",
+            "$ZEC",
+            "#Zcash",
+            "privacy coin"
+        ],
+        "Bitcoin Cash": [
+            "Bitcoin Cash",
+            "BCH",
+            "$BCH",
+            "#BitcoinCash",
+            "B Cash"
+        ],
+        "USDS": [
+            "USDS",
+            "USDS",
+            "$USDS",
+            "stablecoin",
+            "Stablecoin Reserve"
+        ],
+        "Wrapped eETH": [
+            "Wrapped eETH",
+            "WEETH",
+            "$WEETH",
+            "Ether.fi"
+        ],
+        "Binance Bridged USDT": [
+            "Binance Bridged USDT",
+            "BSC-USD",
+            "$BSCUSD",
+            "#BSCUSD",
+            "Tether-Pegged",
+            "BNB Chain USDT"
+        ],
+        "Stellar": [
+            "Stellar",
+            "XLM",
+            "$XLM",
+            "#Stellar",
+            "Lumens"
+        ],
+        "LEO Token": [
+            "LEO Token",
+            "LEO",
+            "$LEO",
+            "#LEOToken",
+            "UNUS SED LEO"
+        ],
+        "Ethena USDe": [
+            "Ethena USDe",
+            "USDE",
+            "$USDE",
+            "Ethena",
+            "synthetic dollar"
+        ],
+        "Monero": [
+            "Monero",
+            "XMR",
+            "$XMR",
+            "#Monero",
+            "privacy coin",
+            "ɱ"
+        ],
+        "Litecoin": [
+            "Litecoin",
+            "LTC",
+            "$LTC",
+            "#Litecoin",
+            "Ł"
+        ],
+        "Sui": [
+            "Sui",
+            "SUI",
+            "$SUI",
+            "#Sui",
+            "Mysten Labs"
+        ],
+        "Coinbase Wrapped BTC": [
+            "Coinbase Wrapped BTC",
+            "CBBTC",
+            "$CBBTC",
+            "#CBBTC",
+            "Coinbase BTC"
+        ],
+        "Avalanche": [
+            "Avalanche",
+            "AVAX",
+            "$AVAX",
+            "#Avalanche",
+            "AVAX token"
+        ],
+        "WETH": [
+            "WETH",
+            "WETH",
+            "$WETH",
+            "Wrapped ETH",
+            "#WETH",
+            "wETH"
+        ],
+        "Hedera": [
+            "Hedera",
+            "HBAR",
+            "$HBAR",
+            "#Hedera",
+            "Hashgraph"
+        ],
+        "Shiba Inu": [
+            "Shiba Inu",
+            "SHIB",
+            "$SHIB",
+            "#ShibaInu",
+            "meme coin",
+            "SHIB Army"
+        ],
+        "Toncoin": [
+            "Toncoin",
+            "TON",
+            "$TON",
+            "#Toncoin",
+            "Telegram Open Network"
+        ],
+        "Polkadot": [
+            "Polkadot",
+            "DOT",
+            "$DOT",
+            "#Polkadot",
+            "Parachains",
+            "Kusama"
+        ],
+        "Ethena Staked USDe": [
+            "Ethena Staked USDe",
+            "SUSDE",
+            "$SUSDE",
+            "sUSDe"
+        ],
+        "Dai": [
+            "Dai",
+            "DAI",
+            "$DAI",
+            "stablecoin",
+            "#Dai",
+            "MakerDAO"
+        ],
+        "Cronos": [
+            "Cronos",
+            "CRO",
+            "$CRO",
+            "#Cronos",
+            "Crypto.com"
+        ],
+        "Mantle": [
+            "Mantle",
+            "MNT",
+            "$MNT",
+            "#Mantle",
+            "BitDAO"
+        ],
+        "Uniswap": [
+            "Uniswap",
+            "UNI",
+            "$UNI",
+            "#Uniswap",
+            "DeFi",
+            "DEX"
+        ],
+        "Internet Computer": [
+            "Internet Computer",
+            "ICP",
+            "$ICP",
+            "#InternetComputer",
+            "DFINITY"
+        ],
+        "MemeCore": [
+            "MemeCore",
+            "M",
+            "$M",
+            "#MemeCore",
+            "Meme Core"
+        ],
+        "SUSDS": [
+            "SUSDS",
+            "SUSDS",
+            "$SUSDS",
+            "stablecoin"
+        ],
+        "NEAR Protocol": [
+            "NEAR Protocol",
+            "NEAR",
+            "$NEAR",
+            "#NEARProtocol",
+            "Sharding"
+        ],
+        "USDTO": [
+            "USDTO",
+            "USDTO",
+            "$USDTO",
+            "stablecoin"
+        ],
+        "Bitensor": [
+            "Bitensor",
+            "TAO",
+            "$TAO",
+            "#Bitensor",
+            "Bittensor",
+            "AI"
+        ],
+        "World Liberty Financial": [
+            "World Liberty Financial",
+            "WLFI",
+            "$WLFI"
+        ],
+        "Aave": [
+            "Aave",
+            "AAVE",
+            "$AAVE",
+            "#Aave",
+            "DeFi",
+            "Lending"
+        ],
+        "USD1": [
+            "USD1",
+            "USD1",
+            "$USD1",
+            "stablecoin"
+        ]
+    },
+    "exchanges": {
+        "Binance": [
+            "Binance",
+            "Binance",
+            "#Binance",
+            "$BNB",
+            "CZ",
+            "Binance Global",
+            "Binance.com"
+        ],
+        "Coinbase": [
+            "Coinbase",
+            "Coinbase",
+            "#Coinbase",
+            "$COIN",
+            "Coinbase Exchange",
+            "Coinbase US",
+            "COIN"
+        ],
+        "Kraken": [
+            "Kraken",
+            "Kraken",
+            "#Kraken",
+            "Kraken Exchange",
+            "Jesse Powell"
+        ],
+        "Bybit": [
+            "Bybit",
+            "Bybit",
+            "#Bybit",
+            "Bybit Exchange",
+            "Bybit Futures",
+            "Bybit Derivatives"
+        ],
+        "OKX": [
+            "OKX",
+            "OKX",
+            "#OKX",
+            "OKX Exchange",
+            "OKEx",
+            "OKX Web3"
+        ],
+        "KuCoin": [
+            "KuCoin",
+            "KuCoin",
+            "#KuCoin",
+            "$KCS",
+            "KuCoin Exchange",
+            "People's Exchange"
+        ],
+        "HTX": [
+            "HTX",
+            "HTX",
+            "#HTX",
+            "Huobi",
+            "Huobi Global",
+            "Justin Sun Exchange"
+        ],
+        "Bitget": [
+            "Bitget",
+            "Bitget",
+            "#Bitget",
+            "$BGB",
+            "Bitget Exchange",
+            "Copy Trading"
+        ],
+        "Gate.io": [
+            "Gate.io",
+            "Gate.io",
+            "#Gateio",
+            "Gate",
+            "Gate Exchange"
+        ],
+        "Crypto.com": [
+            "Crypto.com",
+            "Crypto.com",
+            "#CryptoCom",
+            "$CRO",
+            "CDC",
+            "Stade Crypto.com"
+        ],
+        "Bitfinex": [
+            "Bitfinex",
+            "Bitfinex",
+            "#Bitfinex",
+            "$LEO",
+            "Tether link",
+            "iFinex"
+        ],
+        "FTX": [
+            "FTX",
+            "FTX",
+            "#FTX",
+            "$FTT",
+            "Sam Bankman-Fried",
+            "SBF",
+            "Alameda"
+        ],
+        "Gemini": [
+            "Gemini",
+            "Gemini",
+            "#Gemini",
+            "Winklevoss",
+            "Exchange Gemini"
+        ],
+        "Uniswap": [
+            "Uniswap",
+            "Uniswap",
+            "#Uniswap",
+            "$UNI",
+            "UNI",
+            "DEX",
+            "v3",
+            "AMM"
+        ],
+        "PancakeSwap": [
+            "PancakeSwap",
+            "PancakeSwap",
+            "#PancakeSwap",
+            "$CAKE",
+            "CAKE",
+            "BSC DEX",
+            "DEX BNB"
+        ],
+        "dYdX": [
+            "dYdX",
+            "dYdX",
+            "#dYdX",
+            "$DYDX",
+            "Perpetuals DEX",
+            "Dérivés Décentralisés"
+        ],
+        "Deribit": [
+            "Deribit",
+            "Deribit",
+            "#Deribit",
+            "Crypto Futures",
+            "Options Trading"
+        ],
+        "CME Group": [
+            "CME Group",
+            "CME",
+            "#CME",
+            "CME Futures",
+            "Bitcoin Futures",
+            "Options Wall Street"
+        ],
+        "Bithumb": [
+            "Bithumb",
+            "Bithumb",
+            "#Bithumb",
+            "Bithumb Korea",
+            "Exchange Coréen"
+        ],
+        "Upbit": [
+            "Upbit",
+            "Upbit",
+            "#Upbit",
+            "Upbit Korea",
+            "Exchange Coréen"
+        ]
+    },
+    "influencers": {
+        "Vitalik Buterin": [
+            "Vitalik Buterin",
+            "@VitalikButerin",
+            "#Ethereum",
+            "ETH",
+            "Buterin"
+        ],
+        "Michael Saylor": [
+            "Michael Saylor",
+            "@saylor",
+            "#MichaelSaylor",
+            "MSTR",
+            "Saylor"
+        ],
+        "Andreas Antonopoulos": [
+            "Andreas Antonopoulos",
+            "@aantonop",
+            "#Bitcoin",
+            "aantonop",
+            "Education"
+        ],
+        "Gavin Wood": [
+            "Gavin Wood",
+            "@gavofynde",
+            "#Polkadot",
+            "Web3",
+            "Wood"
+        ],
+        "Charles Hoskinson": [
+            "Charles Hoskinson",
+            "@IOHK_Charles",
+            "#Cardano",
+            "ADA",
+            "Hoskinson"
+        ],
+        "Charlie Lee": [
+            "Charlie Lee",
+            "@SatoshiLite",
+            "#Litecoin",
+            "LTC",
+            "CharlieLee"
+        ],
+        "Changpeng Zhao": [
+            "Changpeng Zhao",
+            "@cz_binance",
+            "#CZ",
+            "Binance",
+            "BNB"
+        ],
+        "Brian Armstrong": [
+            "Brian Armstrong",
+            "@brian_armstrong",
+            "#Coinbase",
+            "COIN",
+            "Armstrong"
+        ],
+        "Winklevoss": [
+            "Winklevoss",
+            "@tylerwinklevoss",
+            "@cameron",
+            "#Gemini",
+            "Winklevii"
+        ],
+        "Erik Voorhees": [
+            "Erik Voorhees",
+            "@ErikVoorhees",
+            "#ShapeShift",
+            "Decentralization",
+            "Voorhees"
+        ],
+        "Willy Woo": [
+            "Willy Woo",
+            "@woonomic",
+            "#OnChain",
+            "NVT",
+            "Woo"
+        ],
+        "Arthur Hayes": [
+            "Arthur Hayes",
+            "@CryptoHayes",
+            "#BitMEX",
+            "MacroTrading",
+            "Hayes"
+        ],
+        "Pentoshi": [
+            "Pentoshi",
+            "@Pentosh1",
+            "#CryptoTA",
+            "Trading",
+            "Pentoshi"
+        ],
+        "PlanB": [
+            "PlanB",
+            "@100trillionUSD",
+            "#StockToFlow",
+            "S2F",
+            "PlanB"
+        ],
+        "Peter Brandt": [
+            "Peter Brandt",
+            "@PeterLBrandt",
+            "#TA",
+            "ClassicTA",
+            "Brandt"
+        ],
+        "Ben Cowen": [
+            "Ben Cowen",
+            "@intothecryptoverse",
+            "#IntotheCryptoverse",
+            "Cowen",
+            "Benjamin"
+        ],
+        "Raoul Pal": [
+            "Raoul Pal",
+            "@RaoulGMI",
+            "#RealVision",
+            "Macro",
+            "Pal"
+        ],
+        "Lyn Alden": [
+            "Lyn Alden",
+            "@LynAldenContact",
+            "#Macro",
+            "DebtCycle",
+            "Alden"
+        ],
+        "Tuur Demeester": [
+            "Tuur Demeester",
+            "@TuurDemeester",
+            "#BitcoinFundamental",
+            "Demeester",
+            "Adamant"
+        ],
+        "Anthony Pompliano": [
+            "Anthony Pompliano",
+            "@APompliano",
+            "#Pomp",
+            "BitcoinNews",
+            "Pompiano"
+        ],
+        "Elon Musk": [
+            "Elon Musk",
+            "@elonmusk",
+            "#Dogecoin",
+            "Tesla",
+            "Musk"
+        ],
+        "Caitlin Long": [
+            "Caitlin Long",
+            "@CaitlinLong_",
+            "#CustodiaBank",
+            "Regulation",
+            "Long"
+        ],
+        "Cathie Wood": [
+            "Cathie Wood",
+            "@CathieDWood",
+            "#ARKInvest",
+            "Disruptive",
+            "Wood"
+        ],
+        "Barry Silbert": [
+            "Barry Silbert",
+            "@barrysilbert",
+            "#DCG",
+            "Grayscale",
+            "Silbert"
+        ],
+        "Jeremy Allaire": [
+            "Jeremy Allaire",
+            "@jerallaire",
+            "#USDC",
+            "Circle",
+            "Allaire"
+        ],
+        "Hasheur": [
+            "Hasheur",
+            "@PowerHasheur",
+            "#Hasheur",
+            "CryptoFR",
+            "Kevin"
+        ],
+        "Julien Roman": [
+            "Julien Roman",
+            "@JulienRomanOff",
+            "#FinanceFR",
+            "CryptoTrading",
+            "Roman"
+        ],
+        "Crypto Matrix": [
+            "Crypto Matrix",
+            "@EnterTheMatrix",
+            "#CryptoMatrix",
+            "TutorielCrypto",
+            "Matrix"
+        ],
+        "John Deaton": [
+            "John Deaton",
+            "@JohnEDeaton1",
+            "#XRP",
+            "SEC",
+            "DeatonLaw"
+        ],
+        "Nayib Bukele": [
+            "Nayib Bukele",
+            "@nayibbukele",
+            "#ElSalvador",
+            "BitcoinLaw",
+            "Bukele"
+        ]
+    },
+    "events": {
+        "regulation_positive": {
+            "sentiment": "positive",
+            "keywords": [
+                "approval",
+                "etf",
+                "sec_decision",
+                "license_granted",
+                "authorization",
+                "compliant",
+                "registration",
+                "green_light",
+                "approval_vote",
+                "regulatory_clarity"
+            ]
+        },
+        "regulation_negative": {
+            "sentiment": "negative",
+            "keywords": [
+                "ban",
+                "restriction",
+                "investigation",
+                "fine",
+                "lawsuit_regulator",
+                "cease_and_desist",
+                "delist_order",
+                "inquiry",
+                "tightening_rules"
+            ]
+        },
+        "regulation_neutral": {
+            "sentiment": "neutral",
+            "keywords": [
+                "hearing",
+                "proposal_regulation",
+                "draft_law",
+                "consultation",
+                "public_comment"
+            ]
+        },
+        "security_issue": {
+            "sentiment": "negative",
+            "keywords": [
+                "hack",
+                "exploit",
+                "breach",
+                "theft",
+                "drain",
+                "vulnerability",
+                "zero_day",
+                "phishing_attack",
+                "protocol_exploit",
+                "wallet_hacked"
+            ]
+        },
+        "security_patch": {
+            "sentiment": "positive",
+            "keywords": [
+                "patch_released",
+                "vulnerability_fixed",
+                "security_update",
+                "mitigation"
+            ]
+        },
+        "network_failure": {
+            "sentiment": "negative",
+            "keywords": [
+                "outage",
+                "downtime",
+                "halt",
+                "congestion",
+                "fork_issue",
+                "chain_split",
+                "rpc_failure",
+                "node_down"
+            ]
+        },
+        "network_improvement": {
+            "sentiment": "positive",
+            "keywords": [
+                "scaling_upgrade",
+                "throughput_increase",
+                "performance_boost",
+                "sharding_progress"
+            ]
+        },
+        "partnership": {
+            "sentiment": "positive",
+            "keywords": [
+                "partnership",
+                "integration",
+                "collaboration",
+                "cooperation",
+                "alliance",
+                "enterprise_adoption",
+                "corporate_integration"
+            ]
+        },
+        "partnership_rumor": {
+            "sentiment": "neutral",
+            "keywords": [
+                "potential_partnership",
+                "rumored_deal"
+            ]
+        },
+        "exchange_listing": {
+            "sentiment": "positive",
+            "keywords": [
+                "listing",
+                "relisting",
+                "exchange_support",
+                "onboarding",
+                "market_listing",
+                "trading_pair_added"
+            ]
+        },
+        "exchange_delisting": {
+            "sentiment": "negative",
+            "keywords": [
+                "delisting",
+                "removal",
+                "trading_halt",
+                "trading_suspended",
+                "market_suspension"
+            ]
+        },
+        "price_negative": {
+            "sentiment": "negative",
+            "keywords": [
+                "drop",
+                "dump",
+                "crash",
+                "plunge",
+                "selloff",
+                "correction",
+                "downtrend",
+                "liquidation_event"
+            ]
+        },
+        "price_positive": {
+            "sentiment": "positive",
+            "keywords": [
+                "surge",
+                "pump",
+                "rally",
+                "breakout",
+                "rebound",
+                "uptrend",
+                "bullish_reversal"
+            ]
+        },
+        "price_neutral": {
+            "sentiment": "neutral",
+            "keywords": [
+                "sideways",
+                "stable",
+                "consolidation",
+                "flat_trading"
+            ]
+        },
+        "governance_positive": {
+            "sentiment": "positive",
+            "keywords": [
+                "proposal_passed",
+                "dao_upgrade",
+                "successful_vote"
+            ]
+        },
+        "governance_negative": {
+            "sentiment": "negative",
+            "keywords": [
+                "proposal_rejected",
+                "governance_conflict",
+                "hostile_vote"
+            ]
+        },
+        "governance_neutral": {
+            "sentiment": "neutral",
+            "keywords": [
+                "proposal",
+                "draft",
+                "on_chain_vote",
+                "dao_discussion"
+            ]
+        },
+        "development_positive": {
+            "sentiment": "positive",
+            "keywords": [
+                "upgrade",
+                "launch",
+                "release",
+                "testnet_live",
+                "mainnet_live",
+                "roadmap_update",
+                "innovation",
+                "feature_release"
+            ]
+        },
+        "development_negative": {
+            "sentiment": "negative",
+            "keywords": [
+                "delay",
+                "rollback",
+                "failed_upgrade",
+                "bug_found",
+                "testnet_failure"
+            ]
+        },
+        "development_neutral": {
+            "sentiment": "neutral",
+            "keywords": [
+                "code_review",
+                "development_discussion",
+                "github_activity"
+            ]
+        },
+        "legal_negative": {
+            "sentiment": "negative",
+            "keywords": [
+                "lawsuit",
+                "court_case",
+                "subpoena",
+                "legal_action",
+                "fraud_allegation",
+                "arrest",
+                "indictment"
+            ]
+        },
+        "legal_positive": {
+            "sentiment": "positive",
+            "keywords": [
+                "lawsuit_dismissed",
+                "cleared_charges"
+            ]
+        },
+        "market_activity": {
+            "sentiment": "neutral",
+            "keywords": [
+                "whale_move",
+                "large_transaction",
+                "accumulation",
+                "distribution",
+                "liquidity_shift"
+            ]
+        },
+        "onchain_positive": {
+            "sentiment": "positive",
+            "keywords": [
+                "active_addresses_surge",
+                "transaction_volume_up",
+                "staking_increase"
+            ]
+        },
+        "onchain_negative": {
+            "sentiment": "negative",
+            "keywords": [
+                "active_addresses_drop",
+                "low_volume",
+                "unstaking_spike"
+            ]
+        },
+        "social_trend": {
+            "sentiment": "neutral",
+            "keywords": [
+                "trending",
+                "viral",
+                "hype",
+                "community_push",
+                "influencer_mention",
+                "twitter_trending"
+            ]
+        },
+        "social_positive": {
+            "sentiment": "positive",
+            "keywords": [
+                "positive_sentiment_spike",
+                "bullish_mentions"
+            ]
+        },
+        "social_negative": {
+            "sentiment": "negative",
+            "keywords": [
+                "fear",
+                "fud",
+                "panic",
+                "negative_sentiment_spike"
+            ]
+        }
+    }
+}
