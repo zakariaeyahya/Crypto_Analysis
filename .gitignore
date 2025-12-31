@@ -10,6 +10,8 @@ node_modules/
 # Environment files
 .env
 .env.local
+.env.*.local
+.env.airflow
 
 # Build outputs
 dist/
@@ -31,3 +33,9 @@ venv/
 
 # Logs
 *.log
+extraction.log
+
+# Airflow documentation files
+airflow/DEPLOYMENT_GUIDE.md
+airflow/GITHUB_AUTO_PUSH_SETUP.md
+airflow/README_AIRFLOW.md
