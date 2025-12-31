@@ -3,6 +3,8 @@ venv/
 env/
 ENV/
 .venv/
+crypto/
+
 
 # Fichiers d'environnement
 .env
@@ -49,3 +51,4 @@ logs/
 *.log
 extraction.log
 
+kaggle/
