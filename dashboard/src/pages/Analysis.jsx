@@ -41,8 +41,8 @@ const OverlayTooltip = ({ active, payload, label }) => {
       </p>
       {payload.map((entry, index) => (
         <p key={index} style={{ color: entry.color, margin: '4px 0' }}>
-          {entry.name}: {entry.name === 'Prix' 
-            ? `$${entry.value.toLocaleString()}` 
+          {entry.name}: {entry.name === 'Prix'
+            ? `$${entry.value.toLocaleString()}`
             : entry.value}
         </p>
       ))}
@@ -220,19 +220,19 @@ export default function Analysis() {
               margin={{ top: 20, right: 60, left: 20, bottom: 20 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-              <XAxis 
-                dataKey="date" 
+              <XAxis
+                dataKey="date"
                 stroke="#888"
                 style={{ fontSize: '0.75rem' }}
               />
-              <YAxis 
+              <YAxis
                 yAxisId="sentiment"
                 orientation="left"
                 domain={[-100, 100]}
                 stroke="#888"
                 label={{ value: 'Sentiment', angle: -90, position: 'insideLeft', fill: '#888' }}
               />
-              <YAxis 
+              <YAxis
                 yAxisId="price"
                 orientation="right"
                 stroke="#888"
@@ -240,11 +240,11 @@ export default function Analysis() {
               />
               <Tooltip content={<OverlayTooltip />} />
               <Legend />
-              <ReferenceLine 
-                y={0} 
-                yAxisId="sentiment" 
-                stroke="#666" 
-                strokeDasharray="3 3" 
+              <ReferenceLine
+                y={0}
+                yAxisId="sentiment"
+                stroke="#666"
+                strokeDasharray="3 3"
               />
               <Area
                 yAxisId="sentiment"
@@ -302,8 +302,8 @@ export default function Analysis() {
               <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" />
               <Scatter
                 data={scatterData}
-                fill={COLORS.primary}
-                fillOpacity={0.6}
+                fill="#FFFFFF"
+                fillOpacity={0.8}
               />
             </ScatterChart>
           </ResponsiveContainer>
@@ -319,19 +319,19 @@ export default function Analysis() {
           Interprétation
         </h3>
         <p style={{ color: '#ccc', lineHeight: '1.6' }}>
-          La corrélation de <strong style={{ color: COLORS.primary }}>{stats.correlation}</strong> entre 
+          La corrélation de <strong style={{ color: COLORS.primary }}>{stats.correlation}</strong> entre
           le sentiment et les variations de prix indique une relation{' '}
           <strong>{getCorrelationLabel(stats.correlation).toLowerCase()}</strong>.
-          {stats.correlation > 0.5 && 
+          {stats.correlation > 0.5 &&
             ' Les mouvements de sentiment tendent à précéder ou accompagner les variations de prix de manière significative.'
           }
-          {stats.correlation > 0 && stats.correlation <= 0.5 && 
+          {stats.correlation > 0 && stats.correlation <= 0.5 &&
             ' Il existe une tendance modérée entre le sentiment et les mouvements de prix.'
           }
-          {stats.correlation >= -0.5 && stats.correlation <= 0 && 
+          {stats.correlation >= -0.5 && stats.correlation <= 0 &&
             ' La relation entre sentiment et prix est faible ou neutre.'
           }
-          {stats.correlation < -0.5 && 
+          {stats.correlation < -0.5 &&
             ' Une corrélation négative suggère que le sentiment et les prix évoluent de manière inverse.'
           }
         </p>

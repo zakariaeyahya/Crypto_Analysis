@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 
-// Mock des styles (à remplacer par l'import réel)
+// Styles du header
 const headerStyles = {
   header: {
     display: 'flex',
@@ -42,10 +42,7 @@ const headerStyles = {
     color: '#94a3b8',
     fontSize: '0.9375rem',
     fontWeight: '500',
-    transition: 'all 0.2s ease',
-    cursor: 'pointer',
-    border: 'none',
-    background: 'transparent'
+    transition: 'all 0.2s ease'
   },
   activeLink: {
     background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%)',
@@ -63,34 +60,22 @@ const navItems = [
   { path: '/events', label: 'Events', icon: '📰' }
 ];
 
-// Composant NavLink simplifié (simulation sans react-router-dom)
-function NavLink({ to, children, isActive, onClick }) {
-  return (
-    <button
-      onClick={() => onClick(to)}
-      style={{
-        ...headerStyles.link,
-        ...(isActive ? headerStyles.activeLink : {})
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
 // Composant Header
-export default function Header({ activePath = '/', onNavigate = () => {} }) {
+export default function Header() {
   return (
     <header style={headerStyles.header}>
       <h1 style={headerStyles.title}>◈ Crypto Dashboard</h1>
-      
+
       <nav style={headerStyles.nav}>
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
-            isActive={activePath === item.path}
-            onClick={onNavigate}
+            end={item.path === '/'}
+            style={({ isActive }) => ({
+              ...headerStyles.link,
+              ...(isActive ? headerStyles.activeLink : {})
+            })}
           >
             <span>{item.icon}</span>
             {item.label}
@@ -100,78 +85,3 @@ export default function Header({ activePath = '/', onNavigate = () => {} }) {
     </header>
   );
 }
-
-// Demo interactif
-function Demo() {
-  const [currentPath, setCurrentPath] = useState('/');
-  
-  const pageContent = {
-    '/': '📊 Overview Page - Dashboard principal avec métriques et graphiques',
-    '/timeline': '📈 Timeline Page - Évolution temporelle des crypto-monnaies',
-    '/analysis': '🔍 Analysis Page - Analyses détaillées et insights',
-    '/events': '📰 Events Page - Actualités et événements du marché'
-  };
-
-  return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
-    }}>
-      <Header 
-        activePath={currentPath} 
-        onNavigate={setCurrentPath}
-      />
-      
-      <div style={{
-        padding: '60px 40px',
-        color: '#e5e7eb',
-        textAlign: 'center'
-      }}>
-        <div style={{
-          background: 'rgba(30, 41, 59, 0.5)',
-          backdropFilter: 'blur(20px)',
-          borderRadius: '20px',
-          padding: '60px 40px',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          maxWidth: '800px',
-          margin: '0 auto'
-        }}>
-          <h2 style={{
-            fontSize: '2.5rem',
-            marginBottom: '20px',
-            color: '#10B981'
-          }}>
-            {pageContent[currentPath].split(' - ')[0]}
-          </h2>
-          <p style={{
-            fontSize: '1.125rem',
-            color: '#94a3b8',
-            lineHeight: '1.8'
-          }}>
-            {pageContent[currentPath].split(' - ')[1]}
-          </p>
-        </div>
-        
-        <div style={{
-          marginTop: '40px',
-          padding: '20px',
-          background: 'rgba(59, 130, 246, 0.1)',
-          borderRadius: '12px',
-          border: '1px solid rgba(59, 130, 246, 0.2)',
-          maxWidth: '600px',
-          margin: '40px auto 0'
-        }}>
-          <p style={{ 
-            color: '#60a5fa', 
-            fontSize: '0.875rem',
-            margin: 0
-          }}>
-            💡 Cliquez sur les éléments de navigation pour changer de page
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export { Demo };
