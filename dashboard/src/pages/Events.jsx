@@ -320,8 +320,8 @@ export default function Events() {
               }}
             >
               {cryptoFilters.map((crypto) => (
-                <option key={crypto} value={crypto}>
-                  {crypto}
+                <option key={crypto.value} value={crypto.value}>
+                  {crypto.label}
                 </option>
               ))}
             </select>
