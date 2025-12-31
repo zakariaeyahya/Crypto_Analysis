@@ -1,6 +1,9 @@
 # Analysis folder
 analysis/
 
+# Large data files (Kaggle datasets)
+data/bronze/kaggle/
+
 # Node modules
 node_modules/
 
