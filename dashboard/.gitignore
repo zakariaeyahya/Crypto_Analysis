@@ -1,0 +1,31 @@
+# Dependencies
+/node_modules/
+node_modules/
+
+# Build
+build/
+dist/
+.cache/
+.parcel-cache/
+
+# Tests
+coverage/
+
+# Environment
+.env
+.env.local
+.env.production
+*.local
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
