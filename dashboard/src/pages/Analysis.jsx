@@ -302,8 +302,8 @@ export default function Analysis() {
               <ReferenceLine y={0} stroke="#666" strokeDasharray="3 3" />
               <Scatter
                 data={scatterData}
-                fill={COLORS.primary}
-                fillOpacity={0.6}
+                fill="#FFFFFF"
+                fillOpacity={0.8}
               />
             </ScatterChart>
           </ResponsiveContainer>
