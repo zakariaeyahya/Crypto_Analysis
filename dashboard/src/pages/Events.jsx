@@ -1,18 +1,13 @@
-import { useState } from 'react';
-import {
-  eventsData,
-  cryptoFilters,
-  typeLabels,
-  formatDate,
-  COLORS
-} from '../data/mockData';
+import { useState, useEffect } from 'react';
+import { useCrypto } from '../store';
+import { cryptoFilters, typeLabels, formatDate, COLORS } from '../data/mockData';
 import { sharedStyles } from '../styles/commonStyles';
 
 // ============================================
 // SOUS-COMPOSANT: EventCard
 // ============================================
 const EventCard = ({ event, isExpanded, onToggle }) => {
-  const borderColor = COLORS[event.type];
+  const borderColor = COLORS[event.type] || COLORS.neutral;
 
   return (
     <div
@@ -21,10 +16,7 @@ const EventCard = ({ event, isExpanded, onToggle }) => {
         ...sharedStyles.card,
         borderLeft: `4px solid ${borderColor}`,
         cursor: 'pointer',
-        transition: 'all 0.3s ease',
-        ':hover': {
-          transform: 'translateX(4px)'
-        }
+        transition: 'all 0.3s ease'
       }}
     >
       {/* HEADER */}
@@ -35,11 +27,8 @@ const EventCard = ({ event, isExpanded, onToggle }) => {
         marginBottom: '12px'
       }}>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <span style={{
-            color: '#888',
-            fontSize: '0.875rem'
-          }}>
-            {formatDate(event.date)}
+          <span style={{ color: '#888', fontSize: '0.875rem' }}>
+            {formatDate ? formatDate(event.date) : event.date}
           </span>
           <span style={{
             padding: '2px 8px',
@@ -49,7 +38,7 @@ const EventCard = ({ event, isExpanded, onToggle }) => {
             fontSize: '0.75rem',
             fontWeight: '600'
           }}>
-            {typeLabels[event.type]}
+            {typeLabels?.[event.type] || event.type}
           </span>
           <span style={{
             padding: '2px 8px',
@@ -108,7 +97,7 @@ const EventCard = ({ event, isExpanded, onToggle }) => {
 const EventModal = ({ event, onClose }) => {
   if (!event) return null;
 
-  const borderColor = COLORS[event.type];
+  const borderColor = COLORS[event.type] || COLORS.neutral;
 
   return (
     <div
@@ -149,11 +138,8 @@ const EventModal = ({ event, onClose }) => {
           marginBottom: '20px'
         }}>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{
-              color: '#888',
-              fontSize: '0.875rem'
-            }}>
-              {formatDate(event.date)}
+            <span style={{ color: '#888', fontSize: '0.875rem' }}>
+              {formatDate ? formatDate(event.date) : event.date}
             </span>
             <span style={{
               padding: '4px 12px',
@@ -163,7 +149,7 @@ const EventModal = ({ event, onClose }) => {
               fontSize: '0.875rem',
               fontWeight: '600'
             }}>
-              {typeLabels[event.type]}
+              {typeLabels?.[event.type] || event.type}
             </span>
             <span style={{
               padding: '4px 12px',
@@ -191,16 +177,7 @@ const EventModal = ({ event, onClose }) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              borderRadius: '4px',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#333';
-              e.target.style.color = '#fff';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'transparent';
-              e.target.style.color = '#888';
+              borderRadius: '4px'
             }}
           >
             ×
@@ -235,7 +212,7 @@ const EventModal = ({ event, onClose }) => {
           fontSize: '0.875rem'
         }}>
           Impact: <span style={{ color: borderColor, fontWeight: '600' }}>
-            {typeLabels[event.type]}
+            {typeLabels?.[event.type] || event.type}
           </span>
         </div>
       </div>
@@ -247,27 +224,48 @@ const EventModal = ({ event, onClose }) => {
 // COMPOSANT PRINCIPAL: Events
 // ============================================
 export default function Events() {
+  const { fetchEvents } = useCrypto();
+
   // ============================================
   // STATE
   // ============================================
   const [filter, setFilter] = useState('All');
+  const [sentimentFilter, setSentimentFilter] = useState('All');
   const [expandedId, setExpandedId] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [viewMode, setViewMode] = useState('expand');
+  const [events, setEvents] = useState([]);
+  const [stats, setStats] = useState({ total: 0, positive: 0, negative: 0, neutral: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Options de filtre sentiment
+  const sentimentOptions = [
+    { value: 'All', label: 'All Sentiments' },
+    { value: 'positive', label: 'Positive' },
+    { value: 'negative', label: 'Negative' },
+    { value: 'neutral', label: 'Neutral' }
+  ];
 
   // ============================================
-  // DONNÉES DÉRIVÉES
+  // FETCH DATA
   // ============================================
-  const filteredEvents = filter === 'All'
-    ? eventsData
-    : eventsData.filter(e => e.crypto === filter);
-
-  const stats = {
-    total: filteredEvents.length,
-    positive: filteredEvents.filter(e => e.type === 'positive').length,
-    negative: filteredEvents.filter(e => e.type === 'negative').length,
-    neutral: filteredEvents.filter(e => e.type === 'neutral').length
-  };
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      setError(null);
+      try {
+        const result = await fetchEvents(filter, sentimentFilter, 50);
+        setEvents(result.events);
+        setStats(result.stats);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, [filter, sentimentFilter, fetchEvents]);
 
   // ============================================
   // HANDLERS
@@ -279,6 +277,25 @@ export default function Events() {
       setExpandedId(expandedId === event.id ? null : event.id);
     }
   };
+
+  // ============================================
+  // LOADING / ERROR STATES
+  // ============================================
+  if (loading) {
+    return (
+      <div style={{ ...sharedStyles.pageContainer, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ color: '#888', fontSize: '1.25rem' }}>Loading events...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ ...sharedStyles.pageContainer, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ color: '#EF4444', fontSize: '1.25rem' }}>Error: {error}</div>
+      </div>
+    );
+  }
 
   // ============================================
   // RENDER
@@ -301,10 +318,10 @@ export default function Events() {
           gap: '16px',
           marginBottom: '20px'
         }}>
-          {/* Filter Selector */}
+          {/* Crypto Filter */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <label style={{ color: '#fff', fontSize: '1rem' }}>
-              Filter by:
+              Crypto:
             </label>
             <select
               value={filter}
@@ -322,6 +339,32 @@ export default function Events() {
               {cryptoFilters.map((crypto) => (
                 <option key={crypto.value} value={crypto.value}>
                   {crypto.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Sentiment Filter */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <label style={{ color: '#fff', fontSize: '1rem' }}>
+              Sentiment:
+            </label>
+            <select
+              value={sentimentFilter}
+              onChange={(e) => setSentimentFilter(e.target.value)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: '1px solid #333',
+                backgroundColor: '#1a1a1a',
+                color: '#fff',
+                fontSize: '1rem',
+                cursor: 'pointer'
+              }}
+            >
+              {sentimentOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
                 </option>
               ))}
             </select>
@@ -375,16 +418,16 @@ export default function Events() {
           borderRadius: '8px'
         }}>
           <div style={{ color: '#fff' }}>
-            Total: <strong>{stats.total}</strong>
+            Total: <strong>{stats.total || events.length}</strong>
           </div>
           <div style={{ color: COLORS.positive }}>
-            Positive: <strong>{stats.positive}</strong>
+            Positive: <strong>{stats.positive || 0}</strong>
           </div>
           <div style={{ color: COLORS.negative }}>
-            Negative: <strong>{stats.negative}</strong>
+            Negative: <strong>{stats.negative || 0}</strong>
           </div>
           <div style={{ color: '#888' }}>
-            Neutral: <strong>{stats.neutral}</strong>
+            Neutral: <strong>{stats.neutral || 0}</strong>
           </div>
         </div>
       </div>
@@ -402,8 +445,8 @@ export default function Events() {
         }} />
 
         {/* Events */}
-        {filteredEvents.length > 0 ? (
-          filteredEvents.map((event, index) => (
+        {events.length > 0 ? (
+          events.map((event) => (
             <div
               key={event.id}
               style={{
@@ -419,8 +462,8 @@ export default function Events() {
                 width: '12px',
                 height: '12px',
                 borderRadius: '50%',
-                backgroundColor: COLORS[event.type],
-                boxShadow: `0 0 0 4px #0d0d0d, 0 0 0 6px ${COLORS[event.type]}44`,
+                backgroundColor: COLORS[event.type] || COLORS.neutral,
+                boxShadow: `0 0 0 4px #0d0d0d, 0 0 0 6px ${(COLORS[event.type] || COLORS.neutral)}44`,
                 zIndex: 1
               }} />
 

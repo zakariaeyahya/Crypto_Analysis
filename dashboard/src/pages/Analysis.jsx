@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   ComposedChart,
   Line,
@@ -14,14 +14,20 @@ import {
   ZAxis,
   ReferenceLine
 } from 'recharts';
-import {
-  cryptoOptions,
-  generateAnalysisData,
-  calculateAnalysisStats,
-  getCorrelationLabel,
-  COLORS
-} from '../data/mockData';
+import { useCrypto } from '../store';
+import { cryptoOptions, COLORS } from '../data/mockData';
 import { sharedStyles } from '../styles/commonStyles';
+
+// ============================================
+// HELPER: getCorrelationLabel
+// ============================================
+function getCorrelationLabel(corr) {
+  const absCorr = Math.abs(corr);
+  if (absCorr >= 0.7) return 'Forte';
+  if (absCorr >= 0.4) return 'Moyenne';
+  if (absCorr >= 0.2) return 'Faible';
+  return 'Négligeable';
+}
 
 // ============================================
 // SOUS-COMPOSANT: OverlayTooltip
@@ -42,7 +48,7 @@ const OverlayTooltip = ({ active, payload, label }) => {
       {payload.map((entry, index) => (
         <p key={index} style={{ color: entry.color, margin: '4px 0' }}>
           {entry.name}: {entry.name === 'Prix'
-            ? `$${entry.value.toLocaleString()}`
+            ? `$${entry.value?.toLocaleString() || 0}`
             : entry.value}
         </p>
       ))}
@@ -80,17 +86,61 @@ const ScatterTooltip = ({ active, payload }) => {
 // COMPOSANT PRINCIPAL: Analysis
 // ============================================
 export default function Analysis() {
+  const { fetchAnalysis } = useCrypto();
+
   // ============================================
   // STATE
   // ============================================
   const [selectedCrypto, setSelectedCrypto] = useState('BTC');
+  const [stats, setStats] = useState(null);
+  const [scatterData, setScatterData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // ============================================
+  // FETCH DATA
+  // ============================================
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      setError(null);
+      try {
+        const result = await fetchAnalysis(selectedCrypto, 30);
+        setStats(result.stats);
+        setScatterData(result.scatterData);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, [selectedCrypto, fetchAnalysis]);
+
+  // ============================================
+  // LOADING / ERROR STATES
+  // ============================================
+  if (loading) {
+    return (
+      <div style={{ ...sharedStyles.pageContainer, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ color: '#888', fontSize: '1.25rem' }}>Loading analysis...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ ...sharedStyles.pageContainer, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ color: '#EF4444', fontSize: '1.25rem' }}>Error: {error}</div>
+      </div>
+    );
+  }
 
   // ============================================
   // DONNÉES DÉRIVÉES
   // ============================================
-  const data = generateAnalysisData(selectedCrypto);
-  const scatterData = data.map((item, index) => ({ ...item, index }));
-  const stats = calculateAnalysisStats(data);
+  const correlation = stats?.correlation || 0;
+  const correlationLabel = stats?.correlationLabel || getCorrelationLabel(correlation);
 
   // ============================================
   // RENDER
@@ -130,146 +180,81 @@ export default function Analysis() {
 
       {/* STATS GRID */}
       <section style={{ ...sharedStyles.gridAutoFit('180px'), marginBottom: '32px' }}>
-        {/* Sentiment Moyen */}
-        <div style={sharedStyles.card}>
-          <p style={{ color: '#888', fontSize: '0.875rem', marginBottom: '8px' }}>
-            Sentiment Moyen
-          </p>
-          <p style={{
-            fontSize: '2rem',
-            fontWeight: 'bold',
-            color: stats.avgSentiment >= 0 ? COLORS.primary : COLORS.secondary,
-            marginBottom: '4px'
-          }}>
-            {stats.avgSentiment}
-          </p>
-          <p style={{ color: '#666', fontSize: '0.75rem' }}>
-            sur 30 jours
-          </p>
-        </div>
-
-        {/* Volatilité Sentiment */}
-        <div style={sharedStyles.card}>
-          <p style={{ color: '#888', fontSize: '0.875rem', marginBottom: '8px' }}>
-            Volatilité Sentiment
-          </p>
-          <p style={{
-            fontSize: '2rem',
-            fontWeight: 'bold',
-            color: '#fff',
-            marginBottom: '4px'
-          }}>
-            {stats.sentimentVolatility}
-          </p>
-          <p style={{ color: '#666', fontSize: '0.75rem' }}>
-            écart-type
-          </p>
-        </div>
-
-        {/* Volatilité Prix */}
-        <div style={sharedStyles.card}>
-          <p style={{ color: '#888', fontSize: '0.875rem', marginBottom: '8px' }}>
-            Volatilité Prix
-          </p>
-          <p style={{
-            fontSize: '2rem',
-            fontWeight: 'bold',
-            color: '#fff',
-            marginBottom: '4px'
-          }}>
-            {stats.priceVolatility}%
-          </p>
-          <p style={{ color: '#666', fontSize: '0.75rem' }}>
-            écart-type
-          </p>
-        </div>
-
         {/* Corrélation */}
         <div style={sharedStyles.card}>
           <p style={{ color: '#888', fontSize: '0.875rem', marginBottom: '8px' }}>
-            Corrélation
+            Corrélation Pearson
           </p>
           <p style={{
             fontSize: '2rem',
             fontWeight: 'bold',
-            color: stats.correlation >= 0 ? COLORS.primary : COLORS.secondary,
+            color: correlation >= 0 ? COLORS.primary : COLORS.secondary,
             marginBottom: '4px'
           }}>
-            {stats.correlation}
+            {typeof correlation === 'number' ? correlation.toFixed(3) : 'N/A'}
           </p>
           <p style={{ color: '#666', fontSize: '0.75rem' }}>
-            {getCorrelationLabel(stats.correlation)}
+            {correlationLabel}
+          </p>
+        </div>
+
+        {/* P-Value */}
+        <div style={sharedStyles.card}>
+          <p style={{ color: '#888', fontSize: '0.875rem', marginBottom: '8px' }}>
+            P-Value
+          </p>
+          <p style={{
+            fontSize: '2rem',
+            fontWeight: 'bold',
+            color: '#fff',
+            marginBottom: '4px'
+          }}>
+            {stats?.pValue?.toFixed(4) || 'N/A'}
+          </p>
+          <p style={{ color: '#666', fontSize: '0.75rem' }}>
+            significativité
+          </p>
+        </div>
+
+        {/* Observations */}
+        <div style={sharedStyles.card}>
+          <p style={{ color: '#888', fontSize: '0.875rem', marginBottom: '8px' }}>
+            Observations
+          </p>
+          <p style={{
+            fontSize: '2rem',
+            fontWeight: 'bold',
+            color: '#fff',
+            marginBottom: '4px'
+          }}>
+            {stats?.nObservations || 0}
+          </p>
+          <p style={{ color: '#666', fontSize: '0.75rem' }}>
+            points de données
+          </p>
+        </div>
+
+        {/* Scatter Points */}
+        <div style={sharedStyles.card}>
+          <p style={{ color: '#888', fontSize: '0.875rem', marginBottom: '8px' }}>
+            Points Scatter
+          </p>
+          <p style={{
+            fontSize: '2rem',
+            fontWeight: 'bold',
+            color: '#fff',
+            marginBottom: '4px'
+          }}>
+            {scatterData.length}
+          </p>
+          <p style={{ color: '#666', fontSize: '0.75rem' }}>
+            jours affichés
           </p>
         </div>
       </section>
 
-      {/* CHARTS GRID */}
-      <section style={{ ...sharedStyles.gridAutoFit('400px'), marginBottom: '32px' }}>
-        {/* Overlay Chart */}
-        <div style={sharedStyles.card}>
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '8px', color: '#fff' }}>
-            Sentiment vs Prix
-          </h2>
-          <p style={{ color: '#888', fontSize: '0.875rem', marginBottom: '20px' }}>
-            Évolution sur 30 jours avec double axe Y
-          </p>
-
-          <ResponsiveContainer width="100%" height={350}>
-            <ComposedChart
-              data={data}
-              margin={{ top: 20, right: 60, left: 20, bottom: 20 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-              <XAxis
-                dataKey="date"
-                stroke="#888"
-                style={{ fontSize: '0.75rem' }}
-              />
-              <YAxis
-                yAxisId="sentiment"
-                orientation="left"
-                domain={[-100, 100]}
-                stroke="#888"
-                label={{ value: 'Sentiment', angle: -90, position: 'insideLeft', fill: '#888' }}
-              />
-              <YAxis
-                yAxisId="price"
-                orientation="right"
-                stroke="#888"
-                label={{ value: 'Prix ($)', angle: 90, position: 'insideRight', fill: '#888' }}
-              />
-              <Tooltip content={<OverlayTooltip />} />
-              <Legend />
-              <ReferenceLine
-                y={0}
-                yAxisId="sentiment"
-                stroke="#666"
-                strokeDasharray="3 3"
-              />
-              <Area
-                yAxisId="sentiment"
-                type="monotone"
-                dataKey="sentiment"
-                fill={COLORS.primary}
-                fillOpacity={0.2}
-                stroke={COLORS.primary}
-                strokeWidth={2}
-                name="Sentiment"
-              />
-              <Line
-                yAxisId="price"
-                type="monotone"
-                dataKey="price"
-                stroke={COLORS.secondary}
-                strokeWidth={2}
-                dot={false}
-                name="Prix"
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Scatter Plot */}
+      {/* SCATTER PLOT */}
+      <section style={{ marginBottom: '32px' }}>
         <div style={sharedStyles.card}>
           <h2 style={{ fontSize: '1.25rem', marginBottom: '8px', color: '#fff' }}>
             Dispersion Sentiment/Prix
@@ -278,7 +263,7 @@ export default function Analysis() {
             Chaque point = 1 jour
           </p>
 
-          <ResponsiveContainer width="100%" height={350}>
+          <ResponsiveContainer width="100%" height={400}>
             <ScatterChart
               margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
             >
@@ -319,19 +304,20 @@ export default function Analysis() {
           Interprétation
         </h3>
         <p style={{ color: '#ccc', lineHeight: '1.6' }}>
-          La corrélation de <strong style={{ color: COLORS.primary }}>{stats.correlation}</strong> entre
-          le sentiment et les variations de prix indique une relation{' '}
-          <strong>{getCorrelationLabel(stats.correlation).toLowerCase()}</strong>.
-          {stats.correlation > 0.5 &&
+          La corrélation de <strong style={{ color: COLORS.primary }}>
+            {typeof correlation === 'number' ? correlation.toFixed(3) : 'N/A'}
+          </strong> entre le sentiment et les variations de prix indique une relation{' '}
+          <strong>{correlationLabel.toLowerCase()}</strong>.
+          {correlation > 0.5 &&
             ' Les mouvements de sentiment tendent à précéder ou accompagner les variations de prix de manière significative.'
           }
-          {stats.correlation > 0 && stats.correlation <= 0.5 &&
+          {correlation > 0 && correlation <= 0.5 &&
             ' Il existe une tendance modérée entre le sentiment et les mouvements de prix.'
           }
-          {stats.correlation >= -0.5 && stats.correlation <= 0 &&
+          {correlation >= -0.5 && correlation <= 0 &&
             ' La relation entre sentiment et prix est faible ou neutre.'
           }
-          {stats.correlation < -0.5 &&
+          {correlation < -0.5 &&
             ' Une corrélation négative suggère que le sentiment et les prix évoluent de manière inverse.'
           }
         </p>

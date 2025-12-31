@@ -1,18 +1,32 @@
+import { useCrypto } from '../store';
 import MetricCard from '../components/MetricCard';
 import SentimentGauge from '../components/SentimentGauge';
 import CryptoChart from '../components/CryptoChart';
-import {
-  overviewCryptoData,
-  overviewChartData,
-  overviewSentiment,
-  COLORS
-} from '../data/mockData';
+import { COLORS } from '../data/mockData';
 import { sharedStyles } from '../styles/commonStyles';
 
 // ============================================
 // COMPOSANT PRINCIPAL: Overview
 // ============================================
 export default function Overview() {
+  const { cryptos, chartData, sentiment, loading, error } = useCrypto();
+
+  if (loading) {
+    return (
+      <div style={{ ...sharedStyles.pageContainer, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ color: '#888', fontSize: '1.25rem' }}>Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ ...sharedStyles.pageContainer, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ color: '#EF4444', fontSize: '1.25rem' }}>Error: {error}</div>
+      </div>
+    );
+  }
+
   return (
     <div style={sharedStyles.pageContainer}>
       {/* PAGE TITLE */}
@@ -25,12 +39,12 @@ export default function Overview() {
         ...sharedStyles.gridAutoFit('220px'),
         marginBottom: '32px'
       }}>
-        {overviewCryptoData.map((crypto, index) => (
+        {cryptos.map((crypto, index) => (
           <MetricCard
             key={index}
-            title={crypto.title}
-            value={crypto.value}
-            change={crypto.change}
+            title={`${crypto.name} (${crypto.symbol})`}
+            value={`$${crypto.price.toLocaleString()}`}
+            change={crypto.change24h}
           />
         ))}
       </section>
@@ -43,7 +57,7 @@ export default function Overview() {
         {/* CHART CONTAINER */}
         <div style={{ minWidth: 0 }}>
           <CryptoChart
-            data={overviewChartData}
+            data={chartData}
             title="Bitcoin (7 Days)"
             dataKey="value"
             color={COLORS.positive}
@@ -57,8 +71,8 @@ export default function Overview() {
           alignItems: 'center'
         }}>
           <SentimentGauge
-            value={overviewSentiment}
-            label="Market Sentiment"
+            value={Math.round(sentiment.score * 100)}
+            label={sentiment.label || "Market Sentiment"}
           />
         </div>
       </section>
