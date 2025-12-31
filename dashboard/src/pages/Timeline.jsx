@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LineChart,
   Line,
@@ -10,11 +10,8 @@ import {
   Legend,
   ReferenceLine
 } from 'recharts';
-import {
-  cryptoOptions,
-  generateTimelineData,
-  COLORS
-} from '../data/mockData';
+import { useCrypto } from '../store';
+import { cryptoOptions, COLORS } from '../data/mockData';
 import { sharedStyles } from '../styles/commonStyles';
 
 // ============================================
@@ -58,25 +55,66 @@ const CustomTooltip = ({ active, payload, label }) => {
 // COMPOSANT PRINCIPAL: Timeline
 // ============================================
 export default function Timeline() {
+  const { fetchTimeline } = useCrypto();
+
   // ============================================
   // STATE
   // ============================================
   const [selectedCrypto, setSelectedCrypto] = useState('BTC');
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // ============================================
+  // FETCH DATA
+  // ============================================
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      setError(null);
+      try {
+        const result = await fetchTimeline(selectedCrypto, 30);
+        setData(result);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, [selectedCrypto, fetchTimeline]);
 
   // ============================================
   // DONNÉES DÉRIVÉES
   // ============================================
-  const data = generateTimelineData(selectedCrypto);
-  
-  const currentSentiment = data[data.length - 1].sentiment;
-  
-  const avgSentiment = Math.round(
-    data.reduce((sum, item) => sum + item.sentiment, 0) / data.length
-  );
+  const currentSentiment = data.length > 0 ? data[data.length - 1].sentiment : 0;
+
+  const avgSentiment = data.length > 0
+    ? Math.round(data.reduce((sum, item) => sum + item.sentiment, 0) / data.length)
+    : 0;
 
   const selectedCryptoLabel = cryptoOptions.find(
     opt => opt.value === selectedCrypto
   )?.label || selectedCrypto;
+
+  // ============================================
+  // LOADING / ERROR STATES
+  // ============================================
+  if (loading) {
+    return (
+      <div style={{ ...sharedStyles.pageContainer, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ color: '#888', fontSize: '1.25rem' }}>Loading timeline...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ ...sharedStyles.pageContainer, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ color: '#EF4444', fontSize: '1.25rem' }}>Error: {error}</div>
+      </div>
+    );
+  }
 
   // ============================================
   // RENDER
