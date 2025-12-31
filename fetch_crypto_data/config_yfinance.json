@@ -1,0 +1,8 @@
+{
+  "cryptos": {
+    "BTC": "BTC-USD",
+    "ETH": "ETH-USD",
+    "SOL": "SOL-USD"
+  },
+  "start_date": "2014-01-01"
+}

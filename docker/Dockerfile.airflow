@@ -1,0 +1,48 @@
+# ============================================================================
+# Dockerfile for Apache Airflow running on Railway
+# ============================================================================
+
+FROM apache/airflow:2.8.1-python3.11
+
+USER root
+
+# System dependencies
+RUN apt-get update && \
+    apt-get install -y gcc curl git && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+USER airflow
+
+# Install Python dependencies
+COPY docker/requirements-airflow.txt /requirements.txt
+RUN pip install --no-cache-dir -r /requirements.txt
+
+# Copy extraction modules
+COPY --chown=airflow:root extraction/ /opt/airflow/extraction/
+
+# Copy data_consolidation module
+COPY --chown=airflow:root data_consolidation/ /opt/airflow/data_consolidation/
+
+# Copy DAGs
+COPY --chown=airflow:root airflow/dags/ /opt/airflow/dags/
+
+# Copy plugins directory
+COPY --chown=airflow:root airflow/plugins/ /opt/airflow/plugins/
+
+# Copy startup script
+COPY --chown=airflow:root scripts/start_airflow_combined.sh /start.sh
+RUN chmod +x /start.sh
+
+# Create scripts directory (for optional scripts)
+RUN mkdir -p /opt/airflow/scripts
+
+# Copy GitHub push script (if exists - optional)
+# COPY --chown=airflow:root scripts/push_to_github.py /opt/airflow/scripts/push_to_github.py
+
+# Set PYTHONPATH
+ENV PYTHONPATH="/opt/airflow:${PYTHONPATH}"
+
+EXPOSE 8080
+
+CMD ["bash", "/start.sh"]

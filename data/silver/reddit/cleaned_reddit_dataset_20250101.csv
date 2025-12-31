@@ -1,0 +1,663 @@
+comment_id,submission_id,comment_author,comment_body,comment_score,comment_parent_id,comment_created_utc,created_datetime,subreddit,query,source,bronze_year,bronze_month,bronze_day,bronze_source_file,title,text,url,post_author,score,num_comments,upvote_ratio,created_utc
+About Dataset
+Context
+Bitcoin(₿) is a cryptocurrency invented in 2008 by an unknown person or group of people using the name Satoshi Nakamoto. The currency began use in 2009 when its implementation was released as open-source software.
+
+Bitcoin is a decentralized digital currency, without a central bank or single administrator, that can be sent from user to user on the peer-to-peer bitcoin network without the need for intermediaries. Transactions are verified by network nodes through cryptography and recorded in a public distributed ledger called a blockchain. Bitcoins are created as a reward for a process known as mining. They can be exchanged for other currencies, products, and services.
+
+On 30 November 2020, bitcoin hit a new all-time high of $19,860 topping the previous high from December 2017. On 19 January 2021 Elon Musk placed #Bitcoin in his Twitter profile tweeting “In retrospect, it was inevitable”, which caused the price to briefly rise about $5000 in an hour to $37,299.
+
+Content
+The tweets have #Bitcoin and #btc hashtag.. Collection star started on 6/2/2021, with an initial 100,000 tweets, and will continue on a daily basis.
+
+Information regarding the data
+The data totally consists of 1 lakh+ records with 13 columns. The description of the features is given below
+
+No	Columns	Descriptions
+1	user_name	The name of the user, as they’ve defined it.
+2	user_location	The user-defined location for this account’s profile.
+3	user_description	The user-defined UTF-8 string describing their account.
+4	user_created	Time and date, when the account was created.
+5	user_followers	The number of followers an account currently has.
+6	user_friends	The number of friends an account currently has.
+7	user_favourites	The number of favorites an account currently has
+8	user_verified	When true, indicates that the user has a verified account
+9	date	UTC time and date when the Tweet was created
+10	text	The actual UTF-8 text of the Tweet
+11	hashtags	All the other hashtags posted in the tweet along with #Bitcoin & #btc
+12	source	Utility used to post the Tweet, Tweets from the Twitter website have a source value - web
+13	is_retweet	Indicates whether this Tweet has been Retweeted by the authenticating user.
+Inspiration
+The tweets were extracted using tweepy, Refer to this notebook for the complete extraction process https://www.kaggle.com/kaushiksuresh147/twitter-data-extraction-for-ipl2020
+
+You can use this data to dive into the subjects that use this hashtag, look to the geographical distribution, evaluate sentiments, looks at trends.
+
+
+View less
+Usability
+10.00
+
+License
+CC0: Public Domain
+
+Expected update frequency
+Daily
+
+Tags
+Beginner
+Text
+Data Visualization
+Social Networks
+Currencies and Foreign Exchange
+Bitcoin_tweets.csv(2.1 GB)
+
+10 of 13 columns
+
+About this file
+
+Suggest Edits
+This file consists of the tweets made with #Bitcoin & #btc hashtag
+
+
+user_name
+The name of the user, as they’ve defined it.
+
+
+user_location
+The user-defined location for this account’s profile.
+
+
+user_description
+The user-defined UTF-8 string describing their account.
+
+
+user_created
+Time and date, when the account was created.
+
+
+user_followers
+The number of followers an account currently has.
+
+
+user_friends
+The number of friends a account currently has.
+
+
+user_favourites
+The number of favorites a account currently has
+
+
+user_verified
+When true, indicates that the user has a verified account
+
+
+date
+UTC time and date when the Tweet was created
+
+
+text
+The actual UTF-8 text of the Tweet
+
+655837
+
+unique values
+[null]
+50%
+United States
+1%
+Other (2290207)
+49%
+[null]
+11%
+UP or DOWN... . . . . Price matters NOT.
+1%
+Other (4140703)
+88%
+620893
+
+unique values
+Label	Count
+0.00 - 482626.92	4,678,290
+482626.92 - 965253.84	4,882
+965253.84 - 1447880.76	2,509
+1447880.76 - 1930507.68	1,123
+1930507.68 - 2413134.60	1,102
+2413134.60 - 2895761.52	971
+2895761.52 - 3378388.44	132
+3378388.44 - 3861015.36	62
+3861015.36 - 4343642.28	30
+4343642.28 - 4826269.20	28
+4826269.20 - 5308896.12	14
+5308896.12 - 5791523.04	64
+5791523.04 - 6274149.96	25
+6274149.96 - 6756776.88	8
+6756776.88 - 7239403.80	8
+7239403.80 - 7722030.72	14
+7722030.72 - 8204657.64	24
+8204657.64 - 8687284.56	5
+8687284.56 - 9169911.48	6
+9169911.48 - 9652538.40	2
+9652538.40 - 10135165.32	11
+10135165.32 - 10617792.24	3
+13030926.84 - 13513553.76	7
+13513553.76 - 13996180.68	2
+13996180.68 - 14478807.60	3
+15444061.44 - 15926688.36	9
+15926688.36 - 16409315.28	1
+16891942.20 - 17374569.12	12
+17374569.12 - 17857196.04	1
+23166092.16 - 23648719.08	3
+23648719.08 - 24131346.00	2
+0
+24.1m
+0.0
+3%
+1.0
+2%
+Other (4480241)
+95%
+0.0
+4%
+0
+2%
+Other (4420805)
+94%
+False
+99%
+True
+1%
+Other (3803)
+0%
+3668410
+
+unique values
+4569721
+
+unique values
+DeSota Wilson
+Atlanta, GA
+Biz Consultant, real estate, fintech, startups, posts are not the view of my employer, RTs are not e...
+2009-04-26 20:05:09
+8534.0
+7605
+4838
+False
+2021-02-10 23:59:04
+Blue Ridge Bank shares halted by NYSE after #bitcoin ATM announcement https://t.co/xaaZmaJKiV @MyBlu...
+CryptoND
+😎 BITCOINLIVE is a Dutch platform aimed at informing the general public about crypto & technology! ...
+2019-10-17 20:12:10
+6769.0
+1532
+25483
+False
+2021-02-10 23:58:48
+😎 Today, that's this #Thursday, we will do a "🎬 Take 2" with our friend @LeoWandersleb, #Btc #wall...
+Tdlmatias
+London, England
+IM Academy : The best #forex, #SelfEducation, #Cryptocurrency trading education platform: https://t....
+2014-11-10 10:50:37
+128.0
+332
+924
+False
+2021-02-10 23:54:48
+Guys evening, I have read this article about BTC and would like to share with you all - https://t.co...
+Crypto is the future
+I will post a lot of buying signals for BTC trading, so I hope that you block me. Drop all everythin...
+2019-09-28 16:48:12
+625.0
+129
+14
+False
+2021-02-10 23:54:33
+$BTC A big chance in a billion! Price: \4872644.0 (2021/02/11 08:51) #Bitcoin #FX #BTC #crypto
+Alex Kirchmaier 🇦🇹🇸🇪 #FactsSuperspreader
+Europa
+Co-founder @RENJERJerky | Forbes 30Under30 | Innovation Economist, Lateral Thinker, Futurist, #Crypt...
+2016-02-03 13:15:55
+1249.0
+1472
+10482
+False
+2021-02-10 23:54:06
+This network is secured by 9 508 nodes as of today. Soon, the biggest bears will recognise: #BTC in ...
+ZerrBenz™ ⚔ ✪ 20732
+Bkk, Thailand
+I'm a cat slave 🐱 Interested in Blockchain · Tech · Internet Marketing · Affliate · Legit Airdrop. ...
+2010-01-12 07:00:04
+742.0
+716
+2444
+False
+2021-02-10 23:53:30
+💹 Trade #Crypto on #Binance 📌 Enjoy #Cashback 10% of the Trading fee 📌 Sign up link 👉 https://...
+Bitcoin-Bot
+Florida, USA
+Bot to generate Bitcoin picture as combinations of icons with random quotes. message in about every ...
+2019-12-23 16:49:16
+131.0
+84
+5728
+False
+2021-02-10 23:53:17
+&lt;'fire' &amp; 'man'&gt; #Bitcoin #Crypto #BTC https://t.co/CV9IyODy55
+Cryptocurrencies / EUR
+Stay updated on the main cryptocurrencies of the market | @cryptosUSD for USD | Do you miss any coin...
+2018-08-03 21:30:08
+4052.0
+1
+9
+False
+2021-02-10 23:52:42
+🔄 Prices update in $EUR (1 hour): $BTC - 37082.1 € (-0.51 %) $ETH - 1441.59 € (+0.21 %) $XRP...
+Mikcoin
+Technical Analyst | Trader No certainty, only possibilities.
+2020-11-26 23:45:46
+104.0
+41
+238
+False
+2021-02-10 23:52:25
+#BTC #Bitcoin #Ethereum #ETH #Crypto #cryptotrading $RSR I know i told you guys the target was $0....
+DeSota Wilson
+Atlanta, GA
+Biz Consultant, real estate, fintech, startups, posts are not the view of my employer, RTs are not e...
+2009-04-26 20:05:09
+8534.0
+7605
+4838
+False
+2021-02-10 23:52:08
+.@Tesla’s #bitcoin investment is revolutionary for #crypto but other firms may not do the same just ...
+@massumeh18 #RefinedWarrior #Activist
+NOVA
+Persistent. to the extreme... #FREEPALESTINE #PersianPride 🇮🇷❤️💚❤️
+2009-01-05 13:28:47
+1159.0
+2185
+30852
+False
+2021-02-10 23:52:04
+Annnd #btc #Bitcoin is headed even higher now... https://t.co/EHAduI087d
+BittrexPrices
+Scans Bittrex’s main currencies hourly | Also @BinancePrices @KrakenPrices | We are not @BittrexExch...
+2018-05-25 20:30:07
+3131.0
+1
+18
+False
+2021-02-10 23:51:25
+🔄 Prices update in $USDT (1 hour): $BTC - 44853.08 $ (-0.48 %) $ETH - 1740.0 $ (-0.02 %)...
+CPUcoin
+Cayman Islands
+The Sharing Economy for CPU/GPU Power. Revolutionizing how people automatically deploy and scale dec...
+2018-08-27 15:42:00
+5097.0
+791
+52
+False
+2021-02-10 23:50:59
+Join our first virtual crypto meetup of 2021 - Crypto Fridays! There is something for everyone, whe...
+One Perspective
+Market Place
+It's all a market of markets. Past performance of a security or strategy does not guarantee future ...
+2018-01-09 21:49:45
+668.0
+1097
+6853
+False
+2021-02-10 23:50:30
+#Bitcoin #BTC $BTC $GBTC $RIOT $MARA $ETH $ETHE #AAVE #DeFi $AAVE $COMP $CGLD $GRT #Crypto #cryptocu...
+CryptoSquawk
+Australia
+24x7 Crypto market real-time audio squawk for Bitcoin / BitMEX day traders. Whale trade alerts, peak...
+2017-10-05 10:13:09
+1281.0
+25
+72
+False
+2021-02-10 23:50:02
+⬆️⬆️ $BTC BUYING PRESSURE ALERT 📈 Price trading around 44843 https://t.co/iMB1mj8Cs1 👈 #...
+$MOON
+Moon
+#Bitcoin
+2010-07-12 09:07:42
+4.0
+32
+139
+False
+2021-02-10 23:48:38
+Buy #Bitcoin with 5% LIFETIME cashback on fees on the largest #cryptocurrency exchange with the link...
+Mr. Anderson
+#Bitcoin Long Term TA Trader. Mixing Old School & New School Tricks. DYOR! Teaching Future Traders T...
+2018-01-01 22:16:16
+72542.0
+519
+19763
+False
+2021-02-10 23:48:37
+@naval #BTC is unconfiscatable All roads lead to #Bitcoin
+Crypto is the future
+I will post a lot of buying signals for BTC trading, so I hope that you block me. Drop all everythin...
+2019-09-28 16:48:12
+625.0
+129
+14
+False
+2021-02-10 23:47:32
+$BTC A big chance in a million! Price: \4898631.0 (2021/02/11 08:45) #Bitcoin #FX #BTC #crypto
+DeSota Wilson
+Atlanta, GA
+Biz Consultant, real estate, fintech, startups, posts are not the view of my employer, RTs are not e...
+2009-04-26 20:05:09
+8534.0
+7605
+4838
+False
+2021-02-10 23:47:13
+#Bitcoin institutional demand accelerates in 2021 says @Grayscale CEO https://t.co/HsbFlBwAL8 #BTC $...
+Crypto Signaler
+#Crypto #Signaler #Cryptocurrency #Coin #Bitcoin #BTC #Blockchain #Binance #Trade #investment
+2018-04-08 23:44:11
+587.0
+30
+12
+False
+2021-02-10 23:46:39
+Signal: $TFUEL #TFUEL #ThetaFuel #Binance #Crypto #Signaler #Signal #BTC #Bitcoin https://t.co/0ZBX9...
+Crypto Market
+Live crypto market indicator (price, news, ico & much more). #Bitcoin #BTC #Doge #Dogecoin #Cryptocu...
+2018-09-07 22:44:40
+26.0
+57
+115
+False
+2021-02-10 23:46:23
+$ADA Sky rocket 🔥🚀 #Patience 🔑 $1 Soon !!! #ada #adausdt #btc #bitcoin #adacoin https://t.co/W5X...
+Crypto M🕶️stache ! 🇧🇪🇯🇴🇳🇱🇮🇪
+World
+Cryptomaniac 24/7 bullish! Believe in Technology and Innovation! Favorites: btc, xlm, xrp 🚀🚀🚀 ...
+2011-05-17 18:14:49
+274.0
+773
+6404
+False
+2021-02-10 23:46:17
+Forget all you know about #cryptocurrency These 6 coins are listed in #NASDAQ ETF!!! These are the ...
+Humayun MHA
+Pakistan
+💻 Android App Developer 📈 Crypto & Forex Trader 💀 Ethical Hacker 💫 Astromer 💲 Investor 📹 Vloge...
+2016-08-18 22:00:24
+1392.0
+780
+960
+False
+2021-02-10 23:45:20
+$ADA Sky rocket 🔥🚀 #Patience 🔑 $1 Soon !!! #ada #adausdt #btc #bitcoin #adacoin https://t.co/EMF...
+Alex Jiménez
+Las Vegas, NV
+Chief Strategy Officer @Extractable #Fintech #Payments #InsurTech #DigitalMarketing #Innovation | @H...
+2012-04-25 15:26:53
+14469.0
+822
+40097
+True
+2021-02-10 23:45:03
+#Bitcoin’s Rally Signals the Rise of Digital Assets. This Bank Is Ahead of the Game. https://t.co/...
+Andrew
+$TSLA #Bitcoin $Nio Formula One
+2012-07-16 23:23:58
+560.0
+590
+33782
+False
+2021-02-10 23:44:57
+The writing is on the wall, and you are ignoring it. #bitcoin #BTC
+Stefan Gyarmati
+München, Bayern
+CEO & PRESIDENT SG GROUP
+2009-06-01 21:00:46
+62.0
+288
+2656
+False
+2021-02-10 23:44:43
+#Bitcoin #BTC #ADA #DOT Mastercard Will Let Merchants Accept Payments in Crypto This Year https://t....
+DeSota Wilson
+Atlanta, GA
+Biz Consultant, real estate, fintech, startups, posts are not the view of my employer, RTs are not e...
+2009-04-26 20:05:09
+8534.0
+7605
+4838
+False
+2021-02-10 23:44:02
+After @Tesla: @Twitter considers adding #bitcoin to its balance sheet, says company’s CFO https://t....
+Forza
+Cryptocurrency enthusiast 🚀 $THETA $DCR $ICX $FTM $KAI $XOR $DDIM $TRB $RAMP $NEBL $DSLA $DEV $ASK...
+2019-03-09 15:03:18
+645.0
+487
+1178
+False
+2021-02-10 23:44:02
+$ASKO has been nothing short of a wild ride .. was a bit shaky the past few days, but the chart is r...
+FOMO King
+Been through life. I don't live on the internet all day. Crypto enthusiast, but not a maximalist. N...
+2015-10-29 06:05:35
+168.0
+822
+6919
+False
+2021-02-10 23:42:49
+Let's go $yfi... Let's make this happen before the weekend. #crypto $btc #btc #Bitcoin
+Adriana Itzel
+2021-02-10 23:08:04
+0.0
+19
+0
+False
+2021-02-10 23:42:22
+Binance is the #1 crypto trading platform for both beginners and experts! Sign up here: https://t.c...
+Hugo Ramos
+Lisbon, Portugal
+#bitcoin Entrepreneur, Master in Communication and Information Technologies, Crypto Miner-Trader-Inv...
+2020-09-18 16:50:23
+872.0
+158
+1080
+False
+2021-02-10 23:40:48
+#BTC/USD 4H. #Bitcoin consolidating between support ~$43k and resistance ~$47.5k. Stop loss should b...
+DeSota Wilson
+Atlanta, GA
+Biz Consultant, real estate, fintech, startups, posts are not the view of my employer, RTs are not e...
+2009-04-26 20:05:09
+8534.0
+7605
+4838
+False
+2021-02-10 23:40:36
+The @Grayscale #Bitcoin Trust: What it is and how it works https://t.co/4TbFiB2NVZ $GBTC #digital #a...
+100UnitBets
+MLB, NFL, NBA, NCAAF, NCAAB
+One bet every day. Join our team and become part of the 3% of profitable sports bettors.
+2014-12-16 23:27:28
+2019.0
+104
+71
+False
+2021-02-10 23:40:21
+We accept #Bitcoin, #BitcoinCash #Litecoin and #Ethereum in addition to traditional payments. Sorry,...
+Majin
+Don’t wait Send them to hell
+2020-12-21 14:14:58
+4.0
+4
+64
+False
+2021-02-10 23:39:47
+If #XRP can stay at this 0.5 level Tonight should be crazy #Bitcoin #Ethereum #BTC
+Mikcoin
+Technical Analyst | Trader No certainty, only possibilities.
+2020-11-26 23:45:46
+104.0
+41
+238
+False
+2021-02-10 23:39:26
+#BTC #Bitcoin #Ethereum #ETH #Crypto #cryptotrading What $ETH do next will determine where the loc...
+Dr. ir Johannes Drooghaag (JD) 🛡
+Germany, Europe
+Proud Dad ° CEO Spearhead Management @Spearheadman ° CEO JD-Publishing @JD_Publishing ° Photography ...
+2015-08-18 13:57:19
+30610.0
+3470
+236638
+False
+2021-02-10 23:38:52
+🔵 Upfront and Personal! Episode 3: Blockchain and cryptocurrencies #CyberSecurity #Blockchain #Cr...
+NatoShƐƐ 🚀🔴🦂
+#BITCOIN 21 Million, 21st year, 21st century. 🤟🪨🚀🌚 Move fast break things, worth it! #tesla #sp...
+2010-06-18 11:29:12
+93.0
+532
+1151
+False
+2021-02-10 23:36:52
+Ok Boomer. #bitcoin #BTC https://t.co/QuGRykOBPJ
+⛓C🅡ypⓣo Balle🅡⛓ ⓣ
+$DOT $LINK $TEL $ZIL $RSR $GRT $CRV 💎🙌🏾
+2014-09-14 21:32:25
+1321.0
+350
+29645
+False
+2021-02-10 23:36:40
+Three of my precious gems reached their ATH today!! $LINK $28.56 $DOT $24.76 $GRT $1.26 These power...
+CappyTrades🍀
+Calling out tickers that you should probably look into. Paper trade my calls and see how you feel. A...
+2020-10-08 23:24:36
+99.0
+89
+1568
+False
+2021-02-10 23:35:27
+Holy smokes! $MARA #BTC #Bitcoin https://t.co/36UIokbdeA
+KrakenPrices
+Scans Kraken's main currencies hourly | Also @BittrexPrices @BinancePrices | Not official, we are no...
+2018-05-25 21:11:08
+3210.0
+1
+28
+False
+2021-02-10 23:35:12
+🔄 Prices update in $USD (1 hour): $BTC - 45320.1 $ (+0.28 %) $ETH - 1754.37 $ (+0.72 %) $XRP - 0.5...
+#Mailey
+Vancouver, BC
+Lucky fool making decisions and money based on History | Market Cycles | Investing | Behavioural Eco...
+2020-11-03 19:10:23
+314.0
+182
+8639
+False
+2021-02-10 23:34:58
+Free #Mailey Advice: Imagine in 2019 there was a #Bitcoin mining company that mined 20000 #BTC qtrl...
+DeSota Wilson
+Atlanta, GA
+Biz Consultant, real estate, fintech, startups, posts are not the view of my employer, RTs are not e...
+2009-04-26 20:05:09
+8534.0
+7605
+4838
+False
+2021-02-10 23:34:33
+Price analysis 2/10: #BTC, #ETH, #ADA, #XRP, #DOT, #BNB, #LTC, #LINK, #DOGE, #BCH https://t.co/EvRdp...
+The Third Coast
+Straightforward technical analysis for equities, precious metals, and digital currencies. No politi...
+2020-05-14 22:20:54
+202.0
+28
+659
+False
+2021-02-10 23:34:25
+Rally got a little ahead of itself for #bitcoin with the @elonmusk tweets and #Tesla news. Likely n...
+Mike Sharkey
+#Cryptocurrency Investor. @Penn_State Alum. #Tech Junkie. #WorldTraveler. #CrohnsDisease Fighter & #...
+2009-05-17 15:00:52
+896.0
+2437
+5001
+False
+2021-02-10 23:34:04
+$TEL everyone... #CGash marketing may begin tomorrow. Buy #Telcoin on #Kucoin while it's still on sa...
+FinTech News Hub
+United States
+FinTech News Hub is a Blockchain and Cryptocurrency news aggregator platform fetching daily quality ...
+2016-09-29 12:32:04
+348.0
+126
+638
+False
+2021-02-10 23:33:55
+Our featured article for today! Please don't forget to subscribe to our daily newsletter at https://...
+Bitcoin Alert!
+World
+Automatically tweets when important changes happened on $BTC price. Turn notifications on! #Bitcoin ...
+2017-05-26 16:01:28
+9213.0
+5
+19
+False
+2021-02-10 23:33:12
+🔼🔼 ₿1 = $45,287 (23:33 UTC) $BTC prices continue to rise! Currently rising but change since midnig...
+Nishant Bhardwaj
+Kota, Rajasthan
+Philosopher, psychologist, spiritual, writer and a full time seeker. RW until India get a better opt...
+2010-07-01 06:59:21
+662.0
+155
+915
+False
+2021-02-10 23:33:00
+$CVC. That’s the tweet. 🚀 #Bitcoin #BTC #dogecoin https://t.co/cK75NBGN6c
+Tonya Barris
+2020-12-29 16:55:33
+0.0
+16
+2
+False
+2021-02-10 23:32:35
+Who want to learn about Forex trading and join a great team? #forex #forexsignals #trading #forextra...
+WSB Crypto Mod 🚀🚀🚀
+If #Wallstreetbets can take on Banks & Hedge Funds to pump stocks +1000%, we can pump #bitcoin to ov...
+2018-01-23 21:49:55
+4309.0
+941
+4839
+False
+2021-02-10 23:32:14
+Institutions are buying #Bitcoin  Over $100 million worth of $BTC, got moved to cold storage just ...
+Langer Dan Returns
+Wouldn't You like to know.
+A victim of radical social media censorship.
+2020-11-04 11:26:40
+31.0
+26
+1207
+False
+2021-02-10 23:32:12
+Me while I'm HODLing #Bitcoin #BTC https://t.co/63wMgCOtI5
+Data Explorer
+Version 54 (2.17 GB)
+
+Bitcoin_tweets.csv
+
+Bitcoin_tweets_dataset_2.csv
+
+Summary
+2 files
+
+26 columns
+
