@@ -12,12 +12,55 @@ export default function Chatbot({ styleOverride = {} }) {
     },
   ]);
   const [input, setInput] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(true);
+  const recognitionRef = useRef(null);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, open]);
+
+  useEffect(() => {
+    // Initialize Web Speech API (SpeechRecognition)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setSpeechSupported(false);
+      return;
+    }
+
+    const recog = new SpeechRecognition();
+    recog.lang = 'fr-FR';
+    recog.interimResults = false;
+    recog.maxAlternatives = 1;
+
+    recog.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map(r => r[0].transcript)
+        .join(' ')
+        .trim();
+
+      if (transcript) {
+        setInput(transcript);
+        // Auto-send the recognized text
+        setTimeout(() => {
+          handleSend();
+        }, 200);
+      }
+    };
+
+    recog.onerror = () => {
+      setIsRecording(false);
+    };
+
+    recog.onend = () => {
+      setIsRecording(false);
+    };
+
+    recognitionRef.current = recog;
+    setSpeechSupported(true);
+  }, []);
 
   const knowledgeBase = {
     btc: 'Bitcoin (BTC) est la première cryptomonnaie décentralisée.',
@@ -43,6 +86,28 @@ export default function Chatbot({ styleOverride = {} }) {
     const ai = { id: (Date.now() + 1).toString(), content: generateAIResponse(userMessage.content), role: 'assistant', timestamp: new Date() };
     setIsTyping(false);
     setMessages((p) => [...p, ai]);
+  };
+
+  const startRecording = () => {
+    if (!recognitionRef.current) return;
+    try {
+      recognitionRef.current.start();
+      setIsRecording(true);
+    } catch (e) {
+      // already started
+    }
+  };
+
+  const stopRecording = () => {
+    if (!recognitionRef.current) return;
+    try {
+      recognitionRef.current.stop();
+    } catch (e) {}
+    setIsRecording(false);
+  };
+
+  const toggleRecording = () => {
+    if (isRecording) stopRecording(); else startRecording();
   };
 
   // Styles (inline for simplicity)
@@ -116,7 +181,30 @@ export default function Chatbot({ styleOverride = {} }) {
           </div>
 
           <div style={inputRow}>
-            <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="Posez une question..." style={inputStyle} />
+            {/* Microphone button for speech input */}
+            <button
+              onClick={toggleRecording}
+              aria-pressed={isRecording}
+              aria-label={isRecording ? 'Arrêter l’enregistrement' : 'Démarrer l’enregistrement'}
+              title={isRecording ? 'Arrêter' : 'Parler'}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 8,
+                border: '1px solid #233',
+                background: isRecording ? '#ef4444' : '#071022',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: speechSupported ? 'pointer' : 'not-allowed'
+              }}
+              disabled={!speechSupported}
+            >
+              {isRecording ? '●' : '🎤'}
+            </button>
+
+            <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder={speechSupported ? "Posez une question ou utilisez le micro..." : "Posez une question..."} style={inputStyle} />
             <button onClick={handleSend} style={sendBtn} disabled={isTyping}><Send size={16} /></button>
           </div>
         </div>
