@@ -13,9 +13,10 @@ import {
 import { useCrypto } from '../store';
 import { cryptoOptions, COLORS } from '../data/mockData';
 import { sharedStyles } from '../styles/commonStyles';
+import Chatbot from '../components/Chatbot';
 
 // ============================================
-// SOUS-COMPOSANT: CustomTooltip
+// SUBCOMPONENT: CustomTooltip
 // ============================================
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload) return null;
@@ -52,7 +53,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 // ============================================
-// COMPOSANT PRINCIPAL: Timeline
+// MAIN COMPONENT: Timeline
 // ============================================
 export default function Timeline() {
   const { fetchTimeline } = useCrypto();
@@ -85,7 +86,7 @@ export default function Timeline() {
   }, [selectedCrypto, fetchTimeline]);
 
   // ============================================
-  // DONNÉES DÉRIVÉES
+  // DERIVED DATA
   // ============================================
   const currentSentiment = data.length > 0 ? data[data.length - 1].sentiment : 0;
 
@@ -299,16 +300,17 @@ export default function Timeline() {
               <Line
                 type="monotone"
                 dataKey="ma7"
-                name="MA 7 jours"
+                name="MA 7 days"
                 stroke={COLORS.negative}
                 strokeWidth={2}
                 strokeDasharray="5 5"
                 dot={false}
               />
             </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+                </ResponsiveContainer>
+              </div>
+            </div>
+      <Chatbot />
     </div>
   );
 }

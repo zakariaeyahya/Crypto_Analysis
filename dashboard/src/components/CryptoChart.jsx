@@ -1,6 +1,6 @@
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-// Mock des constantes (à remplacer par les imports réels)
+// Mock constants (replace with real imports)
 const COLORS = {
   positive: '#10b981',
   negative: '#ef4444',
@@ -38,7 +38,7 @@ const sharedStyles = {
   }
 };
 
-// Sous-composant CustomTooltip
+// Subcomponent CustomTooltip
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload || payload.length === 0) {
     return null;
@@ -66,7 +66,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-// Composant principal CryptoChart
+// Main component CryptoChart
 export default function CryptoChart({ 
   data = [], 
   title = 'Chart', 
@@ -113,7 +113,7 @@ export default function CryptoChart({
   );
 }
 
-// Exemple d'utilisation avec données de démonstration
+// Example usage with demo data
 function Demo() {
   const mockData = [
     { date: 'Jan 1', value: 45000 },

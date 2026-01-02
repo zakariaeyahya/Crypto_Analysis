@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-// Mock des constantes (à remplacer par les imports réels)
+// Mock constants (replace with real imports)
 const COLORS = {
   positive: '#10B981',
   negative: '#EF4444',
@@ -45,18 +45,18 @@ const metricCardStyles = {
   }
 };
 
-// Composant MetricCard
+// MetricCard component
 export default function MetricCard({ title, value, change = 0 }) {
   const [isHovered, setIsHovered] = useState(false);
 
-  // Déterminer la couleur selon le changement
+  // Determine color based on change
   const getChangeColor = () => {
     if (change > 0) return COLORS.positive;
     if (change < 0) return COLORS.negative;
     return COLORS.neutral;
   };
 
-  // Récupérer l'icône de flèche
+  // Get arrow icon
   const getArrowIcon = () => {
     if (change > 0) {
       return (
@@ -87,7 +87,7 @@ export default function MetricCard({ title, value, change = 0 }) {
     return null;
   };
 
-  // Formater le changement
+  // Format the change
   const formatChange = () => {
     const formatted = Math.abs(change).toFixed(2);
     return change > 0 ? `+${formatted}%` : `${formatted}%`;
@@ -95,7 +95,7 @@ export default function MetricCard({ title, value, change = 0 }) {
 
   const changeColor = getChangeColor();
 
-  // Styles dynamiques avec hover
+  // Dynamic styles with hover
   const cardStyle = {
     ...metricCardStyles.card,
     transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
@@ -147,7 +147,7 @@ export default function MetricCard({ title, value, change = 0 }) {
   );
 }
 
-// Demo avec plusieurs cartes
+// Demo with multiple cards
 function Demo() {
   const metrics = [
     { title: 'Bitcoin (BTC)', value: '$43,250.00', change: 2.45 },
@@ -220,8 +220,8 @@ function Demo() {
             lineHeight: '1.6'
           }}
         >
-          💡 Survolez les cartes pour voir les effets de hover avec lift, glow et
-          gradient overlay colorés
+          💡 Hover over the cards to see lift, glow, and colorful gradient
+          overlay hover effects
         </p>
       </div>
     </div>
