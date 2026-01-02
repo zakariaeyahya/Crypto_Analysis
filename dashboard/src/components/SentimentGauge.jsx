@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-// Mock des constantes (à remplacer par les imports réels)
+// Mock constants (replace with real imports)
 const COLORS = {
   positive: '#10B981',
   negative: '#EF4444',
@@ -81,12 +81,12 @@ const sentimentGaugeStyles = {
   }
 };
 
-// Composant SentimentGauge
+// SentimentGauge component
 export default function SentimentGauge({ value = 0, label = 'Market Sentiment' }) {
   const [animatedValue, setAnimatedValue] = useState(0);
 
   useEffect(() => {
-    // Animation progressive de la valeur
+    // Progressive animation of the value
     const timeout = setTimeout(() => setAnimatedValue(value), 100);
     return () => clearTimeout(timeout);
   }, [value]);
@@ -220,7 +220,7 @@ export default function SentimentGauge({ value = 0, label = 'Market Sentiment' }
   );
 }
 
-// Demo interactive
+// Interactive demo
 function Demo() {
   const [sentimentValue, setSentimentValue] = useState(35);
 

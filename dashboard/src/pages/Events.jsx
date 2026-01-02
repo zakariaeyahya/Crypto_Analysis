@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useCrypto } from '../store';
 import { cryptoFilters, typeLabels, formatDate, COLORS } from '../data/mockData';
 import { sharedStyles } from '../styles/commonStyles';
+import Chatbot from '../components/Chatbot';
 
 // ============================================
-// SOUS-COMPOSANT: EventCard
+// SUBCOMPONENT: EventCard
 // ============================================
 const EventCard = ({ event, isExpanded, onToggle }) => {
   const borderColor = COLORS[event.type] || COLORS.neutral;
@@ -92,7 +93,7 @@ const EventCard = ({ event, isExpanded, onToggle }) => {
 };
 
 // ============================================
-// SOUS-COMPOSANT: EventModal
+// SUBCOMPONENT: EventModal
 // ============================================
 const EventModal = ({ event, onClose }) => {
   if (!event) return null;
@@ -221,7 +222,7 @@ const EventModal = ({ event, onClose }) => {
 };
 
 // ============================================
-// COMPOSANT PRINCIPAL: Events
+// MAIN COMPONENT: Events
 // ============================================
 export default function Events() {
   const { fetchEvents } = useCrypto();
@@ -239,7 +240,7 @@ export default function Events() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Options de filtre sentiment
+  // Sentiment filter options
   const sentimentOptions = [
     { value: 'All', label: 'All Sentiments' },
     { value: 'positive', label: 'Positive' },
@@ -494,6 +495,7 @@ export default function Events() {
           onClose={() => setSelectedEvent(null)}
         />
       )}
+      <Chatbot />
     </div>
   );
 }

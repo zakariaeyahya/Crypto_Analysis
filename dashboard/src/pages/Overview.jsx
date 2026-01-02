@@ -4,9 +4,10 @@ import SentimentGauge from '../components/SentimentGauge';
 import CryptoChart from '../components/CryptoChart';
 import { COLORS } from '../data/mockData';
 import { sharedStyles } from '../styles/commonStyles';
+import Chatbot from '../components/Chatbot';
 
 // ============================================
-// COMPOSANT PRINCIPAL: Overview
+// MAIN COMPONENT: Overview
 // ============================================
 export default function Overview() {
   const { cryptos, chartData, sentiment, loading, error } = useCrypto();
@@ -76,6 +77,7 @@ export default function Overview() {
           />
         </div>
       </section>
+      <Chatbot />
     </div>
   );
 }
