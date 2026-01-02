@@ -57,7 +57,8 @@ const navItems = [
   { path: '/', label: 'Overview', icon: '📊' },
   { path: '/timeline', label: 'Timeline', icon: '📈' },
   { path: '/analysis', label: 'Analysis', icon: '🔍' },
-  { path: '/events', label: 'Events', icon: '📰' }
+  { path: '/events', label: 'Events', icon: '📰' },
+  { path: '/chat', label: 'AI Chat', icon: '🤖' }
 ];
 
 // Composant Header
