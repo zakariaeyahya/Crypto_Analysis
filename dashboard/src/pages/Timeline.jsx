@@ -13,6 +13,7 @@ import {
 import { useCrypto } from '../store';
 import { cryptoOptions, COLORS } from '../data/mockData';
 import { sharedStyles } from '../styles/commonStyles';
+import Chatbot from '../components/Chatbot';
 
 // ============================================
 // SOUS-COMPOSANT: CustomTooltip
@@ -306,9 +307,10 @@ export default function Timeline() {
                 dot={false}
               />
             </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+                </ResponsiveContainer>
+              </div>
+            </div>
+      <Chatbot />
     </div>
   );
 }

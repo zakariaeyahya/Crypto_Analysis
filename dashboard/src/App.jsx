@@ -5,7 +5,6 @@ import Overview from './pages/Overview';
 import Timeline from './pages/Timeline';
 import Analysis from './pages/Analysis';
 import Events from './pages/Events';
-import AIChat from './pages/AIChat';
 
 export default function App() {
   return (
@@ -17,7 +16,6 @@ export default function App() {
           <Route path="/timeline" element={<Timeline />} />
           <Route path="/analysis" element={<Analysis />} />
           <Route path="/events" element={<Events />} />
-          <Route path="/chat" element={<AIChat />} />
         </Routes>
       </BrowserRouter>
     </CryptoProvider>

@@ -17,6 +17,7 @@ import {
 import { useCrypto } from '../store';
 import { cryptoOptions, COLORS } from '../data/mockData';
 import { sharedStyles } from '../styles/commonStyles';
+import Chatbot from '../components/Chatbot';
 
 // ============================================
 // HELPER: getCorrelationLabel
@@ -322,6 +323,7 @@ export default function Analysis() {
           }
         </p>
       </div>
+      <Chatbot />
     </div>
   );
 }
