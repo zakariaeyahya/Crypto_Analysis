@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import logo from './logo.png';
 
 // Header styles
 const headerStyles = {
@@ -64,7 +65,10 @@ const navItems = [
 export default function Header() {
   return (
     <header style={headerStyles.header}>
-      <h1 style={headerStyles.title}>◈ Crypto Dashboard</h1>
+      <a href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+        <img src={logo} alt="Crypto Vision" style={{ height: '36px', marginRight: '12px' }} />
+        <h1 style={headerStyles.title}>Crypto Vision</h1>
+      </a>
 
       <nav style={headerStyles.nav}>
         {navItems.map((item) => (
