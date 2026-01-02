@@ -7,7 +7,7 @@ import { sharedStyles } from '../styles/commonStyles';
 import Chatbot from '../components/Chatbot';
 
 // ============================================
-// COMPOSANT PRINCIPAL: Overview
+// MAIN COMPONENT: Overview
 // ============================================
 export default function Overview() {
   const { cryptos, chartData, sentiment, loading, error } = useCrypto();

@@ -31,7 +31,7 @@ function getCorrelationLabel(corr) {
 }
 
 // ============================================
-// SOUS-COMPOSANT: OverlayTooltip
+// SUBCOMPONENT: OverlayTooltip
 // ============================================
 const OverlayTooltip = ({ active, payload, label }) => {
   if (!active || !payload) return null;
@@ -58,7 +58,7 @@ const OverlayTooltip = ({ active, payload, label }) => {
 };
 
 // ============================================
-// SOUS-COMPOSANT: ScatterTooltip
+// SUBCOMPONENT: ScatterTooltip
 // ============================================
 const ScatterTooltip = ({ active, payload }) => {
   if (!active || !payload || !payload[0]) return null;
@@ -84,7 +84,7 @@ const ScatterTooltip = ({ active, payload }) => {
 };
 
 // ============================================
-// COMPOSANT PRINCIPAL: Analysis
+// MAIN COMPONENT: Analysis
 // ============================================
 export default function Analysis() {
   const { fetchAnalysis } = useCrypto();
@@ -138,7 +138,7 @@ export default function Analysis() {
   }
 
   // ============================================
-  // DONNÉES DÉRIVÉES
+  // DERIVED DATA
   // ============================================
   const correlation = stats?.correlation || 0;
   const correlationLabel = stats?.correlationLabel || getCorrelationLabel(correlation);
@@ -148,12 +148,12 @@ export default function Analysis() {
   // ============================================
   return (
     <div style={sharedStyles.pageContainer}>
-      {/* TITRE */}
+      {/* TITLE */}
       <h1 style={{ fontSize: '2rem', marginBottom: '24px', color: '#fff' }}>
         Analyse Corrélation
       </h1>
 
-      {/* HEADER - Sélecteur */}
+      {/* HEADER - Selector */}
       <div style={{ ...sharedStyles.flexBetween, marginBottom: '32px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <label style={{ color: '#fff', fontSize: '1rem' }}>Crypto:</label>

@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 
-// Styles du header
+// Header styles
 const headerStyles = {
   header: {
     display: 'flex',
@@ -52,7 +52,7 @@ const headerStyles = {
   }
 };
 
-// Données de navigation
+// Navigation data
 const navItems = [
   { path: '/', label: 'Overview', icon: '📊' },
   { path: '/timeline', label: 'Timeline', icon: '📈' },
@@ -60,7 +60,7 @@ const navItems = [
   { path: '/events', label: 'Events', icon: '📰' }
 ];
 
-// Composant Header
+// Header component
 export default function Header() {
   return (
     <header style={headerStyles.header}>
