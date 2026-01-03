@@ -4,7 +4,7 @@ import SentimentGauge from '../components/SentimentGauge';
 import CryptoChart from '../components/CryptoChart';
 import { COLORS } from '../data/mockData';
 import { sharedStyles } from '../styles/commonStyles';
-import Chatbot from '../components/Chatbot';
+import Chatbot from '../components/ChatBot';
 
 // ============================================
 // MAIN COMPONENT: Overview

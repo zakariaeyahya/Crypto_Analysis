@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, Loader, Sparkles, Trash2 } from 'lucide-react';
-import { sendChatMessage, getChatSuggestions, clearChatSession } from '../api';
+import { Send, Bot, Loader, Sparkles, Trash2, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { sendChatMessage, getChatSuggestions, clearChatSession, sendFeedback } from '../api';
 
 // Generer un ID de session unique
 const generateSessionId = () => {
@@ -22,6 +22,7 @@ export default function Chatbot({ styleOverride = {} }) {
   const [isTyping, setIsTyping] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [feedbackGiven, setFeedbackGiven] = useState({});  // Track feedback per message
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -72,7 +73,8 @@ export default function Chatbot({ styleOverride = {} }) {
         content: response.response || response.answer || "Desole, je n'ai pas pu generer une reponse.",
         role: 'assistant',
         timestamp: new Date(),
-        hasHistory: response.metadata?.has_history
+        hasHistory: response.metadata?.has_history,
+        relatedQuestion: textToSend  // Store the question for feedback
       };
 
       setMessages((p) => [...p, assistantMessage]);
@@ -110,6 +112,18 @@ export default function Chatbot({ styleOverride = {} }) {
 
   const handleSuggestionClick = (suggestion) => {
     handleSend(suggestion);
+  };
+
+  const handleFeedback = async (messageId, feedbackType, question, answer) => {
+    // Don't allow feedback twice
+    if (feedbackGiven[messageId]) return;
+
+    try {
+      await sendFeedback(messageId, question, answer, feedbackType, sessionId);
+      setFeedbackGiven(prev => ({ ...prev, [messageId]: feedbackType }));
+    } catch (error) {
+      console.error('Failed to send feedback:', error);
+    }
   };
 
   // Styles
@@ -287,6 +301,66 @@ export default function Chatbot({ styleOverride = {} }) {
                     {m.content}
                   </div>
                 </div>
+                {/* Feedback buttons for assistant messages (not the welcome message) */}
+                {m.role === 'assistant' && m.relatedQuestion && (
+                  <div style={{
+                    display: 'flex',
+                    gap: '8px',
+                    marginTop: '6px',
+                    marginLeft: '4px'
+                  }}>
+                    <button
+                      onClick={() => handleFeedback(m.id, 'positive', m.relatedQuestion, m.content)}
+                      disabled={!!feedbackGiven[m.id]}
+                      style={{
+                        background: feedbackGiven[m.id] === 'positive'
+                          ? 'rgba(16, 185, 129, 0.3)'
+                          : 'rgba(255, 255, 255, 0.05)',
+                        border: feedbackGiven[m.id] === 'positive'
+                          ? '1px solid rgba(16, 185, 129, 0.5)'
+                          : '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        padding: '4px 8px',
+                        cursor: feedbackGiven[m.id] ? 'default' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        color: feedbackGiven[m.id] === 'positive' ? '#10b981' : '#9ca3af',
+                        fontSize: '12px',
+                        opacity: feedbackGiven[m.id] && feedbackGiven[m.id] !== 'positive' ? 0.4 : 1,
+                        transition: 'all 0.2s'
+                      }}
+                      title="Bonne reponse"
+                    >
+                      <ThumbsUp size={12} />
+                    </button>
+                    <button
+                      onClick={() => handleFeedback(m.id, 'negative', m.relatedQuestion, m.content)}
+                      disabled={!!feedbackGiven[m.id]}
+                      style={{
+                        background: feedbackGiven[m.id] === 'negative'
+                          ? 'rgba(239, 68, 68, 0.3)'
+                          : 'rgba(255, 255, 255, 0.05)',
+                        border: feedbackGiven[m.id] === 'negative'
+                          ? '1px solid rgba(239, 68, 68, 0.5)'
+                          : '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '6px',
+                        padding: '4px 8px',
+                        cursor: feedbackGiven[m.id] ? 'default' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        color: feedbackGiven[m.id] === 'negative' ? '#ef4444' : '#9ca3af',
+                        fontSize: '12px',
+                        opacity: feedbackGiven[m.id] && feedbackGiven[m.id] !== 'negative' ? 0.4 : 1,
+                        transition: 'all 0.2s'
+                      }}
+                      title="Mauvaise reponse"
+                    >
+                      <ThumbsDown size={12} />
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
 

@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Dict, List, Optional
 from app.rag.rag_service import get_rag_service
+from app.rag.feedback_service import get_feedback_service
 from app.rag.logger import get_logger
 from app.rag.prompts import SUGGESTED_QUESTIONS
 
@@ -47,6 +48,26 @@ class ClearSessionRequest(BaseModel):
 class ClearSessionResponse(BaseModel):
     status: str
     session_id: str
+
+class FeedbackRequest(BaseModel):
+    message_id: str
+    question: str
+    answer: str
+    feedback_type: str  # "positive" ou "negative"
+    session_id: Optional[str] = None
+    comment: Optional[str] = None
+
+class FeedbackResponse(BaseModel):
+    status: str
+    feedback_id: Optional[str] = None
+    message: Optional[str] = None
+
+class FeedbackStatsResponse(BaseModel):
+    total: int
+    positive: int
+    negative: int
+    positive_ratio: float
+    negative_ratio: float
 
 # ============= ROUTER =============
 
@@ -145,3 +166,64 @@ async def get_suggestions():
     # Retourne 6 questions aleatoires parmi toutes les suggestions
     selected = random.sample(SUGGESTED_QUESTIONS, min(6, len(SUGGESTED_QUESTIONS)))
     return SuggestionsResponse(suggestions=selected)
+
+@router.post("/feedback", response_model=FeedbackResponse, summary="Envoie un feedback sur une reponse")
+async def submit_feedback(request: FeedbackRequest):
+    """
+    Enregistre un feedback utilisateur (thumbs up/down) sur une reponse du chatbot.
+
+    Body:
+        - message_id: ID unique du message
+        - question: La question posee
+        - answer: La reponse du chatbot
+        - feedback_type: "positive" ou "negative"
+        - session_id: ID de session (optionnel)
+        - comment: Commentaire additionnel (optionnel)
+    """
+    logger.info(f"Feedback received: {request.feedback_type} for message {request.message_id}")
+
+    if request.feedback_type not in ["positive", "negative"]:
+        raise HTTPException(
+            status_code=400,
+            detail="feedback_type doit etre 'positive' ou 'negative'"
+        )
+
+    try:
+        feedback_service = get_feedback_service()
+        result = feedback_service.add_feedback(
+            message_id=request.message_id,
+            question=request.question,
+            answer=request.answer,
+            feedback_type=request.feedback_type,
+            session_id=request.session_id,
+            comment=request.comment
+        )
+
+        return FeedbackResponse(
+            status=result["status"],
+            feedback_id=result.get("feedback_id"),
+            message=result.get("message")
+        )
+    except Exception as e:
+        logger.error(f"Feedback error: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")
+
+@router.get("/feedback/stats", response_model=FeedbackStatsResponse, summary="Statistiques des feedbacks")
+async def get_feedback_stats():
+    """Retourne les statistiques des feedbacks (total, positifs, negatifs, ratio)"""
+    logger.info("Feedback stats requested")
+
+    try:
+        feedback_service = get_feedback_service()
+        stats = feedback_service.get_stats()
+
+        return FeedbackStatsResponse(
+            total=stats["total"],
+            positive=stats["positive"],
+            negative=stats["negative"],
+            positive_ratio=stats["positive_ratio"],
+            negative_ratio=stats["negative_ratio"]
+        )
+    except Exception as e:
+        logger.error(f"Feedback stats error: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur: {str(e)}")

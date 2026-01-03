@@ -58,3 +58,22 @@ export const clearChatSession = async (sessionId) => {
 
 export const getChatHealth = () => fetchAPI('/api/chat/health');
 export const getChatSuggestions = () => fetchAPI('/api/chat/suggestions');
+
+// FEEDBACK
+export const sendFeedback = async (messageId, question, answer, feedbackType, sessionId = null) => {
+  const response = await fetch(`${API_BASE_URL}/api/chat/feedback`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message_id: messageId,
+      question: question,
+      answer: answer,
+      feedback_type: feedbackType,
+      session_id: sessionId
+    })
+  });
+  if (!response.ok) throw new Error(`API Error: ${response.status}`);
+  return response.json();
+};
+
+export const getFeedbackStats = () => fetchAPI('/api/chat/feedback/stats');
