@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import Dict, List, Optional
 from app.rag.rag_service import get_rag_service
 from app.rag.logger import get_logger
+from app.rag.prompts import SUGGESTED_QUESTIONS
 
 logger = get_logger("chat_router")
 
@@ -93,13 +94,8 @@ async def chat(request: ChatRequest):
 
 @router.get("/suggestions", response_model=SuggestionsResponse, summary="Obtient des suggestions de questions")
 async def get_suggestions():
-    """Retourne une liste de questions suggérées"""
-    suggestions = [
-        "Quel est le sentiment actuel de Bitcoin?",
-        "Comment évolue le sentiment Ethereum cette semaine?",
-        "Y a-t-il une corrélation entre sentiment et prix pour SOL?",
-        "Compare le sentiment de BTC et ETH",
-        "Quels sont les posts récents sur Bitcoin?",
-    ]
-    
-    return SuggestionsResponse(suggestions=suggestions)
+    """Retourne une liste de questions suggerees depuis prompts.py"""
+    import random
+    # Retourne 6 questions aleatoires parmi toutes les suggestions
+    selected = random.sample(SUGGESTED_QUESTIONS, min(6, len(SUGGESTED_QUESTIONS)))
+    return SuggestionsResponse(suggestions=selected)

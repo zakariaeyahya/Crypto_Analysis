@@ -30,3 +30,17 @@ export const getEventsStats = (crypto) => {
   const query = crypto && crypto !== 'All' ? `?crypto=${crypto}` : '';
   return fetchAPI(`/api/events/stats${query}`);
 };
+
+// CHAT RAG
+export const sendChatMessage = async (message, crypto = null) => {
+  const response = await fetch(`${API_BASE_URL}/api/chat/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, crypto })
+  });
+  if (!response.ok) throw new Error(`API Error: ${response.status}`);
+  return response.json();
+};
+
+export const getChatHealth = () => fetchAPI('/api/chat/health');
+export const getChatSuggestions = () => fetchAPI('/api/chat/suggestions');

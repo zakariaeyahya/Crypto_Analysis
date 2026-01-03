@@ -3,31 +3,9 @@
 import requests
 from app.rag.config import LLM_PROVIDER, GROQ_API_KEY, GROQ_MODEL
 from app.rag.logger import get_logger
+from app.rag.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE
 
 logger = get_logger("llm_service")
-
-# Prompts
-SYSTEM_PROMPT = """
-Tu es un assistant expert en analyse de cryptomonnaies.
-Tu analyses les sentiments du marché crypto basés sur les données Twitter et Reddit.
-
-Règles:
-- Réponds UNIQUEMENT en utilisant les informations du contexte fourni
-- Si tu ne trouves pas l'information, dis-le clairement
-- Sois concis et précis
-- Utilise des chiffres quand disponibles
-- Mentionne les sources (Twitter, Reddit) si pertinent
-- Réponds en français
-"""
-
-USER_PROMPT_TEMPLATE = """
-Contexte:
-{context}
-
-Question: {question}
-
-Réponse:
-"""
 
 class LLMService:
     """Service pour interfacer le LLM (Groq, OpenAI, Ollama)"""
