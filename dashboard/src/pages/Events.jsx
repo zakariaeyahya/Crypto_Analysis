@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useCrypto } from '../store';
 import { cryptoFilters, typeLabels, formatDate, COLORS } from '../data/mockData';
 import { sharedStyles } from '../styles/commonStyles';
-import Chatbot from '../components/Chatbot';
+import Chatbot from '../components/ChatBot';
 
 // ============================================
 // SUBCOMPONENT: EventCard

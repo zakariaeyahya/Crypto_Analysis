@@ -63,11 +63,11 @@ const About = () => {
 
   const techStack = [
     { category: 'Backend', tech: ['Python', 'FastAPI', 'Airflow'] },
-    { category: 'Frontend', tech: ['React', 'JavaScript', 'CSS'] },
+    { category: 'Frontend', tech: ['React', 'JavaScript', 'Recharts'] },
     { category: 'Data Processing', tech: ['Pandas', 'NumPy', 'Scikit-learn'] },
-    { category: 'NLP & ML', tech: ['Transformers', 'RoBERTa', 'PyTorch'] },
-    { category: 'Database', tech: ['PostgreSQL', 'MongoDB'] },
-    { category: 'DevOps', tech: ['Docker', 'Docker Compose', 'Airflow'] }
+    { category: 'NLP & ML', tech: ['Transformers', 'FinBERT', 'PyTorch'] },
+    { category: 'RAG Chatbot', tech: ['Pinecone', 'Groq LLM', 'LangChain'] },
+    { category: 'Evaluation', tech: ['RAGAS', 'Sentence-Transformers'] }
   ];
 
   return (
@@ -83,30 +83,43 @@ const About = () => {
         <div className="description-content">
           <h2>Présentation du Projet</h2>
           <p>
-            Crypto_Analysis est une plateforme complète d'analyse de sentiment et de corrélation avec les prix des cryptomonnaies. 
-            Notre projet combine l'extraction de données en temps réel, le traitement du langage naturel avancé et l'analyse statistique 
+            Crypto_Analysis est une plateforme complète d'analyse de sentiment et de corrélation avec les prix des cryptomonnaies.
+            Notre projet combine l'extraction de données en temps réel, le traitement du langage naturel avancé et l'analyse statistique
             pour fournir des insights profonds sur les mouvements du marché des cryptomonnaies.
           </p>
           <p>
-            En utilisant des modèles NLP sophistiqués comme RoBERTa, nous analysons les sentiments exprimés sur Reddit et d'autres 
-            sources pour déterminer leur impact sur les prix de Bitcoin, Ethereum et Solana.
+            En utilisant des modèles NLP sophistiqués comme FinBERT, nous analysons les sentiments exprimés sur Twitter et Reddit
+            pour déterminer leur impact sur les prix de Bitcoin, Ethereum et Solana.
+          </p>
+          <p>
+            Le projet inclut un chatbot RAG (Retrieval-Augmented Generation) intelligent qui permet aux utilisateurs de poser
+            des questions en langage naturel sur le sentiment des cryptos. Le système utilise Pinecone pour la recherche vectorielle
+            et Groq LLM (Llama 3.3 70B) pour générer des réponses contextuelles.
           </p>
           <div className="features-grid">
             <div className="feature-box">
               <h3>🔍 Extraction de Données</h3>
-              <p>Scraping et collecte de données depuis Kaggle et Reddit</p>
+              <p>Collecte de données depuis Twitter et Reddit via API</p>
             </div>
             <div className="feature-box">
               <h3>🧠 Analyse NLP</h3>
-              <p>Modèles de sentiment avancés basés sur Transformers</p>
+              <p>Modèles FinBERT fine-tunés pour le sentiment crypto</p>
             </div>
             <div className="feature-box">
-              <h3>📊 Analyse Statistique</h3>
-              <p>Corrélations et statistiques détaillées</p>
+              <h3>📊 Corrélation Prix/Sentiment</h3>
+              <p>Analyse Pearson et lag temporel</p>
             </div>
             <div className="feature-box">
-              <h3>📈 Visualisations</h3>
-              <p>Dashboard interactif et visualisations enrichies</p>
+              <h3>📈 Dashboard Interactif</h3>
+              <p>Visualisations temps réel avec Recharts</p>
+            </div>
+            <div className="feature-box">
+              <h3>🤖 Chatbot RAG</h3>
+              <p>Assistant IA avec Pinecone + Groq LLM</p>
+            </div>
+            <div className="feature-box">
+              <h3>📝 Evaluation RAGAS</h3>
+              <p>Métriques de qualité: Faithfulness, Relevancy</p>
             </div>
           </div>
         </div>

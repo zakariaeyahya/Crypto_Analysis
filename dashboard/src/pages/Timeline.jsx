@@ -13,7 +13,7 @@ import {
 import { useCrypto } from '../store';
 import { cryptoOptions, COLORS } from '../data/mockData';
 import { sharedStyles } from '../styles/commonStyles';
-import Chatbot from '../components/Chatbot';
+import Chatbot from '../components/ChatBot';
 
 // ============================================
 // SUBCOMPONENT: CustomTooltip

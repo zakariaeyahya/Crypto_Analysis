@@ -6,7 +6,7 @@ import Timeline from './pages/Timeline';
 import Analysis from './pages/Analysis';
 import Events from './pages/Events';
 import About from './pages/About';
-import Chatbot from './components/Chatbot';
+import Chatbot from './components/ChatBot';
 
 export default function App() {
   return (
