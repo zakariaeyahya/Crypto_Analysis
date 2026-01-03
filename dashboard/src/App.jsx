@@ -6,6 +6,10 @@ import Timeline from './pages/Timeline';
 import Analysis from './pages/Analysis';
 import Events from './pages/Events';
 import About from './pages/About';
+<<<<<<< HEAD
+=======
+import Chatbot from './components/ChatBot';
+>>>>>>> origin/main
 
 export default function App() {
   return (
@@ -19,6 +23,7 @@ export default function App() {
           <Route path="/events" element={<Events />} />
           <Route path="/about" element={<About />} />
         </Routes>
+        <Chatbot />
       </BrowserRouter>
     </CryptoProvider>
   );
