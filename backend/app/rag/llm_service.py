@@ -3,7 +3,7 @@
 import requests
 from app.rag.config import LLM_PROVIDER, GROQ_API_KEY, GROQ_MODEL
 from app.rag.logger import get_logger
-from app.rag.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE
+from app.rag.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE, USER_PROMPT_WITH_HISTORY_TEMPLATE
 
 logger = get_logger("llm_service")
 
@@ -92,8 +92,27 @@ class LLMService:
         else:
             raise Exception(f"Provider inconnu: {self.provider}")
 
-    def generate_with_context(self, question, context):
-        user_prompt = USER_PROMPT_TEMPLATE.format(context=context, question=question)
+    def generate_with_context(self, question, context, history: str = None):
+        """
+        Genere une reponse avec le contexte RAG et optionnellement l'historique
+
+        Args:
+            question: Question de l'utilisateur
+            context: Contexte RAG (documents recuperes)
+            history: Historique de conversation (optionnel)
+        """
+        if history and history.strip():
+            # Utiliser le template avec historique
+            user_prompt = USER_PROMPT_WITH_HISTORY_TEMPLATE.format(
+                history=history,
+                context=context,
+                question=question
+            )
+            logger.info(f"Generating with history ({len(history)} chars)")
+        else:
+            # Utiliser le template sans historique
+            user_prompt = USER_PROMPT_TEMPLATE.format(context=context, question=question)
+
         return self.generate(prompt=user_prompt, system_prompt=SYSTEM_PROMPT)
 
     def is_available(self):

@@ -17,6 +17,8 @@ REGLES IMPORTANTES:
 6. NE MENTIONNE JAMAIS les sources, documents, scores ou IDs dans ta reponse
 7. NE DIS PAS "selon les documents" ou "d'apres les sources"
 8. Reponds directement comme si tu connaissais l'information
+9. Utilise l'historique de conversation pour comprendre le contexte
+10. Si l'utilisateur dit "et pour X?" ou "compare avec Y", utilise le contexte precedent
 
 FORMAT DE REPONSE:
 - Commence directement par l'information demandee
@@ -25,7 +27,7 @@ FORMAT DE REPONSE:
 """
 
 # =============================================================================
-# USER PROMPT TEMPLATE - Format de la question avec contexte
+# USER PROMPT TEMPLATE - Format de la question avec contexte (SANS historique)
 # =============================================================================
 USER_PROMPT_TEMPLATE = """Contexte (informations a utiliser pour repondre):
 {context}
@@ -33,6 +35,19 @@ USER_PROMPT_TEMPLATE = """Contexte (informations a utiliser pour repondre):
 Question de l'utilisateur: {question}
 
 Reponse (reponds directement sans mentionner les sources):"""
+
+# =============================================================================
+# USER PROMPT TEMPLATE AVEC HISTORIQUE - Pour les conversations avec memoire
+# =============================================================================
+USER_PROMPT_WITH_HISTORY_TEMPLATE = """Historique de la conversation:
+{history}
+
+Contexte (informations a utiliser pour repondre):
+{context}
+
+Question actuelle de l'utilisateur: {question}
+
+Reponse (utilise l'historique pour comprendre le contexte, reponds directement):"""
 
 # =============================================================================
 # QUESTIONS SUGGEREES

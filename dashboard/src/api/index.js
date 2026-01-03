@@ -32,11 +32,25 @@ export const getEventsStats = (crypto) => {
 };
 
 // CHAT RAG
-export const sendChatMessage = async (message, crypto = null) => {
+export const sendChatMessage = async (message, crypto = null, sessionId = null) => {
   const response = await fetch(`${API_BASE_URL}/api/chat/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, crypto })
+    body: JSON.stringify({
+      message,
+      crypto,
+      session_id: sessionId
+    })
+  });
+  if (!response.ok) throw new Error(`API Error: ${response.status}`);
+  return response.json();
+};
+
+export const clearChatSession = async (sessionId) => {
+  const response = await fetch(`${API_BASE_URL}/api/chat/clear`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session_id: sessionId })
   });
   if (!response.ok) throw new Error(`API Error: ${response.status}`);
   return response.json();
