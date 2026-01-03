@@ -238,7 +238,7 @@ class DocumentLoader:
                     if not week:
                         continue
 
-                    closes = [float(row.get("close", 0)) for row in week if row.get("close")]
+                    closes = [float(row.get("price_close", 0)) for row in week if row.get("price_close")]
                     if not closes:
                         continue
 

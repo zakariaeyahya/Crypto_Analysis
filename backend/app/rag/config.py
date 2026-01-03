@@ -43,7 +43,7 @@ GROQ_MODEL = "llama-3.3-70b-versatile"
 # RAG
 # =====================================================================
 RAG_TOP_K = 5
-RAG_MIN_SCORE = 0.5
+RAG_MIN_SCORE = 0.35  # Abaisse pour meilleur recall (Solana, requetes vagues)
 
 # =====================================================================
 # CHEMINS DES DONNÉES
