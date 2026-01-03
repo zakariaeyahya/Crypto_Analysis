@@ -58,7 +58,8 @@ const navItems = [
   { path: '/', label: 'Overview', icon: '📊' },
   { path: '/timeline', label: 'Timeline', icon: '📈' },
   { path: '/analysis', label: 'Analysis', icon: '🔍' },
-  { path: '/events', label: 'Events', icon: '📰' }
+  { path: '/events', label: 'Events', icon: '📰' },
+  { path: '/about', label: 'About', icon: 'ℹ️' }
 ];
 
 // Header component
