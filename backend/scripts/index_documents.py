@@ -16,15 +16,15 @@ from app.rag.logger import get_logger
 logger = get_logger("index_documents")
 
 
-def print_separator(title=""):
+def log_separator(title=""):
     """Affiche une ligne de séparation"""
     sep = "=" * 70
     if title:
-        print(f"\n{sep}")
-        print(f"  {title}")
-        print(f"{sep}\n")
+        logger.info(sep)
+        logger.info(f"  {title}")
+        logger.info(sep)
     else:
-        print(f"\n{sep}\n")
+        logger.info(sep)
 
 
 def run_indexation(clear_before=False):
@@ -36,67 +36,60 @@ def run_indexation(clear_before=False):
     """
     start_time = time.time()
 
-    print_separator("INDEXATION RAG - CRYPTO SENTIMENT")
+    log_separator("INDEXATION RAG - CRYPTO SENTIMENT")
 
     # =====================================================================
     # ETAPE 1: CHARGER LES DOCUMENTS
     # =====================================================================
-    print("📚 [1/5] Chargement des documents...")
-    logger.info("Début du chargement des documents")
+    logger.info("[1/5] Chargement des documents...")
 
     try:
         loader = DocumentLoader()
         documents = loader.load_all()
 
         if not documents:
-            logger.error("Aucun document chargé!")
-            print("ERREUR: Aucun document chargé!")
+            logger.error("Aucun document charge!")
             return False
 
         stats = loader.get_stats()
-        print(f" {len(documents)} documents chargés")
-        print(f"   Répartition:")
+        logger.info(f"{len(documents)} documents charges")
+        logger.info("Repartition:")
         for doc_type, count in stats.items():
-            print(f"      - {doc_type}: {count}")
+            logger.info(f"   - {doc_type}: {count}")
 
     except Exception as e:
         logger.error(f"Erreur chargement documents: {e}")
-        print(f"ERREUR: {e}")
         return False
 
     # =====================================================================
     # ETAPE 2: DÉCOUPER EN CHUNKS
     # =====================================================================
-    print("\n  [2/5] Découpage en chunks...")
-    logger.info("Début du chunking")
+    logger.info("[2/5] Decoupage en chunks...")
 
     try:
         chunker = DocumentChunker(chunk_size=500, overlap=50)
         chunks = chunker.chunk_all(documents)
 
         if not chunks:
-            logger.error(" Aucun chunk créé!")
-            print(" ERREUR: Aucun chunk créé!")
+            logger.error("Aucun chunk cree!")
             return False
 
         stats = chunker.get_stats(chunks)
-        print(f"   {stats['total_chunks']} chunks créés")
-        print(f"   Taille moyenne: {stats['avg_length']:.0f} caractères")
-        print(f"   Min: {stats['min_length']}, Max: {stats['max_length']}")
-        print(f"   Par type:")
+        logger.info(f"{stats['total_chunks']} chunks crees")
+        logger.info(f"Taille moyenne: {stats['avg_length']:.0f} caracteres")
+        logger.info(f"Min: {stats['min_length']}, Max: {stats['max_length']}")
+        logger.info("Par type:")
         for doc_type, count in stats['by_type'].items():
-            print(f"      - {doc_type}: {count} chunks")
+            logger.info(f"   - {doc_type}: {count} chunks")
 
     except Exception as e:
-        logger.error(f" Erreur chunking: {e}")
-        print(f"ERREUR: {e}")
+        logger.error(f"Erreur chunking: {e}")
         return False
 
     # =====================================================================
     # ETAPE 3: GÉNÉRER LES EMBEDDINGS
     # =====================================================================
-    print("\n[3/5] Génération des embeddings...")
-    logger.info("Début de la génération des embeddings")
+    logger.info("[3/5] Generation des embeddings...")
 
     try:
         embedding_service = get_embedding_service()
@@ -105,53 +98,45 @@ def run_indexation(clear_before=False):
             show_progress=True
         )
 
-        print(f"   ✓ {len(chunks_with_embeddings)} embeddings générés")
-        print(f"   Dimension: {embedding_service.get_dimension()}")
+        logger.info(f"{len(chunks_with_embeddings)} embeddings generes")
+        logger.info(f"Dimension: {embedding_service.get_dimension()}")
 
     except Exception as e:
         logger.error(f"Erreur embeddings: {e}")
-        print(f"ERREUR: {e}")
         return False
 
     # =====================================================================
     # ETAPE 4: CONNEXION À PINECONE
     # =====================================================================
-    print("\n🔌 [4/5] Connexion à Pinecone...")
-    logger.info("Connexion à Pinecone")
+    logger.info("[4/5] Connexion a Pinecone...")
 
     try:
         pinecone_service = get_pinecone_service()
-        logger.info(" Connecté à Pinecone")
-        print("    Connecté à Pinecone")
+        logger.info("Connecte a Pinecone")
 
     except Exception as e:
-        logger.error(f" Erreur connexion Pinecone: {e}")
-        print(f" ERREUR: {e}")
+        logger.error(f"Erreur connexion Pinecone: {e}")
         return False
 
     # =====================================================================
     # ETAPE 4b: SUPPRIMER ANCIENS VECTEURS SI DEMANDÉ
     # =====================================================================
     if clear_before:
-        print("\n🗑️  Suppression des anciens vecteurs...")
-        logger.warning("Suppression de l'index existant")
+        logger.warning("Suppression des anciens vecteurs...")
 
         try:
             pinecone_service.delete_all()
-            logger.info("✓ Index supprimé")
-            print("   ✓ Index supprimé")
+            logger.info("Index supprime")
             time.sleep(2)  # Attendre la suppression
 
         except Exception as e:
-            logger.error(f" Erreur suppression: {e}")
-            print(f"ERREUR: {e}")
+            logger.error(f"Erreur suppression: {e}")
             return False
 
     # =====================================================================
     # ETAPE 5: INDEXATION DANS PINECONE
     # =====================================================================
-    print("\n [5/5] Indexation dans Pinecone...")
-    logger.info("Début de l'indexation")
+    logger.info("[5/5] Indexation dans Pinecone...")
 
     try:
         num_indexed = pinecone_service.upsert_chunks(
@@ -159,11 +144,10 @@ def run_indexation(clear_before=False):
             batch_size=100
         )
 
-        print(f"   ✓ {num_indexed} vecteurs indexés")
+        logger.info(f"{num_indexed} vecteurs indexes")
 
     except Exception as e:
         logger.error(f"Erreur indexation: {e}")
-        print(f"ERREUR: {e}")
         return False
 
     # =====================================================================
@@ -175,20 +159,19 @@ def run_indexation(clear_before=False):
         stats = pinecone_service.get_stats()
         duration = time.time() - start_time
 
-        print_separator(" INDEXATION TERMINÉE")
-        print(f"  Total vecteurs: {stats['total_vectors']}")
-        print(f"  Dimension: {stats['dimension']}")
-        print(f"  Durée: {duration:.2f} secondes")
+        log_separator("INDEXATION TERMINEE")
+        logger.info(f"Total vecteurs: {stats['total_vectors']}")
+        logger.info(f"Dimension: {stats['dimension']}")
+        logger.info(f"Duree: {duration:.2f} secondes")
 
         if stats.get('namespaces'):
-            print(f"  Namespaces: {stats['namespaces']}")
+            logger.info(f"Namespaces: {stats['namespaces']}")
 
-        logger.info(f"✓ Indexation réussie: {stats['total_vectors']} vecteurs")
+        logger.info(f"Indexation reussie: {stats['total_vectors']} vecteurs")
         return True
 
     except Exception as e:
-        logger.error(f"Erreur récupération stats: {e}")
-        print(f" ERREUR: {e}")
+        logger.error(f"Erreur recuperation stats: {e}")
         return False
 
 
@@ -196,7 +179,7 @@ def test_search():
     """
     Teste la recherche après indexation
     """
-    print_separator(" TEST DE RECHERCHE")
+    log_separator("TEST DE RECHERCHE")
 
     try:
         embedding_service = get_embedding_service()
@@ -210,11 +193,10 @@ def test_search():
             "Analyse sentiment crypto",
         ]
 
-        logger.info("Début des tests de recherche")
+        logger.info("Debut des tests de recherche")
 
         for query in test_queries:
-            print(f"\n🔍 Query: \"{query}\"")
-            logger.info(f"Test query: {query}")
+            logger.info(f"Query: \"{query}\"")
 
             try:
                 # Générer l'embedding de la requête
@@ -226,32 +208,30 @@ def test_search():
                     top_k=3
                 )
 
-                print(f"   Résultats: {len(results)}")
+                logger.info(f"Resultats: {len(results)}")
 
                 if not results:
-                    print("  Aucun résultat trouvé")
+                    logger.warning("Aucun resultat trouve")
                     continue
 
                 for i, result in enumerate(results, 1):
-                    print(f"\n   [{i}] Score: {result['score']:.4f}")
-                    print(f"       Type: {result['metadata'].get('type', 'unknown')}")
-                    print(f"       Crypto: {result['metadata'].get('crypto', 'UNKNOWN')}")
-                    print(f"       Date: {result['metadata'].get('date', 'N/A')}")
+                    logger.info(f"[{i}] Score: {result['score']:.4f}")
+                    logger.info(f"    Type: {result['metadata'].get('type', 'unknown')}")
+                    logger.info(f"    Crypto: {result['metadata'].get('crypto', 'UNKNOWN')}")
+                    logger.info(f"    Date: {result['metadata'].get('date', 'N/A')}")
                     text_preview = result['text'][:100] + "..." if len(result['text']) > 100 else result['text']
-                    print(f"       Texte: {text_preview}")
+                    logger.info(f"    Texte: {text_preview}")
 
             except Exception as e:
                 logger.error(f"Erreur test query: {e}")
-                print(f"   ERREUR: {e}")
                 continue
 
-        logger.info("✓ Tests de recherche terminés")
-        print_separator("TESTS TERMINÉS")
+        logger.info("Tests de recherche termines")
+        log_separator("TESTS TERMINES")
         return True
 
     except Exception as e:
-        logger.error(f" Erreur test search: {e}")
-        print(f"\n ERREUR: {e}")
+        logger.error(f"Erreur test search: {e}")
         return False
 
 
@@ -305,20 +285,17 @@ Exemples:
 
             # Tests après indexation si demandé
             if success and args.test:
-                print("\n")
                 test_search()
 
         # Code de sortie
         sys.exit(0 if success else 1)
 
     except KeyboardInterrupt:
-        logger.warning("Indexation annulée par l'utilisateur")
-        print("\n\n⚠️  Indexation annulée par l'utilisateur")
+        logger.warning("Indexation annulee par l'utilisateur")
         sys.exit(1)
 
     except Exception as e:
-        logger.error(f" Erreur fatale: {e}")
-        print(f"\nERREUR FATALE: {e}")
+        logger.error(f"Erreur fatale: {e}")
         sys.exit(1)
 
 

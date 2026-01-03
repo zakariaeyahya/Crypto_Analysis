@@ -18,8 +18,7 @@ LOG_DIR = BACKEND_DIR / "logs"
 # Creer le dossier s'il n'existe pas
 try:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
-except Exception as e:
-    print(f"Warning: Could not create log directory: {e}")
+except Exception:
     LOG_DIR = Path(".")
 
 LOG_FILE = LOG_DIR / "rag.log"
@@ -59,8 +58,8 @@ if not logger.handlers:
         file_handler.setLevel(logging.INFO)
         logger.addHandler(file_handler)
         logger.info(f"Logging to file: {LOG_FILE}")
-    except Exception as e:
-        print(f"Warning: Could not create file handler: {e}")
+    except Exception:
+        pass  # Continue without file logging
 
 # =====================================================================
 # FONCTION POUR OBTENIR UN LOGGER ENFANT

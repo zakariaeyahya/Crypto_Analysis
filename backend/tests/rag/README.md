@@ -1,41 +1,25 @@
 # Tests RAG - Documentation
 
-## Structure des tests
+## Evaluation RAGAS
+
+Les tests du systeme RAG utilisent maintenant le module d'evaluation RAGAS.
+
+### Structure
 
 ```
-backend/tests/rag/
-├── README.md                 # Ce fichier
-├── run_all_tests.sh          # Exécute tous les tests
-│
-├── test_config.py            # Test configuration
-├── test_config.sh
-│
-├── test_document_loader.py   # Test chargement documents
-├── test_document_loader.sh
-│
-├── test_chunker.py           # Test découpage chunks
-├── test_chunker.sh
-│
-├── test_embedding.py         # Test service embedding
-├── test_embedding.sh
-│
-├── test_pinecone.py          # Test service Pinecone
-├── test_pinecone.sh
-│
-├── test_retriever.py         # Test service retrieval
-├── test_retriever.sh
-│
-├── test_llm.py               # Test service LLM
-├── test_llm.sh
-│
-├── test_rag_service.py       # Test pipeline RAG complet
-├── test_rag_service.sh
-│
-├── test_api_chat.py          # Test endpoints API
-└── test_api_chat.sh
+backend/
+├── app/rag/evaluation/           # Module d'evaluation
+│   ├── __init__.py
+│   ├── ragas_evaluator.py        # RAGASEvaluator + SimpleEvaluator
+│   └── test_dataset.py           # 26 questions de test
+├── scripts/
+│   ├── evaluate_rag.py           # Script d'evaluation
+│   ├── run_evaluation.sh         # Script bash
+│   └── run_evaluation.bat        # Script Windows
+└── evaluation_results/           # Resultats JSON
 ```
 
-## Prérequis
+## Prerequis
 
 1. **Variables d'environnement** (`.env` dans `backend/`):
 ```bash
@@ -45,171 +29,123 @@ LLM_PROVIDER=groq
 GROQ_API_KEY=gsk_xxx...
 ```
 
-2. **Dépendances Python**:
+2. **Dependances Python**:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. **Index Pinecone** (pour tests Pinecone/Retriever/RAG):
+3. **Index Pinecone** (si pas encore indexe):
 ```bash
 python scripts/index_documents.py --clear --test
 ```
 
-## Exécution des tests
+## Execution des tests
 
-### Tous les tests
+### Evaluation rapide (5 samples)
 ```bash
 cd backend
-bash tests/rag/run_all_tests.sh
+python scripts/evaluate_rag.py --quick
 ```
 
-### Tests individuels
+### Tester une question specifique
 ```bash
-cd backend
-
-# Configuration
-bash tests/rag/test_config.sh
-# ou
-python tests/rag/test_config.py
-
-# Document Loader
-bash tests/rag/test_document_loader.sh
-
-# Chunker
-bash tests/rag/test_chunker.sh
-
-# Embedding
-bash tests/rag/test_embedding.sh
-
-# Pinecone
-bash tests/rag/test_pinecone.sh
-
-# Retriever
-bash tests/rag/test_retriever.sh
-
-# LLM
-bash tests/rag/test_llm.sh
-
-# RAG Service
-bash tests/rag/test_rag_service.sh
-
-# API Chat (nécessite serveur lancé)
-bash tests/rag/test_api_chat.sh
+python scripts/evaluate_rag.py --query "Quel est le sentiment de Bitcoin?"
 ```
 
-### Test API (serveur requis)
-
-1. Lancer le serveur:
+### Statistiques du dataset
 ```bash
-cd backend
-uvicorn app.main:app --reload --port 8000
+python scripts/evaluate_rag.py --stats
 ```
 
-2. Dans un autre terminal:
+### Evaluation par categorie
 ```bash
-cd backend
-bash tests/rag/test_api_chat.sh
+python scripts/evaluate_rag.py --category comparison --samples 5
+python scripts/evaluate_rag.py --category correlation --samples 5
+python scripts/evaluate_rag.py --category sentiment_general --samples 5
 ```
 
-## Description des tests
+### Evaluation complete RAGAS
+```bash
+# Installer RAGAS d'abord
+pip install ragas datasets
 
-### test_config
-- Vérifie les variables d'environnement
-- Vérifie les chemins des fichiers de données
-- Vérifie le mapping des cryptos
-
-### test_document_loader
-- `load_posts()` - Posts Twitter/Reddit
-- `load_timeseries()` - Résumés quotidiens
-- `load_correlations()` - Analyses de corrélation
-- `load_lag_analysis()` - Analyses de lag
-- `load_prices()` - Prix historiques
-- `load_faq()` - FAQ statiques
-- `load_all()` - Tous les documents
-
-### test_chunker
-- Découpage de documents courts
-- Découpage de documents longs
-- Statistiques des chunks
-- Vérification taille maximale
-
-### test_embedding
-- Initialisation du modèle
-- `embed_text()` - Texte simple
-- `embed_texts_batch()` - Batch de textes
-- `embed_chunks()` - Chunks avec métadonnées
-- Vérification similarité sémantique
-
-### test_pinecone
-- Connexion à Pinecone
-- `get_stats()` - Statistiques index
-- `search()` - Recherche vectorielle
-- `search()` avec filtre crypto
-
-### test_retriever
-- `extract_crypto_from_query()` - Détection crypto
-- `build_filter()` - Construction filtres
-- `retrieve()` - Recherche documents
-- `retrieve_with_context()` - Contexte formaté
-- `retrieve_by_types()` - Recherche par type
-
-### test_llm
-- Vérification configuration
-- `is_available()` - Disponibilité
-- `generate()` - Génération simple
-- `generate()` avec system prompt
-- `generate_with_context()` - Avec contexte
-
-### test_rag_service
-- `health_check()` - Santé du système
-- `process_query()` - Pipeline complet
-- `get_quick_answer()` - Réponse rapide
-- `get_crypto_summary()` - Résumé crypto
-- `compare_cryptos()` - Comparaison
-- Vérification des sources
-
-### test_api_chat
-- `GET /api/chat/health` - Santé
-- `GET /api/chat/suggestions` - Suggestions
-- `POST /api/chat/` - Chat simple
-- `POST /api/chat/` - Avec filtre crypto
-- Validation message vide
-- Vérification sources
-
-## Résultats attendus
-
-```
-==========================================
-  RESUME FINAL
-==========================================
-
-  Tests passés: 8 / 8
-  Tests échoués: 0 / 8
-
-  ✓ TOUS LES TESTS SONT PASSES!
+# Lancer l'evaluation
+python scripts/evaluate_rag.py --full --samples 20
 ```
 
-## Dépannage
+## Categories de test
 
-### PINECONE_API_KEY non défini
+| Categorie | Description | Samples |
+|-----------|-------------|---------|
+| sentiment_general | Sentiment d'une crypto | 5 |
+| comparison | Comparaison entre cryptos | 4 |
+| correlation | Correlation sentiment/prix | 4 |
+| temporal | Evolution temporelle | 3 |
+| detailed | Analyses detaillees | 3 |
+| vague | Questions vagues (reformulation) | 4 |
+| faq | Questions frequentes | 3 |
+
+## Metriques
+
+### Mode Simple (Heuristiques)
+- `response_length` - Longueur de la reponse
+- `context_coverage` - Couverture du contexte
+- `question_relevance` - Pertinence a la question
+- `crypto_mention` - Mention des cryptos
+- `overall` - Score global
+
+### Mode RAGAS (si installe)
+- `faithfulness` - Fidelite aux documents
+- `answer_relevancy` - Pertinence de la reponse
+- `context_precision` - Precision du contexte
+
+## Resultats attendus
+
 ```
-Créez le fichier backend/.env avec:
+Score moyen: 0.716 (71.6%)
+
+Details par question:
+------------------------------------------------------------
+  Quel est le sentiment actuel de Bitcoin?      | 0.704
+  Compare le sentiment de Bitcoin et Ether...   | 0.672
+  Y a-t-il une correlation entre sentiment...   | 0.708
+  Quelle crypto a le meilleur sentiment?        | 0.748
+  Comment fonctionne le score de sentiment...   | 0.750
+```
+
+## Logs
+
+Les logs sont sauvegardes dans:
+```
+backend/logs/rag.log
+```
+
+Les resultats d'evaluation sont sauvegardes dans:
+```
+backend/evaluation_results/ragas_eval_YYYYMMDD_HHMMSS.json
+```
+
+## Depannage
+
+### PINECONE_API_KEY non defini
+```
+Creez le fichier backend/.env avec:
 PINECONE_API_KEY=pcsk_xxx...
 ```
 
 ### Index Pinecone vide
 ```
-Exécutez l'indexation:
+Executez l'indexation:
 python scripts/index_documents.py --clear
 ```
 
 ### LLM non disponible
 ```
-Vérifiez GROQ_API_KEY dans .env
-ou changez LLM_PROVIDER=ollama (local)
+Verifiez GROQ_API_KEY dans .env
 ```
 
-### Serveur non lancé (test API)
+### RAGAS non installe
 ```
-Lancez: uvicorn app.main:app --reload --port 8000
+pip install ragas datasets
+Le mode simple (heuristiques) sera utilise par defaut.
 ```

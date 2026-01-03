@@ -3,26 +3,29 @@ import os
 import numpy as np
 from pinecone import Pinecone
 from dotenv import load_dotenv
+from app.rag.logger import get_logger
 
 load_dotenv()
+
+logger = get_logger("test_pinecone")
 
 # Configuration
 api_key = os.getenv("PINECONE_API_KEY")
 index_name = os.getenv("PINECONE_INDEX_NAME")
 
-print("=== TEST FORMAT PINECONE V3+ ===")
+logger.info("=== TEST FORMAT PINECONE V3+ ===")
 
 pc = Pinecone(api_key=api_key)
 index = pc.Index(index_name)
 
 # Stats avant
 stats_before = index.describe_index_stats()
-print(f"Avant: {stats_before.total_vector_count} vecteurs")
+logger.info(f"Avant: {stats_before.total_vector_count} vecteurs")
 
 # Deux méthodes pour upsert :
 
 # 1. ANCIENNE MÉTHODE (ne marche plus)
-print("\n1. Test ancienne méthode (dict avec 'values'):")
+logger.info("1. Test ancienne methode (dict avec 'values'):")
 try:
     index.upsert(
         vectors=[{
@@ -31,12 +34,12 @@ try:
             "metadata": {"test": "old"}
         }]
     )
-    print("   ✅ Ancienne méthode marche")
+    logger.info("   Ancienne methode marche")
 except Exception as e:
-    print(f"   ❌ Erreur ancienne méthode: {e}")
+    logger.error(f"   Erreur ancienne methode: {e}")
 
 # 2. NOUVELLE MÉTHODE (tuples)
-print("\n2. Test nouvelle méthode (tuples):")
+logger.info("2. Test nouvelle methode (tuples):")
 try:
     index.upsert(
         vectors=[
@@ -47,17 +50,17 @@ try:
             )
         ]
     )
-    print("   ✅ Nouvelle méthode marche!")
-    
+    logger.info("   Nouvelle methode marche!")
+
     # Vérifier
     stats_after = index.describe_index_stats()
-    print(f"   Après: {stats_after.total_vector_count} vecteurs")
-    
+    logger.info(f"   Apres: {stats_after.total_vector_count} vecteurs")
+
     # Nettoyer
     index.delete(ids=["test_new_format"])
-    print("   🗑️  Vecteur nettoyé")
-    
-except Exception as e:
-    print(f"   ❌ Erreur nouvelle méthode: {e}")
+    logger.info("   Vecteur nettoye")
 
-print("\n=== FIN TEST ===")
+except Exception as e:
+    logger.error(f"   Erreur nouvelle methode: {e}")
+
+logger.info("=== FIN TEST ===")
