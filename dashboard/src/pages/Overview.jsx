@@ -73,8 +73,28 @@ export default function Overview() {
   }
 
   const sentimentValue = Math.round(sentiment.score * 100);
-  const sentimentColor = sentimentValue >= 50 ? '#10b981' : sentimentValue >= 30 ? '#f59e0b' : '#ef4444';
-  const sentimentLabel = sentimentValue >= 50 ? 'Positif' : sentimentValue >= 30 ? 'Neutre' : 'Negatif';
+
+  // Utiliser le label de l'API
+  const apiLabel = sentiment.label || 'Neutral';
+
+  // Mapper le label API vers la couleur
+  const getSentimentColor = (label) => {
+    const normalizedLabel = label.toLowerCase();
+    if (normalizedLabel === 'positive' || normalizedLabel === 'positif') return '#10b981';
+    if (normalizedLabel === 'negative' || normalizedLabel === 'negatif') return '#ef4444';
+    return '#f59e0b'; // Neutral
+  };
+
+  // Mapper le label API vers le français
+  const getSentimentLabelFr = (label) => {
+    const normalizedLabel = label.toLowerCase();
+    if (normalizedLabel === 'positive' || normalizedLabel === 'positif') return 'Positif';
+    if (normalizedLabel === 'negative' || normalizedLabel === 'negatif') return 'Négatif';
+    return 'Neutre';
+  };
+
+  const sentimentColor = getSentimentColor(apiLabel);
+  const sentimentLabel = getSentimentLabelFr(apiLabel);
 
   // Gauge calculations
   const circumference = 2 * Math.PI * 70;
