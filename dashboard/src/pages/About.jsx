@@ -1,138 +1,118 @@
 import React from 'react';
+import {
+  Server,
+  Layout,
+  Database,
+  Brain,
+  MessageSquare,
+  CheckCircle,
+  Download,
+  Settings,
+  TrendingUp,
+  BarChart3,
+  Linkedin,
+  Github,
+  Users,
+  Zap,
+  Target,
+  ArrowRight
+} from 'lucide-react';
+import { TEAM_MEMBERS, TECH_STACK, PIPELINE_STEPS, STATS } from '../constants/aboutConstants';
 import '../styles/about.css';
 
-const About = () => {
-  const teamMembers = [
-    {
-      id: 1,
-      name: 'KAYOUH Salaheddine',
-      role: 'Project Manager',
-      responsibilities: 'Planning, coordination, intégration',
-      color: '#FF6B6B'
-    },
-    {
-      id: 2,
-      name: 'YAHYA Zakariae',
-      role: 'Data Engineer',
-      responsibilities: 'Scraping, preprocessing',
-      color: '#4ECDC4'
-    },
-    {
-      id: 3,
-      name: 'EL OUMNI Nora',
-      role: 'Data Engineer',
-      responsibilities: 'Database, ETL',
-      color: '#45B7D1'
-    },
-    {
-      id: 4,
-      name: 'KHARFASSE Hiba',
-      role: 'NLP Engineer',
-      responsibilities: 'Modèles de sentiment',
-      color: '#FFA07A'
-    },
-    {
-      id: 5,
-      name: 'OUANAD Hafsa',
-      role: 'NLP Engineer',
-      responsibilities: 'Fine-tuning, évaluation',
-      color: '#98D8C8'
-    },
-    {
-      id: 6,
-      name: 'HIDA Mohammed',
-      role: 'Data Analyst',
-      responsibilities: 'Corrélations, statistiques',
-      color: '#F7DC6F'
-    },
-    {
-      id: 7,
-      name: 'KHAILA Imane',
-      role: 'Data Analyst',
-      responsibilities: 'Visualisations, insights',
-      color: '#BB8FCE'
-    },
-    {
-      id: 8,
-      name: 'BROUKI Aya',
-      role: 'DevOps Engineer',
-      responsibilities: 'Dashboard, déploiement',
-      color: '#85C1E2'
-    }
-  ];
+const iconMap = {
+  Server, Layout, Database, Brain, MessageSquare, CheckCircle,
+  Download, Settings, TrendingUp, BarChart3
+};
 
-  const techStack = [
-    { category: 'Backend', tech: ['Python', 'FastAPI', 'Airflow'] },
-    { category: 'Frontend', tech: ['React', 'JavaScript', 'Recharts'] },
-    { category: 'Data Processing', tech: ['Pandas', 'NumPy', 'Scikit-learn'] },
-    { category: 'NLP & ML', tech: ['Transformers', 'FinBERT', 'PyTorch'] },
-    { category: 'RAG Chatbot', tech: ['Pinecone', 'Groq LLM', 'LangChain'] },
-    { category: 'Evaluation', tech: ['RAGAS', 'Sentence-Transformers'] }
-  ];
+const About = () => {
+  const getIcon = (iconName, size = 24) => {
+    const IconComponent = iconMap[iconName];
+    return IconComponent ? <IconComponent size={size} /> : null;
+  };
 
   return (
-    <div className="about-container">
-      {/* Header Section */}
-      <section className="about-header">
-        <h1>À Propos du Projet</h1>
-        <p className="tagline">Analyse avancée du sentiment et corrélation avec les prix des cryptomonnaies</p>
-      </section>
-
-      {/* Project Description */}
-      <section className="project-description">
-        <div className="description-content">
-          <h2>Présentation du Projet</h2>
-          <p>
-            Crypto_Analysis est une plateforme complète d'analyse de sentiment et de corrélation avec les prix des cryptomonnaies.
-            Notre projet combine l'extraction de données en temps réel, le traitement du langage naturel avancé et l'analyse statistique
-            pour fournir des insights profonds sur les mouvements du marché des cryptomonnaies.
+    <div className="about-page">
+      {/* Hero Section */}
+      <section className="hero-section">
+        <div className="hero-content">
+          <div className="hero-badge">Projet TALN 2024</div>
+          <h1 className="hero-title">
+            Crypto Sentiment
+            <span className="gradient-text"> Analysis</span>
+          </h1>
+          <p className="hero-description">
+            Plateforme d'analyse de sentiment des cryptomonnaies combinant
+            NLP avance, recherche vectorielle et LLM pour des insights en temps reel.
           </p>
-          <p>
-            En utilisant des modèles NLP sophistiqués comme FinBERT, nous analysons les sentiments exprimés sur Twitter et Reddit
-            pour déterminer leur impact sur les prix de Bitcoin, Ethereum et Solana.
-          </p>
-          <p>
-            Le projet inclut un chatbot RAG (Retrieval-Augmented Generation) intelligent qui permet aux utilisateurs de poser
-            des questions en langage naturel sur le sentiment des cryptos. Le système utilise Pinecone pour la recherche vectorielle
-            et Groq LLM (Llama 3.3 70B) pour générer des réponses contextuelles.
-          </p>
-          <div className="features-grid">
-            <div className="feature-box">
-              <h3>🔍 Extraction de Données</h3>
-              <p>Collecte de données depuis Twitter et Reddit via API</p>
-            </div>
-            <div className="feature-box">
-              <h3>🧠 Analyse NLP</h3>
-              <p>Modèles FinBERT fine-tunés pour le sentiment crypto</p>
-            </div>
-            <div className="feature-box">
-              <h3>📊 Corrélation Prix/Sentiment</h3>
-              <p>Analyse Pearson et lag temporel</p>
-            </div>
-            <div className="feature-box">
-              <h3>📈 Dashboard Interactif</h3>
-              <p>Visualisations temps réel avec Recharts</p>
-            </div>
-            <div className="feature-box">
-              <h3>🤖 Chatbot RAG</h3>
-              <p>Assistant IA avec Pinecone + Groq LLM</p>
-            </div>
-            <div className="feature-box">
-              <h3>📝 Evaluation RAGAS</h3>
-              <p>Métriques de qualité: Faithfulness, Relevancy</p>
-            </div>
+          <div className="hero-stats">
+            {STATS.map((stat, index) => (
+              <div key={index} className="stat-item">
+                <span className="stat-value">{stat.value}</span>
+                <span className="stat-label">{stat.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="hero-visual">
+          <div className="floating-card card-1">
+            <TrendingUp size={20} />
+            <span>BTC +2.4%</span>
+          </div>
+          <div className="floating-card card-2">
+            <Brain size={20} />
+            <span>Sentiment: Positif</span>
+          </div>
+          <div className="floating-card card-3">
+            <MessageSquare size={20} />
+            <span>RAG Active</span>
           </div>
         </div>
       </section>
 
+      {/* Pipeline Section */}
+      <section className="pipeline-section">
+        <div className="section-header">
+          <Zap className="section-icon" size={28} />
+          <h2>Notre Pipeline</h2>
+          <p>Du scraping a la visualisation en 5 etapes</p>
+        </div>
+        <div className="pipeline-container">
+          {PIPELINE_STEPS.map((step, index) => (
+            <React.Fragment key={step.step}>
+              <div className="pipeline-step">
+                <div className="step-number">{step.step}</div>
+                <div className="step-icon">
+                  {getIcon(step.icon, 28)}
+                </div>
+                <h3>{step.title}</h3>
+                <p>{step.description}</p>
+              </div>
+              {index < PIPELINE_STEPS.length - 1 && (
+                <div className="pipeline-arrow">
+                  <ArrowRight size={24} />
+                </div>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+      </section>
+
       {/* Tech Stack Section */}
-      <section className="tech-stack">
-        <h2>Stack Technique</h2>
-        <div className="stack-grid">
-          {techStack.map((stack, index) => (
-            <div key={index} className="stack-card">
+      <section className="tech-section">
+        <div className="section-header">
+          <Target className="section-icon" size={28} />
+          <h2>Stack Technique</h2>
+          <p>Technologies modernes pour des performances optimales</p>
+        </div>
+        <div className="tech-grid">
+          {TECH_STACK.map((stack, index) => (
+            <div key={index} className="tech-card">
+              <div className="tech-icon">
+                {getIcon(stack.icon, 32)}
+              </div>
               <h3>{stack.category}</h3>
-              <div className="tech-list">
+              <div className="tech-tags">
                 {stack.tech.map((tech, idx) => (
                   <span key={idx} className="tech-tag">{tech}</span>
                 ))}
@@ -144,19 +124,56 @@ const About = () => {
 
       {/* Team Section */}
       <section className="team-section">
-        <h2>Notre Équipe</h2>
-        <p className="team-intro">8 experts passionnés par les données et l'innovation</p>
+        <div className="section-header">
+          <Users className="section-icon" size={28} />
+          <h2>Notre Equipe</h2>
+          <p>8 experts passionnes par les donnees et l'IA</p>
+        </div>
         <div className="team-grid">
-          {teamMembers.map((member) => (
-            <div key={member.id} className="team-card" style={{ '--card-color': member.color }}>
-              <div className="member-avatar" style={{ backgroundColor: member.color }}>
-                <span className="avatar-initials">{member.name.split(' ')[0][0]}{member.name.split(' ')[1]?.[0] || member.id}</span>
+          {TEAM_MEMBERS.map((member) => (
+            <div key={member.id} className="team-card">
+              <div className="member-image-container">
+                {member.image ? (
+                  <img src={member.image} alt={member.name} className="member-image" />
+                ) : (
+                  <div className="member-placeholder">
+                    {member.name.split(' ').map(n => n[0]).join('')}
+                  </div>
+                )}
+                <div className="member-overlay">
+                  {member.linkedin && (
+                    <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="social-link" aria-label="LinkedIn">
+                      <Linkedin size={20} />
+                    </a>
+                  )}
+                  {member.github && (
+                    <a href={member.github} target="_blank" rel="noopener noreferrer" className="social-link" aria-label="GitHub">
+                      <Github size={20} />
+                    </a>
+                  )}
+                </div>
               </div>
-              <h3 className="member-name">{member.name}</h3>
-              <p className="member-role">{member.role}</p>
-              <p className="member-responsibilities">{member.responsibilities}</p>
+              <div className="member-info">
+                <h3>{member.name}</h3>
+                <span className="member-role">{member.role}</span>
+                <p className="member-resp">{member.responsibilities}</p>
+              </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Footer CTA */}
+      <section className="cta-section">
+        <div className="cta-content">
+          <h2>Explorez le Dashboard</h2>
+          <p>Decouvrez nos analyses de sentiment en temps reel</p>
+          <div className="cta-buttons">
+            <a href="/" className="cta-btn primary">
+              <BarChart3 size={20} />
+              Voir le Dashboard
+            </a>
+          </div>
         </div>
       </section>
     </div>
