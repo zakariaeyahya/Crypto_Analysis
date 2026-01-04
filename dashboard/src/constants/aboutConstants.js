@@ -11,8 +11,8 @@ export const TEAM_MEMBERS = [
   {
     id: 1,
     name: 'KAYOUH Salaheddine',
-    role: 'Project Manager',
-    responsibilities: 'Planning, coordination, integration',
+    role: 'Project Manager & Team Lead',
+    responsibilities: 'Project management, Agile, coordination, intégration',
     image: KayouhSalah,
     linkedin: 'https://www.linkedin.com/in/salaheddine-kayouh/',
     github: 'https://github.com/771salameche'
@@ -21,7 +21,7 @@ export const TEAM_MEMBERS = [
     id: 2,
     name: 'YAHYA Zakariae',
     role: 'Data Engineer',
-    responsibilities: 'Scraping, preprocessing',
+    responsibilities: 'Scraping, data preprocessing, RAG, fine-tuning',
     image: YAHYAZakariae,
     linkedin: 'https://www.linkedin.com/in/zakariae-yahya/',
     github: 'https://github.com/zakariaeyahya'
@@ -29,8 +29,8 @@ export const TEAM_MEMBERS = [
   {
     id: 3,
     name: 'EL OUMNI Nora',
-    role: 'Data Engineer',
-    responsibilities: 'Database, ETL',
+    role: 'Data Analyst',
+    responsibilities: 'Correlation analysis, statistics, market sentiment',
     image: ELOUMNINora,
     linkedin: 'https://www.linkedin.com/in/nora-el-oumni/',
     github: 'https://github.com/Noraoum'
@@ -39,7 +39,7 @@ export const TEAM_MEMBERS = [
     id: 4,
     name: 'KHARFASSE Hiba',
     role: 'NLP Engineer',
-    responsibilities: 'Modeles de sentiment',
+    responsibilities: 'Sentiment analysis, NLP pipelines, text classification',
     image: KHARFASSEHiba,
     linkedin: 'https://www.linkedin.com/in/kharfasse-hiba-344250316/',
     github: 'https://github.com/HibvKh'
@@ -48,7 +48,7 @@ export const TEAM_MEMBERS = [
     id: 5,
     name: 'OUANAD Hafsa',
     role: 'NLP Engineer',
-    responsibilities: 'Fine-tuning, evaluation',
+    responsibilities: 'Sentiment analysis, NLP pipelines, model evaluation',
     image: OUANADHafsa,
     linkedin: 'https://www.linkedin.com/in/hafsa-ouanad-383860301/',
     github: 'https://github.com/Hafsawnd'
@@ -57,7 +57,7 @@ export const TEAM_MEMBERS = [
     id: 6,
     name: 'HIDA Mohammed',
     role: 'Data Analyst',
-    responsibilities: 'Correlations, statistiques',
+    responsibilities: 'Correlation analysis, statistics, anomaly detection',
     image: null,
     linkedin: null,
     github: null
@@ -65,8 +65,8 @@ export const TEAM_MEMBERS = [
   {
     id: 7,
     name: 'KHAILA Imane',
-    role: 'Data Analyst',
-    responsibilities: 'Visualisations, insights',
+    role: 'DevOps Engineer',
+    responsibilities: 'Dashboards, data visualization, reporting',
     image: KHAILAImane,
     linkedin: 'https://www.linkedin.com/in/imane-khaila-a680b42a1/',
     github: 'https://github.com/imanekh02'
@@ -75,7 +75,7 @@ export const TEAM_MEMBERS = [
     id: 8,
     name: 'BROUKI Aya',
     role: 'DevOps Engineer',
-    responsibilities: 'Dashboard, deploiement',
+    responsibilities: 'Dashboards, data visualization, reporting',
     image: BROUKIAya,
     linkedin: 'https://www.linkedin.com/in/aya-brouki-783709294/',
     github: 'https://github.com/Aya943-br'
