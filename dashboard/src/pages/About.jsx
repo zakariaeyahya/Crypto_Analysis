@@ -36,7 +36,7 @@ const About = () => {
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-content">
-          <div className="hero-badge">Projet TALN 2024</div>
+          <div className="hero-badge">Projet TALN 2025</div>
           <h1 className="hero-title">
             Crypto Sentiment
             <span className="gradient-text"> Analysis</span>
