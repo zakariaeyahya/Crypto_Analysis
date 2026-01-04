@@ -13,111 +13,144 @@ export const TEAM_MEMBERS = [
     name: 'KAYOUH Salaheddine',
     role: 'Project Manager',
     responsibilities: 'Planning, coordination, integration',
-    color: '#FF6B6B',
-    image: KayouhSalah
+    image: KayouhSalah,
+    linkedin: 'https://www.linkedin.com/in/salaheddine-kayouh/',
+    github: 'https://github.com/771salameche'
   },
   {
     id: 2,
     name: 'YAHYA Zakariae',
     role: 'Data Engineer',
     responsibilities: 'Scraping, preprocessing',
-    color: '#4ECDC4',
-    image: YAHYAZakariae
+    image: YAHYAZakariae,
+    linkedin: 'https://www.linkedin.com/in/zakariae-yahya/',
+    github: 'https://github.com/zakariaeyahya'
   },
   {
     id: 3,
     name: 'EL OUMNI Nora',
     role: 'Data Engineer',
     responsibilities: 'Database, ETL',
-    color: '#45B7D1',
-    image: ELOUMNINora
+    image: ELOUMNINora,
+    linkedin: 'https://www.linkedin.com/in/nora-el-oumni/',
+    github: 'https://github.com/Noraoum'
   },
   {
     id: 4,
     name: 'KHARFASSE Hiba',
     role: 'NLP Engineer',
     responsibilities: 'Modeles de sentiment',
-    color: '#FFA07A',
-    image: KHARFASSEHiba
+    image: KHARFASSEHiba,
+    linkedin: 'https://www.linkedin.com/in/kharfasse-hiba-344250316/',
+    github: 'https://github.com/HibvKh'
   },
   {
     id: 5,
     name: 'OUANAD Hafsa',
     role: 'NLP Engineer',
     responsibilities: 'Fine-tuning, evaluation',
-    color: '#98D8C8',
-    image: OUANADHafsa
+    image: OUANADHafsa,
+    linkedin: 'https://www.linkedin.com/in/hafsa-ouanad-383860301/',
+    github: 'https://github.com/Hafsawnd'
   },
   {
     id: 6,
     name: 'HIDA Mohammed',
     role: 'Data Analyst',
     responsibilities: 'Correlations, statistiques',
-    color: '#F7DC6F',
-    image: null
+    image: null,
+    linkedin: null,
+    github: null
   },
   {
     id: 7,
     name: 'KHAILA Imane',
     role: 'Data Analyst',
     responsibilities: 'Visualisations, insights',
-    color: '#BB8FCE',
-    image: KHAILAImane
+    image: KHAILAImane,
+    linkedin: 'https://www.linkedin.com/in/imane-khaila-a680b42a1/',
+    github: 'https://github.com/imanekh02'
   },
   {
     id: 8,
     name: 'BROUKI Aya',
     role: 'DevOps Engineer',
     responsibilities: 'Dashboard, deploiement',
-    color: '#85C1E2',
-    image: BROUKIAya
+    image: BROUKIAya,
+    linkedin: 'https://www.linkedin.com/in/aya-brouki-783709294/',
+    github: 'https://github.com/Aya943-br'
   }
 ];
 
 export const TECH_STACK = [
-  { category: 'Backend', tech: ['Python', 'FastAPI', 'Airflow'] },
-  { category: 'Frontend', tech: ['React', 'JavaScript', 'Recharts'] },
-  { category: 'Data Processing', tech: ['Pandas', 'NumPy', 'Scikit-learn'] },
-  { category: 'NLP & ML', tech: ['Transformers', 'FinBERT', 'PyTorch'] },
-  { category: 'RAG Chatbot', tech: ['Pinecone', 'Groq LLM', 'LangChain'] },
-  { category: 'Evaluation', tech: ['RAGAS', 'Sentence-Transformers'] }
-];
-
-export const FEATURES = [
   {
-    icon: '🔍',
-    title: 'Extraction de Donnees',
-    description: 'Collecte de donnees depuis Twitter et Reddit via API'
+    category: 'Backend',
+    tech: ['Python', 'FastAPI', 'Airflow'],
+    icon: 'Server'
   },
   {
-    icon: '🧠',
-    title: 'Analyse NLP',
-    description: 'Modeles FinBERT fine-tunes pour le sentiment crypto'
+    category: 'Frontend',
+    tech: ['React', 'JavaScript', 'Recharts'],
+    icon: 'Layout'
   },
   {
-    icon: '📊',
-    title: 'Correlation Prix/Sentiment',
-    description: 'Analyse Pearson et lag temporel'
+    category: 'Data Processing',
+    tech: ['Pandas', 'NumPy', 'Scikit-learn'],
+    icon: 'Database'
   },
   {
-    icon: '📈',
-    title: 'Dashboard Interactif',
-    description: 'Visualisations temps reel avec Recharts'
+    category: 'NLP & ML',
+    tech: ['Transformers', 'FinBERT', 'PyTorch'],
+    icon: 'Brain'
   },
   {
-    icon: '🤖',
-    title: 'Chatbot RAG',
-    description: 'Assistant IA avec Pinecone + Groq LLM'
+    category: 'RAG Chatbot',
+    tech: ['Pinecone', 'Groq LLM', 'LangChain'],
+    icon: 'MessageSquare'
   },
   {
-    icon: '📝',
-    title: 'Evaluation RAGAS',
-    description: 'Metriques de qualite: Faithfulness, Relevancy'
+    category: 'Evaluation',
+    tech: ['RAGAS', 'Sentence-Transformers'],
+    icon: 'CheckCircle'
   }
 ];
 
-export const PROJECT_INFO = {
-  title: 'A Propos du Projet',
-  tagline: 'Analyse avancee du sentiment et correlation avec les prix des cryptomonnaies',
-  teamIntro: '8 experts passionnes par les donnees et l\'innovation'
-};
+export const PIPELINE_STEPS = [
+  {
+    step: 1,
+    title: 'Collecte',
+    description: 'Scraping Twitter & Reddit',
+    icon: 'Download'
+  },
+  {
+    step: 2,
+    title: 'Traitement',
+    description: 'Nettoyage & preprocessing',
+    icon: 'Settings'
+  },
+  {
+    step: 3,
+    title: 'Analyse NLP',
+    description: 'FinBERT sentiment analysis',
+    icon: 'Brain'
+  },
+  {
+    step: 4,
+    title: 'Correlation',
+    description: 'Prix vs Sentiment',
+    icon: 'TrendingUp'
+  },
+  {
+    step: 5,
+    title: 'Visualisation',
+    description: 'Dashboard interactif',
+    icon: 'BarChart3'
+  }
+];
+
+export const STATS = [
+  { value: '26K+', label: 'Documents indexes' },
+  { value: '3', label: 'Cryptomonnaies' },
+  { value: '95%', label: 'Precision NLP' },
+  { value: '24/7', label: 'Monitoring' }
+];
