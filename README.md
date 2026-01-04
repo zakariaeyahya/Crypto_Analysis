@@ -1,6 +1,6 @@
 # Crypto Sentiment Analysis
 
-Plateforme d'analyse de sentiment des cryptomonnaies (Bitcoin, Ethereum, Solana) basée sur les données Twitter et Reddit, avec un **chatbot RAG intelligent** incluant mémoire conversationnelle et reformulation de requêtes.
+Plateforme d'analyse de sentiment des cryptomonnaies (Bitcoin, Ethereum, Solana) basée sur les données Reddit et Kaggle, avec un **chatbot RAG intelligent** incluant mémoire conversationnelle et reformulation de requêtes.
 
 ## Architecture
 
@@ -25,6 +25,13 @@ Plateforme d'analyse de sentiment des cryptomonnaies (Bitcoin, Ethereum, Solana)
 - **Mémoire conversationnelle** - Le chatbot garde le contexte (10 messages, 30 min)
 - **Reformulation automatique** - Requêtes vagues enrichies ("Pourquoi?" → question complète)
 - **Évaluation RAGAS** - Métriques de qualité du système RAG
+
+## Outils de Développement
+
+- **IDE** : VS Code avec extensions (Claude Code, Pylint, ESLint)
+- **Versioning** : Git + GitHub
+- **Gestion de projet** : Trello
+- **Communication** : Discord et Google Meet
 
 ## Quick Start
 
@@ -87,16 +94,32 @@ Crypto_Analysis/
 │   │   ├── index_documents.py  # Indexation Pinecone
 │   │   └── evaluate_rag.py     # Évaluation RAGAS
 │   └── requirements.txt
+│
 ├── dashboard/                  # Frontend React
 │   └── src/
 │       ├── api/index.js        # Appels API
 │       ├── components/
 │       │   └── Chatbot.jsx     # Chatbot avec mémoire
 │       └── pages/              # Overview, Timeline, Analysis, Events
+│
+├── extraction/                 # Module extraction données
+│   ├── models/                 # Configuration et validation
+│   └── services/
+│       ├── reddit_extractor.py # Extraction Reddit (PRAW)
+│       └── kaggle_downloader.py # Téléchargement Kaggle
+│
+├── data_cleaning/              # Nettoyage des données
+├── data_consolidation/         # Consolidation multi-sources
+├── data_enri/                  # Enrichissement NER
+├── Finetuning/                 # Fine-tuning du modèle
+├── fetch_crypto_data/          # Récupération prix (Yahoo Finance)
+├── docker/                     # Configuration Docker/Airflow
+│
 ├── data/
-│   ├── bronze/                 # Données brutes (prix CSV)
-│   ├── silver/                 # Données enrichies (posts)
-│   └── gold/                   # Données analysées (sentiment)
+│   ├── bronze/                 # Données brutes (prix CSV, Reddit, Kaggle)
+│   ├── silver/                 # Données nettoyées et enrichies
+│   └── gold/                   # Données analysées (sentiment, corrélation)
+│
 ├── CLAUDE.md                   # Guide développeur complet
 └── README.md                   # Ce fichier
 ```
@@ -134,10 +157,10 @@ User: "Quel est le sentiment de Bitcoin?"
 Bot: "Le sentiment BTC est positif à 0.67..."
 
 User: "Et pour Ethereum?"
-Bot: "Le sentiment ETH est à 0.55, moins positif que Bitcoin." ✓
+Bot: "Le sentiment ETH est à 0.55, moins positif que Bitcoin."
 
 User: "Pourquoi?"
-Bot: "Bitcoin bénéficie d'une perception plus favorable car..." ✓
+Bot: "Bitcoin bénéficie d'une perception plus favorable car..."
 ```
 
 ### Reformulation Automatique
@@ -204,12 +227,26 @@ Quelle crypto a le meilleur sentiment?          | 0.775
 
 ### Frontend
 - **React 18** - Framework UI
+- **React Router v6** - Navigation
+- **React Context** - Gestion d'état
 - **Recharts** - Graphiques
-- **React Router** - Navigation
+- **Lucide React** - Icônes
 
 ### ML/NLP
 - **Hugging Face Transformers** - Modèles NLP
+- **RoBERTa** - Analyse de sentiment
+- **spaCy** - NER
 - **PyTorch** - Deep Learning
+
+### Data
+- **PRAW** - API Reddit
+- **yfinance** - Yahoo Finance
+- **kagglehub** - Datasets Kaggle
+- **pandas** - Traitement de données
+
+### Infrastructure
+- **Apache Airflow 2.8.1** - Orchestration
+- **Docker** - Containerisation
 
 ## Tests
 
@@ -228,7 +265,6 @@ python scripts/evaluate_rag.py --quick
 ## Documentation
 
 - [CLAUDE.md](CLAUDE.md) - Guide développeur complet
-- [PR_DESCRIPTION.txt](PR_DESCRIPTION.txt) - Description des changements
 
 ## Cryptomonnaies Supportées
 
@@ -238,6 +274,19 @@ python scripts/evaluate_rag.py --quick
 | ETH | Ethereum |
 | SOL | Solana |
 
+## Équipe
+
+| Nom | Email |
+|-----|-------|
+| YAHYA Zakariae | zakariae.yahya@etu.uae.ac.ma |
+| KAYOUH Salaheddine | kayouh.salaheddine@etu.uae.ac.ma |
+| KHAILA Imane | imane.khaila@etu.uae.ac.ma |
+| ELOUMNI Nora | eloumni.nora@etu.uae.ac.ma |
+| BROUKI Aya | Brouki.aya@etu.uae.ac.ma |
+| KHARFASSE Hiba | Kharfasse.hiba@etu.uae.ac.ma |
+| OUANAD Hafsa | hafsa.ouanad@etu.uae.ac.ma |
+| HIDA Mohamed | hida.mohamed@etu.uae.ac.ma |
+
 ## License
 
-MIT License - voir [LICENSE](LICENSE)
+MIT License
