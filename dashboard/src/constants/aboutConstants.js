@@ -6,7 +6,7 @@ import KHARFASSEHiba from '../assets/photo/KHARFASSEHiba.png';
 import KayouhSalah from '../assets/photo/KAYOUHSalaheddine.png';
 import OUANADHafsa from '../assets/photo/OUANADHafsa.png';
 import YAHYAZakariae from '../assets/photo/YAHYAZakariae.png';
-
+import HIDAMohamed from '../assets/photo/HIDAMohamed.png';
 export const TEAM_MEMBERS = [
   {
     id: 1,
@@ -55,10 +55,10 @@ export const TEAM_MEMBERS = [
   },
   {
     id: 6,
-    name: 'HIDA Mohammed',
+    name: 'HIDA Mohamed',
     role: 'Data Analyst',
     responsibilities: 'Correlation analysis, statistics, anomaly detection',
-    image: null,
+    image: HIDAMohamed,
     linkedin: null,
     github: null
   },
