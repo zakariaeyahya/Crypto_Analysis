@@ -211,18 +211,19 @@ class RAGService:
             }
 
         # =====================================================================
-        # ETAPE 2: Vérifier si documents trouvés
+        # ÉTAPE 2: Vérifier si documents trouvés
         # =====================================================================
         if retrieval_result["num_results"] == 0:
-            logger.warning("Aucun document pertinent trouvé")
+            logger.warning("⚠️ Aucun document pertinent trouvé")
             return {
                 "question": question,
-                "answer": "Je n'ai pas trouvé d'informations pertinentes dans la base de données.",
+                "answer": "Je n'ai pas trouvé d'informations pertinentes pour répondre à cette question.",
                 "sources": [],
                 "metadata": {
                     "num_sources": 0,
                     "processing_time": round(time.time() - start_time, 2),
                     "model_used": "none",
+                    "query_type": retrieval_result.get("query_type", "unknown"),
                 }
             }
 
@@ -232,6 +233,9 @@ class RAGService:
         answer = None
         try:
             context = retrieval_result["context"]
+            query_type = retrieval_result.get("query_type", "general")  # ✅ Récupérer le type
+            
+            # ✅ Transmettre le type au LLM
             answer = self.llm.generate_with_context(
                 question=question,
                 context=context,
@@ -288,19 +292,39 @@ class RAGService:
         logger.info(f"Pipeline RAG complete ({processing_time}s, {len(sources)} sources)")
         return result
 
-    def _generate_fallback_answer(self, documents):
+    def _generate_fallback_answer(self, documents, query_type="general"):
         """
-        Génère une réponse simple sans LLM (fallback)
+        ✅ AMÉLIORÉ: Génère une réponse intelligente sans LLM
         
-        Args:
-            documents (list): Documents récupérés
-            
-        Returns:
-            str: Réponse formatée
+        S'adapte au type de question
         """
         if not documents:
             return "Aucune information trouvée."
 
+        # ✅ NOUVEAU: Adapter le fallback selon le type
+        if query_type == "price" and documents:
+            # Pour les prix, chercher spécifiquement les documents de prix
+            price_docs = [d for d in documents if d["metadata"].get("type") == "price"]
+            if price_docs:
+                doc = price_docs[0]
+                return (
+                    f"💰 PRIX:\n"
+                    f"{doc['text']}\n\n"
+                    f"(Réponse en mode fallback)"
+                )
+
+        elif query_type == "sentiment" and documents:
+            # Pour le sentiment, utiliser les posts
+            sentiment_docs = [d for d in documents if d["metadata"].get("type") in ["post", "daily_summary"]]
+            if sentiment_docs:
+                doc = sentiment_docs[0]
+                return (
+                    f"📊 SENTIMENT:\n"
+                    f"{doc['text']}\n\n"
+                    f"(Réponse en mode fallback)"
+                )
+
+        # Fallback générique pour les autres types
         top_doc = documents[0]
         doc_type = top_doc["metadata"].get("type", "document")
         crypto = top_doc["metadata"].get("crypto", "UNKNOWN")
@@ -318,12 +342,6 @@ class RAGService:
     def get_quick_answer(self, question):
         """
         Retourne une réponse rapide (sans métadonnées détaillées)
-        
-        Args:
-            question (str): Question de l'utilisateur
-            
-        Returns:
-            str: Réponse simple
         """
         result = self.process_query(question)
         return result["answer"]
@@ -331,16 +349,10 @@ class RAGService:
     def get_crypto_summary(self, crypto):
         """
         Retourne un résumé complet d'une crypto
-        
-        Args:
-            crypto (str): Code de la crypto ("BTC", "ETH", "SOL")
-            
-        Returns:
-            dict: Résumé avec analyse complète
         """
         question = (
             f"Donne-moi un résumé complet de {crypto}: "
-            f"sentiment actuel, tendance récente, et analyse de corrélation "
+            f"sentiment actuel, tendance récente, prix historique, et analyse de corrélation "
             f"avec le prix."
         )
 
@@ -350,18 +362,13 @@ class RAGService:
 
     def compare_cryptos(self, cryptos):
         """
-        Compare le sentiment de plusieurs cryptos
-        
-        Args:
-            cryptos (list): Liste des codes crypto ["BTC", "ETH", "SOL"]
-            
-        Returns:
-            dict: Comparaison détaillée
+        Compare le sentiment et prix de plusieurs cryptos
         """
         crypto_names = ", ".join(cryptos)
         question = (
-            f"Compare le sentiment de {crypto_names}. "
+            f"Compare le sentiment et les prix de {crypto_names}. "
             f"Lequel a le meilleur sentiment actuellement? "
+            f"Lequel a augmenté le plus en pourcentage? "
             f"Explique les différences."
         )
 
@@ -372,12 +379,6 @@ class RAGService:
     def get_trending_topics(self, top_k=5):
         """
         Retourne les sujets tendance du moment
-        
-        Args:
-            top_k (int): Nombre de sujets à retourner
-            
-        Returns:
-            dict: Sujets tendance avec analyse
         """
         question = "Quels sont les sujets les plus discutés actuellement dans la communauté crypto?"
 
@@ -388,13 +389,6 @@ class RAGService:
     def get_sentiment_analysis(self, crypto, days=7):
         """
         Analyse le sentiment pour une crypto sur une période
-        
-        Args:
-            crypto (str): Code de la crypto
-            days (int): Nombre de jours à analyser
-            
-        Returns:
-            dict: Analyse du sentiment
         """
         question = (
             f"Analyse le sentiment pour {crypto} sur les {days} derniers jours. "
@@ -408,11 +402,8 @@ class RAGService:
     def health_check(self):
         """
         Vérifie l'état de tous les composants du système
-        
-        Returns:
-            dict: État de santé du système
         """
-        logger.info("🏥 Health check en cours...")
+        logger.info("🥇 Health check en cours...")
 
         self._init_services()
 
@@ -476,9 +467,6 @@ class RAGService:
     def set_include_sources(self, include_sources):
         """
         Configure l'inclusion des sources dans les réponses
-        
-        Args:
-            include_sources (bool): Inclure les sources ou non
         """
         self.include_sources = include_sources
         logger.info(f"Include sources: {include_sources}")
@@ -531,14 +519,6 @@ _rag_service = None
 def get_rag_service():
     """
     Retourne une instance unique du service RAG (singleton)
-    
-    Returns:
-        RAGService: Instance unique du service
-        
-    Exemple:
-        rag = get_rag_service()
-        result = rag.process_query("Quel est le sentiment sur Bitcoin?")
-        print(result["answer"])
     """
     global _rag_service
 

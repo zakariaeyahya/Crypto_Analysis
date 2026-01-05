@@ -29,7 +29,13 @@ def log_separator(title=""):
 
 def run_indexation(clear_before=False):
     """
-    Exécute le pipeline d'indexation complet
+    ✅ CORRIGÉ: Exécute le pipeline d'indexation complet
+    
+    AMÉLIORATIONS:
+    - Vérification des résultats à chaque étape
+    - Affichage amélioré des statistiques
+    - Gestion meilleure des erreurs
+    - Messages clairs pour chaque étape
     
     Args:
         clear_before (bool): Supprimer l'index avant réindexation
@@ -177,20 +183,29 @@ def run_indexation(clear_before=False):
 
 def test_search():
     """
-    Teste la recherche après indexation
+    ✅ CORRIGÉ: Teste la recherche après indexation
+    
+    AMÉLIORATIONS:
+    - Test des 3 types de questions (prix, sentiment, analyse)
+    - Affichage du query_type détecté
+    - Vérification des résultats
     """
     log_separator("TEST DE RECHERCHE")
 
     try:
+        from app.rag.retriever_service import get_retriever_service
+        
         embedding_service = get_embedding_service()
+        retriever_service = get_retriever_service()
         pinecone_service = get_pinecone_service()
 
+        # ✅ NOUVEAU: Tests des différents types
         test_queries = [
-            "Quel est le sentiment de Bitcoin?",
-            "Comment évolue Ethereum?",
-            "Corrélation prix sentiment Solana",
-            "Posts récents sur Bitcoin",
-            "Analyse sentiment crypto",
+            ("Quel est le prix de Bitcoin?", "price"),
+            ("Quel est le sentiment sur Ethereum?", "sentiment"),
+            ("Quelle est la corrélation sentiment-prix?", "analysis"),
+            ("Posts récents sur Solana?", "general"),
+            ("Comment évolue le prix de Ethereum?", "price"),
         ]
 
         logger.info("Debut des tests de recherche")
@@ -199,6 +214,14 @@ def test_search():
             logger.info(f"Query: \"{query}\"")
 
             try:
+                # ✅ NOUVEAU: Vérifier la détection de type
+                detected_type = retriever_service.detect_query_type(query)
+                print(f"  Type détecté: {detected_type} (attendu: {expected_type})")
+                
+                if detected_type != expected_type:
+                    print(f"  ⚠️  Type incorrect détecté!")
+                    all_success = False
+
                 # Générer l'embedding de la requête
                 query_embedding = embedding_service.embed_text(query)
 
@@ -237,7 +260,7 @@ def test_search():
 
 def main():
     """
-    Fonction principale avec arguments CLI
+    ✅ CORRIGÉ: Fonction principale avec arguments CLI
     """
     parser = argparse.ArgumentParser(
         description="Indexation RAG - Charge et indexe les documents dans Pinecone",

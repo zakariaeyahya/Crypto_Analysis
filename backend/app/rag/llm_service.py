@@ -1,4 +1,4 @@
-# backend/app/rag/llm_service.py
+# app/rag/llm_service.py
 
 import requests
 from app.rag.config import LLM_PROVIDER, GROQ_API_KEY, GROQ_MODEL
@@ -23,11 +23,6 @@ class LLMService:
             from groq import Groq
             self.groq_client = Groq(api_key=GROQ_API_KEY)
             logger.info(f"Groq initialisé avec modèle: {self.groq_model}")
-
-        if self.provider == "openai" and OPENAI_API_KEY:
-            import openai
-            self.openai_client = openai
-            self.openai_client.api_key = OPENAI_API_KEY
 
     def generate_groq(self, prompt, system_prompt=None):
         if self.groq_client is None:

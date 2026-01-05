@@ -1,22 +1,6 @@
-# Crypto Sentiment Analysis
+# Crypto Analysis - Tweet Extraction
 
-Plateforme d'analyse de sentiment des cryptomonnaies (Bitcoin, Ethereum, Solana) basée sur les données Reddit et Kaggle, avec un **chatbot RAG intelligent** incluant mémoire conversationnelle et reformulation de requêtes.
-
-## Architecture
-
-```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│   Frontend  │───▶│   Backend   │───▶│    Data     │    │  Pinecone   │
-│   React     │    │   FastAPI   │    │  JSON/CSV   │    │  (Vectors)  │
-│   :3000     │    │   :8000     │    │             │    │             │
-└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
-                          │                                     ▲
-                          │         ┌─────────────┐             │
-                          └────────▶│  RAG Module │─────────────┘
-                                    │  + Memory   │
-                                    │  + Groq LLM │
-                                    └─────────────┘
-```
+Project for extraction and analysis of cryptocurrency tweets.
 
 ## Features
 
@@ -35,258 +19,31 @@ Plateforme d'analyse de sentiment des cryptomonnaies (Bitcoin, Ethereum, Solana)
 
 ## Quick Start
 
-### 1. Backend API
+### 1. Activate virtual environment
+```powershell
+.\venv\Scripts\Activate.ps1
+```
 
-```bash
-cd backend
-
-# Installation
+### 2. Install dependencies
+```powershell
 pip install -r requirements.txt
-
-# Configuration (.env)
-cp .env.example .env
-# Ajouter: PINECONE_API_KEY, GROQ_API_KEY
-
-# Lancement
-uvicorn app.main:app --reload --port 8000
 ```
 
-API disponible sur http://localhost:8000/docs
+### 3. Configuration
+Create a `.env` file with your Twitter API credentials (see `.env.example`)
 
-### 2. Frontend Dashboard
-
-```bash
-cd dashboard
-npm install
-npm start
+### 4. Extraction
+```powershell
+python extraction/services/twitter_extractor.py
 ```
 
-Dashboard disponible sur http://localhost:3000
+## Structure
 
-### 3. Indexation RAG (première fois)
-
-```bash
-cd backend
-python scripts/index_documents.py --clear --test
-```
-
-## Structure du Projet
-
-```
-Crypto_Analysis/
-├── backend/                    # API FastAPI
-│   ├── app/
-│   │   ├── main.py             # Point d'entrée
-│   │   ├── api/routers/        # Endpoints API
-│   │   │   ├── cryptos.py      # /api/cryptos
-│   │   │   ├── sentiment.py    # /api/sentiment
-│   │   │   ├── analysis.py     # /api/analysis
-│   │   │   ├── events.py       # /api/events
-│   │   │   └── chat.py         # /api/chat (RAG)
-│   │   ├── services/           # Lecture données
-│   │   └── rag/                # Module RAG
-│   │       ├── config.py       # Configuration
-│   │       ├── prompts.py      # Prompts externalisés
-│   │       ├── memory_service.py   # Mémoire conversation
-│   │       ├── rag_service.py  # Pipeline + reformulation
-│   │       └── evaluation/     # Module RAGAS
-│   ├── scripts/
-│   │   ├── index_documents.py  # Indexation Pinecone
-│   │   └── evaluate_rag.py     # Évaluation RAGAS
-│   └── requirements.txt
-│
-├── dashboard/                  # Frontend React
-│   └── src/
-│       ├── api/index.js        # Appels API
-│       ├── components/
-│       │   └── Chatbot.jsx     # Chatbot avec mémoire
-│       └── pages/              # Overview, Timeline, Analysis, Events
-│
-├── extraction/                 # Module extraction données
-│   ├── models/                 # Configuration et validation
-│   └── services/
-│       ├── reddit_extractor.py # Extraction Reddit (PRAW)
-│       └── kaggle_downloader.py # Téléchargement Kaggle
-│
-├── data_cleaning/              # Nettoyage des données
-├── data_consolidation/         # Consolidation multi-sources
-├── data_enri/                  # Enrichissement NER
-├── Finetuning/                 # Fine-tuning du modèle
-├── fetch_crypto_data/          # Récupération prix (Yahoo Finance)
-├── docker/                     # Configuration Docker/Airflow
-│
-├── data/
-│   ├── bronze/                 # Données brutes (prix CSV, Reddit, Kaggle)
-│   ├── silver/                 # Données nettoyées et enrichies
-│   └── gold/                   # Données analysées (sentiment, corrélation)
-│
-├── CLAUDE.md                   # Guide développeur complet
-└── README.md                   # Ce fichier
-```
-
-## API Endpoints
-
-### Données
-
-| Endpoint | Description |
-|----------|-------------|
-| `GET /api/cryptos` | Prix actuels + variation 24h |
-| `GET /api/cryptos/{symbol}/chart` | Historique prix |
-| `GET /api/sentiment/global` | Sentiment global marché |
-| `GET /api/sentiment/{symbol}/timeline` | Timeline sentiment |
-| `GET /api/analysis/{symbol}/correlation` | Corrélation sentiment/prix |
-| `GET /api/events` | Posts/événements crypto |
-
-### Chatbot RAG
-
-| Endpoint | Description |
-|----------|-------------|
-| `POST /api/chat/` | Envoyer une question (avec session_id) |
-| `POST /api/chat/clear` | Effacer historique session |
-| `GET /api/chat/health` | État du système RAG |
-| `GET /api/chat/suggestions` | Questions suggérées |
-
-## Chatbot RAG
-
-### Mémoire Conversationnelle
-
-Le chatbot garde en mémoire les 10 derniers messages:
-
-```
-User: "Quel est le sentiment de Bitcoin?"
-Bot: "Le sentiment BTC est positif à 0.67..."
-
-User: "Et pour Ethereum?"
-Bot: "Le sentiment ETH est à 0.55, moins positif que Bitcoin."
-
-User: "Pourquoi?"
-Bot: "Bitcoin bénéficie d'une perception plus favorable car..."
-```
-
-### Reformulation Automatique
-
-Les requêtes vagues sont enrichies avec le contexte:
-
-| Requête originale | Requête reformulée |
-|-------------------|-------------------|
-| "Pourquoi?" | "Pourquoi Bitcoin a ce sentiment? Explique les raisons." |
-| "Et Solana?" | "Quel est le sentiment de Solana?" |
-| "Lequel?" | "Quelle crypto a le meilleur sentiment? Compare les." |
-
-### Configuration
-
-```bash
-# backend/.env
-PINECONE_API_KEY=pcsk_xxx...
-PINECONE_INDEX_NAME=crypto-sentiment-rag
-LLM_PROVIDER=groq
-GROQ_API_KEY=gsk_xxx...
-```
-
-## Évaluation RAGAS
-
-Mesurer la qualité du système RAG avec des métriques standardisées.
-
-```bash
-cd backend
-
-# Évaluation rapide (5 samples)
-python scripts/evaluate_rag.py --quick
-
-# Évaluation complète
-python scripts/evaluate_rag.py --full --samples 20
-
-# Tester une question
-python scripts/evaluate_rag.py --query "Quel est le sentiment de Bitcoin?"
-
-# Stats du dataset
-python scripts/evaluate_rag.py --stats
-```
-
-### Résultats Typiques
-
-```
-Score moyen: 0.721 (72.1%)
-
-Question                                        | Score
-------------------------------------------------|-------
-Quel est le sentiment actuel de Bitcoin?        | 0.693
-Compare le sentiment de Bitcoin et Ethereum     | 0.656
-Y a-t-il une correlation sentiment/prix?        | 0.764
-Quelle crypto a le meilleur sentiment?          | 0.775
-```
-
-## Technologies
-
-### Backend
-- **FastAPI** - API REST
-- **Python 3.10+** - Langage principal
-- **sentence-transformers** - Embeddings (all-MiniLM-L6-v2)
-- **Pinecone** - Base de données vectorielle
-- **Groq** - LLM (Llama 3.3 70B)
-
-### Frontend
-- **React 18** - Framework UI
-- **React Router v6** - Navigation
-- **React Context** - Gestion d'état
-- **Recharts** - Graphiques
-- **Lucide React** - Icônes
-
-### ML/NLP
-- **Hugging Face Transformers** - Modèles NLP
-- **RoBERTa** - Analyse de sentiment
-- **spaCy** - NER
-- **PyTorch** - Deep Learning
-
-### Data
-- **PRAW** - API Reddit
-- **yfinance** - Yahoo Finance
-- **kagglehub** - Datasets Kaggle
-- **pandas** - Traitement de données
-
-### Infrastructure
-- **Apache Airflow 2.8.1** - Orchestration
-- **Docker** - Containerisation
-
-## Tests
-
-```bash
-# Backend API
-cd backend
-./test_api.sh
-
-# Tests RAG
-bash tests/rag/run_all_tests.sh
-
-# Évaluation RAGAS
-python scripts/evaluate_rag.py --quick
-```
+- `extraction/` : Tweet extraction code
+- `data/bronze/` : Raw extracted data
+- `data/silver/` : Cleaned data (coming soon)
+- `data/gold/` : Enriched data (coming soon)
 
 ## Documentation
 
-- [CLAUDE.md](CLAUDE.md) - Guide développeur complet
-
-## Cryptomonnaies Supportées
-
-| Symbol | Name |
-|--------|------|
-| BTC | Bitcoin |
-| ETH | Ethereum |
-| SOL | Solana |
-
-## Équipe
-
-| Nom | Email |
-|-----|-------|
-| YAHYA Zakariae | zakariae.yahya@etu.uae.ac.ma |
-| KAYOUH Salaheddine | kayouh.salaheddine@etu.uae.ac.ma |
-| KHAILA Imane | imane.khaila@etu.uae.ac.ma |
-| ELOUMNI Nora | eloumni.nora@etu.uae.ac.ma |
-| BROUKI Aya | Brouki.aya@etu.uae.ac.ma |
-| KHARFASSE Hiba | Kharfasse.hiba@etu.uae.ac.ma |
-| OUANAD Hafsa | hafsa.ouanad@etu.uae.ac.ma |
-| HIDA Mohamed | hida.mohamed@etu.uae.ac.ma |
-
-## License
-
-MIT License
+See `README_TWITTER_EXTRACTION.md` for more details.

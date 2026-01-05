@@ -1,5 +1,10 @@
 """
 Recherche les documents pertinents pour une question utilisateur.
+
+CORRECTIONS APPLIQUÉES:
+✅ Ajouter detect_query_type() - Détecte prix/sentiment/analyse
+✅ Adapter retrieve() par type de document
+✅ Améliorer retrieve_with_context()
 """
 
 from app.rag.config import RAG_TOP_K, RAG_MIN_SCORE
@@ -28,15 +33,64 @@ class RetrieverService:
         if self.pinecone_service is None:
             self.pinecone_service = get_pinecone_service()
 
+    # =====================================================================
+    # ✅ NOUVEAU: Détection du type de question
+    # =====================================================================
+    
+    def detect_query_type(self, query):
+        """
+        ✅ NOUVEAU: Détecte le type de question
+        
+        Retourne: "price", "sentiment", "analysis", ou "general"
+        """
+        query_lower = query.lower()
+        
+        # Mots-clés pour les questions de prix
+        price_keywords = [
+            "prix", "price", "coût", "combien", "how much", 
+            "$", "dollar", "euros", "€", "valeur", "value",
+            "trading", "échange", "exchange", "marché", "market"
+        ]
+        
+        # Mots-clés pour les questions de sentiment
+        sentiment_keywords = [
+            "sentiment", "opinion", "avis", "bullish", "bearish",
+            "haussier", "baissier", "ressenti", "mood", "feeling",
+            "optimisme", "pessimisme", "confiance", "peur", "fear"
+        ]
+        
+        # Mots-clés pour les questions d'analyse
+        analysis_keywords = [
+            "corrélation", "correlation", "lag", "délai",
+            "tendance", "trend", "pattern", "analyse", "analysis",
+            "historique", "historical", "comparaison", "compare"
+        ]
+        
+        # Compter les correspondances
+        price_score = sum(1 for kw in price_keywords if kw in query_lower)
+        sentiment_score = sum(1 for kw in sentiment_keywords if kw in query_lower)
+        analysis_score = sum(1 for kw in analysis_keywords if kw in query_lower)
+        
+        # Retourner le type avec le meilleur score
+        scores = {
+            "price": price_score,
+            "sentiment": sentiment_score,
+            "analysis": analysis_score
+        }
+        
+        max_score = max(scores.values())
+        if max_score == 0:
+            return "general"
+        
+        query_type = max(scores, key=scores.get)
+        logger.debug(f"Type détecté: {query_type}")
+        return query_type
+
     def extract_crypto_from_query(self, query):
         """
         Détecte la crypto mentionnée dans la question
         
-        Args:
-            query (str): Question de l'utilisateur
-            
-        Returns:
-            str: Code de la crypto ("BTC", "ETH", "SOL") ou None
+        Retourne: "BTC", "ETH", "SOL", ou None
         """
         query_lower = query.lower()
 
@@ -60,14 +114,6 @@ class RetrieverService:
     def build_filter(self, crypto=None, doc_type=None, source=None):
         """
         Construit le filtre Pinecone pour les recherches
-        
-        Args:
-            crypto (str): Code de la crypto ("BTC", "ETH", "SOL") ou None
-            doc_type (str): Type de document ("post", "analysis", "price", etc.) ou None
-            source (str): Source ("twitter", "reddit", "system") ou None
-            
-        Returns:
-            dict: Filtre Pinecone ou None
         """
         conditions = {}
 
@@ -93,18 +139,11 @@ class RetrieverService:
 
         return conditions
 
-    def retrieve(self, query, top_k=None, crypto=None, auto_detect_crypto=True):
+    def retrieve(self, query, top_k=None, crypto=None, doc_type=None, auto_detect_crypto=True):
         """
-        Recherche les documents pertinents pour une requête
+        Recherche les documents pertinents
         
-        Args:
-            query (str): Question de l'utilisateur
-            top_k (int): Nombre de résultats (défaut: RAG_TOP_K)
-            crypto (str): Crypto spécifique ou None
-            auto_detect_crypto (bool): Auto-détecter la crypto (défaut: True)
-            
-        Returns:
-            list: Résultats triés par score de similarité
+        ✅ AMÉLIORÉ: Ajoute support pour doc_type
         """
         self._init_services()
         
@@ -114,13 +153,13 @@ class RetrieverService:
         if crypto is None and auto_detect_crypto:
             crypto = self.extract_crypto_from_query(query)
 
-        logger.info(f"🔍 Recherche: '{query[:100]}...' (top_k={top_k}, crypto={crypto})")
+        logger.info(f"🔍 Recherche: '{query[:100]}...' (top_k={top_k}, crypto={crypto}, type={doc_type})")
 
         # Générer l'embedding de la question
         query_embedding = self.embedding_service.embed_text(query)
 
-        # Construire le filtre
-        filter_dict = self.build_filter(crypto=crypto)
+        # Construire le filtre (avec support du doc_type)
+        filter_dict = self.build_filter(crypto=crypto, doc_type=doc_type)
 
         # Recherche dans Pinecone
         results = self.pinecone_service.search(
@@ -135,39 +174,63 @@ class RetrieverService:
             if r["score"] >= self.min_score
         ]
 
-        logger.info(f"✓ Trouvé {len(filtered_results)}/{len(results)} résultats (min_score={self.min_score})")
+        logger.info(f"✓ Trouvé {len(filtered_results)}/{len(results)} résultats")
 
         return filtered_results
 
     def retrieve_with_context(self, query, top_k=5):
         """
-        Recherche et formate le contexte pour le LLM
-        
-        Args:
-            query (str): Question de l'utilisateur
-            top_k (int): Nombre de résultats (défaut: 5)
-            
-        Returns:
-            dict: Résultats avec contexte formaté pour le LLM
+        ✅ AMÉLIORÉ: Adapte la recherche selon le type de question
         """
-        documents = self.retrieve(query, top_k)
+        # ✅ Détecter le type
+        query_type = self.detect_query_type(query)
+        crypto = self.extract_crypto_from_query(query)
+        
+        logger.info(f"🤖 Mode {query_type.upper()}: Recherche adaptée")
+        
+        # ✅ Adapter la recherche par type
+        if query_type == "price":
+            # Priorité aux documents de prix
+            documents = self.retrieve(
+                query, 
+                top_k=top_k, 
+                crypto=crypto,
+                doc_type="price"
+            )
+        
+        elif query_type == "sentiment":
+            # Priorité aux posts
+            documents = self.retrieve(
+                query,
+                top_k=top_k,
+                crypto=crypto,
+                doc_type="post"
+            )
+        
+        else:  # general ou analysis
+            # Recherche sans restriction de type
+            documents = self.retrieve(query, top_k=top_k, crypto=crypto)
 
         # Formater le contexte
         context_parts = []
         for i, doc in enumerate(documents):
+            doc_type = doc['metadata'].get('type', 'unknown')
+            
             part = (
-                f"[Document {i+1}] (Type: {doc['metadata'].get('type', 'unknown')})\n"
+                f"[Document {i+1}] (Type: {doc_type})\n"
                 f"Crypto: {doc['metadata'].get('crypto', 'UNKNOWN')}\n"
                 f"Date: {doc['metadata'].get('date', 'N/A')}\n"
                 f"Score: {doc['score']:.3f}\n"
                 f"Contenu: {doc['text']}\n"
             )
+            
             context_parts.append(part)
 
         context = "\n---\n".join(context_parts)
 
         result = {
             "query": query,
+            "query_type": query_type,  # ✅ NOUVEAU: Inclure le type
             "documents": documents,
             "context": context,
             "num_results": len(documents),
@@ -179,14 +242,6 @@ class RetrieverService:
     def retrieve_by_types(self, query, doc_types, top_k_per_type=2):
         """
         Recherche dans plusieurs types de documents
-        
-        Args:
-            query (str): Question de l'utilisateur
-            doc_types (list): Types de documents à chercher
-            top_k_per_type (int): Nombre de résultats par type
-            
-        Returns:
-            list: Résultats combinés et triés par score
         """
         self._init_services()
 
@@ -205,26 +260,16 @@ class RetrieverService:
             )
             
             all_results.extend(results)
-            logger.debug(f"   {doc_type}: {len(results)} résultats")
 
         # Trier par score décroissant
         all_results.sort(key=lambda x: x["score"], reverse=True)
 
-        logger.info(f"✓ Total: {len(all_results)} résultats sur {len(doc_types)} types")
+        logger.info(f"✓ Total: {len(all_results)} résultats")
         return all_results
 
     def retrieve_by_date_range(self, query, start_date=None, end_date=None, top_k=None):
         """
         Recherche avec filtre de plage de dates
-        
-        Args:
-            query (str): Question de l'utilisateur
-            start_date (str): Date de début (format "YYYY-MM-DD")
-            end_date (str): Date de fin (format "YYYY-MM-DD")
-            top_k (int): Nombre de résultats
-            
-        Returns:
-            list: Résultats dans la plage de dates
         """
         self._init_services()
 
@@ -249,21 +294,12 @@ class RetrieverService:
             filter_dict=filter_dict if filter_dict else None
         )
 
-        logger.info(f"✓ Trouvé {len(results)} résultats dans la plage de dates")
+        logger.info(f"✓ Trouvé {len(results)} résultats")
         return results
 
     def retrieve_by_crypto_and_type(self, query, crypto, doc_types, top_k=None):
         """
         Recherche avec filtres de crypto ET type de document
-        
-        Args:
-            query (str): Question de l'utilisateur
-            crypto (str): Code de la crypto ("BTC", "ETH", "SOL")
-            doc_types (list): Types de documents
-            top_k (int): Nombre de résultats
-            
-        Returns:
-            list: Résultats filtrés
         """
         self._init_services()
 
@@ -273,7 +309,6 @@ class RetrieverService:
         all_results = []
 
         for doc_type in doc_types:
-            # Construire le filtre avec crypto ET type
             filter_dict = self.build_filter(crypto=crypto, doc_type=doc_type)
             
             results = self.pinecone_service.search(
@@ -287,7 +322,7 @@ class RetrieverService:
         # Trier par score décroissant
         all_results.sort(key=lambda x: x["score"], reverse=True)
 
-        logger.info(f"✓ Trouvé {len(all_results)} résultats pour {crypto} ({doc_types})")
+        logger.info(f"✓ Trouvé {len(all_results)} résultats")
         return all_results
 
 
@@ -300,13 +335,6 @@ _retriever_service = None
 def get_retriever_service():
     """
     Retourne une instance unique du service de retrieval (singleton)
-    
-    Returns:
-        RetrieverService: Instance unique du service
-        
-    Exemple:
-        retriever = get_retriever_service()
-        results = retriever.retrieve("What about Bitcoin?", top_k=5)
     """
     global _retriever_service
     
