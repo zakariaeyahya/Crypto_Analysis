@@ -1,0 +1,259 @@
+{
+  "metadata": {
+    "name": "RAGAS Test Dataset - CryptoVibe",
+    "version": "1.0",
+    "description": "Dataset de test pour l'evaluation RAGAS du chatbot crypto",
+    "total_questions": 26,
+    "categories": [
+      "sentiment_general",
+      "comparison",
+      "correlation",
+      "temporal",
+      "detailed",
+      "vague",
+      "faq"
+    ],
+    "difficulties": ["easy", "medium", "hard"]
+  },
+  "questions": [
+    {
+      "id": 1,
+      "question": "Quel est le sentiment actuel de Bitcoin?",
+      "expected_topics": ["sentiment", "bitcoin", "score"],
+      "category": "sentiment_general",
+      "difficulty": "easy",
+      "ground_truth": "Le sentiment de Bitcoin doit inclure un score numerique et une interpretation (positif/negatif/neutre)."
+    },
+    {
+      "id": 2,
+      "question": "Comment se porte le sentiment d'Ethereum?",
+      "expected_topics": ["sentiment", "ethereum", "tendance"],
+      "category": "sentiment_general",
+      "difficulty": "easy",
+      "ground_truth": "Le sentiment d'Ethereum avec score et interpretation."
+    },
+    {
+      "id": 3,
+      "question": "Parle-moi du sentiment de Solana",
+      "expected_topics": ["sentiment", "solana"],
+      "category": "sentiment_general",
+      "difficulty": "easy",
+      "ground_truth": "Analyse du sentiment Solana avec donnees chiffrees."
+    },
+    {
+      "id": 4,
+      "question": "Le sentiment crypto est-il positif ou negatif en ce moment?",
+      "expected_topics": ["sentiment", "global", "marche"],
+      "category": "sentiment_general",
+      "difficulty": "medium",
+      "ground_truth": "Vue d'ensemble du sentiment du marche crypto avec les 3 cryptos."
+    },
+    {
+      "id": 5,
+      "question": "Quelle est l'ambiance generale sur les reseaux sociaux pour les cryptos?",
+      "expected_topics": ["sentiment", "social", "global"],
+      "category": "sentiment_general",
+      "difficulty": "medium",
+      "ground_truth": "Analyse du sentiment social global."
+    },
+    {
+      "id": 6,
+      "question": "Compare le sentiment de Bitcoin et Ethereum",
+      "expected_topics": ["bitcoin", "ethereum", "comparaison", "sentiment"],
+      "category": "comparison",
+      "difficulty": "medium",
+      "ground_truth": "Comparaison directe des scores de sentiment BTC vs ETH avec interpretation."
+    },
+    {
+      "id": 7,
+      "question": "Quelle crypto a le meilleur sentiment actuellement?",
+      "expected_topics": ["meilleur", "sentiment", "crypto"],
+      "category": "comparison",
+      "difficulty": "medium",
+      "ground_truth": "Classement des 3 cryptos par score de sentiment avec le gagnant."
+    },
+    {
+      "id": 8,
+      "question": "Entre BTC, ETH et SOL, lequel est le plus apprecie?",
+      "expected_topics": ["btc", "eth", "sol", "appreciation"],
+      "category": "comparison",
+      "difficulty": "medium",
+      "ground_truth": "Comparaison des 3 cryptos avec scores."
+    },
+    {
+      "id": 9,
+      "question": "Compare le sentiment de toutes les cryptos",
+      "expected_topics": ["comparaison", "toutes", "sentiment"],
+      "category": "comparison",
+      "difficulty": "hard",
+      "ground_truth": "Tableau comparatif complet des 3 cryptos."
+    },
+    {
+      "id": 10,
+      "question": "Y a-t-il une correlation entre le sentiment et le prix de Bitcoin?",
+      "expected_topics": ["correlation", "prix", "bitcoin", "pearson"],
+      "category": "correlation",
+      "difficulty": "hard",
+      "ground_truth": "Coefficient de correlation de Pearson avec interpretation."
+    },
+    {
+      "id": 11,
+      "question": "Le sentiment influence-t-il le prix d'Ethereum?",
+      "expected_topics": ["influence", "prix", "ethereum", "sentiment"],
+      "category": "correlation",
+      "difficulty": "hard",
+      "ground_truth": "Analyse de la correlation sentiment-prix pour ETH."
+    },
+    {
+      "id": 12,
+      "question": "Quelle crypto a la plus forte correlation sentiment-prix?",
+      "expected_topics": ["correlation", "forte", "crypto"],
+      "category": "correlation",
+      "difficulty": "hard",
+      "ground_truth": "Comparaison des correlations avec la crypto gagnante."
+    },
+    {
+      "id": 13,
+      "question": "Explique-moi la relation entre sentiment et prix",
+      "expected_topics": ["relation", "sentiment", "prix", "explication"],
+      "category": "correlation",
+      "difficulty": "medium",
+      "ground_truth": "Explication pedagogique de la correlation avec exemples."
+    },
+    {
+      "id": 14,
+      "question": "Comment a evolue le sentiment de Bitcoin cette semaine?",
+      "expected_topics": ["evolution", "bitcoin", "semaine", "tendance"],
+      "category": "temporal",
+      "difficulty": "medium",
+      "ground_truth": "Evolution du sentiment sur la semaine avec tendance."
+    },
+    {
+      "id": 15,
+      "question": "Le sentiment d'Ethereum s'ameliore-t-il?",
+      "expected_topics": ["amelioration", "ethereum", "tendance"],
+      "category": "temporal",
+      "difficulty": "medium",
+      "ground_truth": "Analyse de la tendance du sentiment ETH."
+    },
+    {
+      "id": 16,
+      "question": "Quel est le trend du sentiment crypto sur le dernier mois?",
+      "expected_topics": ["trend", "mois", "sentiment"],
+      "category": "temporal",
+      "difficulty": "hard",
+      "ground_truth": "Tendance mensuelle du sentiment global."
+    },
+    {
+      "id": 17,
+      "question": "Donne-moi une analyse complete de Bitcoin",
+      "expected_topics": ["bitcoin", "analyse", "complete", "sentiment", "prix"],
+      "category": "detailed",
+      "difficulty": "hard",
+      "ground_truth": "Analyse complete: sentiment, prix, correlation, tendance."
+    },
+    {
+      "id": 18,
+      "question": "Resume la situation d'Ethereum",
+      "expected_topics": ["ethereum", "resume", "situation"],
+      "category": "detailed",
+      "difficulty": "medium",
+      "ground_truth": "Resume concis de la situation ETH."
+    },
+    {
+      "id": 19,
+      "question": "Que disent les gens sur Solana?",
+      "expected_topics": ["solana", "opinions", "social"],
+      "category": "detailed",
+      "difficulty": "medium",
+      "ground_truth": "Resume des opinions sociales sur Solana."
+    },
+    {
+      "id": 20,
+      "question": "Et Solana?",
+      "expected_topics": ["solana"],
+      "category": "vague",
+      "difficulty": "easy",
+      "requires_context": true,
+      "ground_truth": "La question doit etre reformulee avec le contexte precedent."
+    },
+    {
+      "id": 21,
+      "question": "Pourquoi?",
+      "expected_topics": ["explication"],
+      "category": "vague",
+      "difficulty": "easy",
+      "requires_context": true,
+      "ground_truth": "La question doit etre reformulee pour demander une explication."
+    },
+    {
+      "id": 22,
+      "question": "Et les autres?",
+      "expected_topics": ["autres", "cryptos"],
+      "category": "vague",
+      "difficulty": "easy",
+      "requires_context": true,
+      "ground_truth": "La question doit etre reformulee pour inclure les autres cryptos."
+    },
+    {
+      "id": 23,
+      "question": "Lequel?",
+      "expected_topics": ["comparaison"],
+      "category": "vague",
+      "difficulty": "easy",
+      "requires_context": true,
+      "ground_truth": "La question doit etre reformulee pour demander une comparaison."
+    },
+    {
+      "id": 24,
+      "question": "Comment fonctionne le score de sentiment?",
+      "expected_topics": ["score", "fonctionnement", "explication"],
+      "category": "faq",
+      "difficulty": "easy",
+      "ground_truth": "Explication du score entre -1 et +1."
+    },
+    {
+      "id": 25,
+      "question": "Qu'est-ce que la correlation de Pearson?",
+      "expected_topics": ["pearson", "correlation", "definition"],
+      "category": "faq",
+      "difficulty": "easy",
+      "ground_truth": "Definition et explication du coefficient de Pearson."
+    },
+    {
+      "id": 26,
+      "question": "D'ou viennent les donnees?",
+      "expected_topics": ["donnees", "source", "origine"],
+      "category": "faq",
+      "difficulty": "easy",
+      "ground_truth": "Explication des sources de donnees (Twitter, Reddit)."
+    }
+  ],
+  "quick_eval_samples": [
+    {
+      "id": 1,
+      "question": "Quel est le sentiment actuel de Bitcoin?",
+      "category": "sentiment_general"
+    },
+    {
+      "id": 6,
+      "question": "Compare le sentiment de Bitcoin et Ethereum",
+      "category": "comparison"
+    },
+    {
+      "id": 10,
+      "question": "Y a-t-il une correlation entre sentiment et prix?",
+      "category": "correlation"
+    },
+    {
+      "id": 7,
+      "question": "Quelle crypto a le meilleur sentiment?",
+      "category": "comparison"
+    },
+    {
+      "id": 24,
+      "question": "Comment fonctionne le score de sentiment?",
+      "category": "faq"
+    }
+  ]
+}
