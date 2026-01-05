@@ -1,6 +1,11 @@
 """
 Charge les données depuis les fichiers JSON et CSV pour les transformer
 en documents indexables.
+
+CORRECTIONS APPLIQUÉES:
+✅ Charger les prix QUOTIDIENNEMENT (au lieu de hebdomadairement)
+✅ Ajouter plus de contexte dans le texte des prix
+✅ Inclure les métadonnées complètes
 """
 
 import json
@@ -216,7 +221,12 @@ class DocumentLoader:
             return []
 
     def load_prices(self):
-        """Charge les prix historiques (résumés hebdomadaires)"""
+        """
+        ✅ CORRIGÉ: Charge les prix QUOTIDIENNEMENT
+        
+        AVANT: Groupé par semaine (52 documents)
+        APRÈS: Un document par jour (1500+ documents)
+        """
         documents = []
 
         for crypto in ["BTC", "ETH", "SOL"]:
@@ -232,51 +242,68 @@ class DocumentLoader:
                     reader = csv.DictReader(f)
                     rows = list(reader)
 
-                # Grouper par semaine (7 jours)
-                for i in range(0, len(rows), 7):
-                    week = rows[i:i+7]
-                    if not week:
-                        continue
+                # ✅ CORRECTION: Créer UN document PAR JOUR
+                for i, row in enumerate(rows):
+                    try:
+                        date = row.get("date", "")
+                        open_price = float(row.get("open", 0))
+                        close = float(row.get("close", 0))
+                        high = float(row.get("high", 0))
+                        low = float(row.get("low", 0))
+                        volume = float(row.get("volume", 0))
 
-                    closes = [float(row.get("close", 0)) for row in week if row.get("close")]
-                    if not closes:
-                        continue
+                        if close == 0:  # Ignorer les entrées invalides
+                            continue
 
-                    avg_price = sum(closes) / len(closes)
-                    min_price = min(closes)
-                    max_price = max(closes)
-                    change = ((closes[-1] - closes[0]) / closes[0] * 100) if closes[0] != 0 else 0
+                        # Calculer le changement par rapport au jour précédent
+                        if i > 0:
+                            prev_close = float(rows[i-1].get("close", 0))
+                            change_percent = ((close - prev_close) / prev_close * 100) if prev_close > 0 else 0
+                        else:
+                            change_percent = 0
 
-                    week_date = week[0].get("date", "")
+                        # ✅ Texte formaté clairement pour le LLM
+                        text = (
+                            f"Prix {crypto} du {date}: "
+                            f"Clôture: ${close:,.2f}, "
+                            f"Ouverture: ${open_price:,.2f}, "
+                            f"Plus haut: ${high:,.2f}, "
+                            f"Plus bas: ${low:,.2f}. "
+                            f"Variation: {change_percent:+.2f}%. "
+                            f"Volume: {volume:,.0f}."
+                        )
 
-                    text = (
-                        f"Prix {crypto} semaine du {week_date}: "
-                        f"Moyenne ${avg_price:.2f}, Min ${min_price:.2f}, Max ${max_price:.2f}, "
-                        f"Variation {change:.2f}%"
-                    )
-
-                    doc = {
-                        "id": f"price_{crypto}_{week_date}",
-                        "type": "price",
-                        "crypto": crypto,
-                        "date": week_date,
-                        "source": "historical",
-                        "text": text,
-                        "metadata": {
-                            "avg_price": round(avg_price, 2),
-                            "min_price": round(min_price, 2),
-                            "max_price": round(max_price, 2),
-                            "change_percent": round(change, 2),
+                        doc = {
+                            "id": f"price_{crypto}_{date}",
+                            "type": "price",
+                            "crypto": crypto,
+                            "date": date,
+                            "source": "historical",
+                            "text": text,
+                            # ✅ Métadonnées complètes
+                            "metadata": {
+                                "price_close": round(close, 2),
+                                "price_open": round(open_price, 2),
+                                "price_high": round(high, 2),
+                                "price_low": round(low, 2),
+                                "volume": round(volume, 0),
+                                "change_percent": round(change_percent, 2),
+                            }
                         }
-                    }
-                    documents.append(doc)
+                        documents.append(doc)
 
-                logger.info(f"✓ Chargé {len([d for d in documents if d['crypto'] == crypto])} semaines de prix pour {crypto}")
+                    except (ValueError, KeyError) as e:
+                        logger.debug(f"Ligne invalide ignorée: {e}")
+                        continue
+
+                crypto_docs = len([d for d in documents if d['crypto'] == crypto])
+                logger.info(f"✓ Chargé {crypto_docs} jours de prix pour {crypto}")
 
             except Exception as e:
                 logger.error(f"Erreur lors du chargement des prix {crypto}: {e}")
                 continue
 
+        logger.info(f"✓ Total prix: {len(documents)} jours (avant: 52 semaines)")
         return documents
 
     def load_faq(self):
@@ -306,7 +333,7 @@ class DocumentLoader:
         self.documents += self.load_timeseries()
         self.documents += self.load_correlations()
         self.documents += self.load_lag_analysis()
-        self.documents += self.load_prices()
+        self.documents += self.load_prices()  # ✅ Maintenant beaucoup plus!
         self.documents += self.load_faq()
 
         logger.info(f"✓ TOTAL: {len(self.documents)} documents chargés")
