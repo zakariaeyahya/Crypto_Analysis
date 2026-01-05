@@ -1,86 +1,92 @@
-/**
- * ============================================
- * HEADER COMPONENT - Pseudo Code
- * ============================================
- *
- * DESCRIPTION:
- * Navigation header fixe en haut de la page avec logo et menu
- *
- * IMPORTS REQUIS:
- * - NavLink from 'react-router-dom'
- * - headerStyles from '../styles/commonStyles'
- *
- * ============================================
- * STRUCTURE DATA
- * ============================================
- *
- * navItems = [
- *   { path: '/',         label: 'Overview',  icon: '📊' },
- *   { path: '/timeline', label: 'Timeline',  icon: '📈' },
- *   { path: '/analysis', label: 'Analysis',  icon: '🔍' },
- *   { path: '/events',   label: 'Events',    icon: '📰' }
- * ]
- *
- * ============================================
- * RENDER STRUCTURE
- * ============================================
- *
- * <header>                             // styles.header (sticky, blur, border-bottom)
- *   │
- *   ├── <h1>                           // styles.title (gradient text vert→bleu)
- *   │     └── "◈ Crypto Dashboard"
- *   │
- *   └── <nav>                          // styles.nav (flex, gap, glass background)
- *         │
- *         └── FOR EACH navItem:
- *               │
- *               └── <NavLink>          // styles.link + styles.activeLink si actif
- *                     ├── <span>icon</span>
- *                     └── label
- *
- * ============================================
- * COMPORTEMENT
- * ============================================
- *
- * 1. NavLink détecte automatiquement la route active via isActive
- * 2. Si isActive === true:
- *    - Appliquer styles.activeLink (background gradient, glow effect)
- * 3. Header reste sticky en haut (position: sticky, top: 0)
- * 4. Backdrop blur effect sur le header
- *
- * ============================================
- * STYLES APPLIQUÉS
- * ============================================
- *
- * header:
- *   - display: flex, justify-content: space-between
- *   - background: rgba(10, 15, 26, 0.8)
- *   - backdrop-filter: blur(20px)
- *   - border-bottom: 1px solid rgba(255,255,255,0.08)
- *   - position: sticky, top: 0, z-index: 100
- *
- * title:
- *   - gradient text: vert (#10B981) → bleu (#3B82F6)
- *   - font-weight: 800
- *
- * nav:
- *   - background: glass card
- *   - border-radius: 14px
- *   - padding: 6px
- *
- * link:
- *   - padding: 10px 20px
- *   - border-radius: 10px
- *   - transition: all 0.2s
- *
- * activeLink:
- *   - background: gradient avec opacité
- *   - color: vert
- *   - box-shadow: glow effect
- */
+import { NavLink } from 'react-router-dom';
+import logo from './logo.png';
 
-// TODO: Implémenter le composant Header selon le pseudo-code ci-dessus
+// Header styles
+const headerStyles = {
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    background: 'rgba(10, 15, 26, 0.8)',
+    backdropFilter: 'blur(20px)',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+    position: 'sticky',
+    top: 0,
+    zIndex: 100,
+    padding: '20px 40px'
+  },
+  title: {
+    background: 'linear-gradient(135deg, #10B981 0%, #3B82F6 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+    fontWeight: '800',
+    fontSize: '1.75rem',
+    margin: 0
+  },
+  nav: {
+    display: 'flex',
+    gap: '8px',
+    background: 'rgba(30, 41, 59, 0.4)',
+    backdropFilter: 'blur(10px)',
+    borderRadius: '14px',
+    padding: '6px',
+    border: '1px solid rgba(255, 255, 255, 0.1)'
+  },
+  link: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '10px 20px',
+    borderRadius: '10px',
+    textDecoration: 'none',
+    color: '#94a3b8',
+    fontSize: '0.9375rem',
+    fontWeight: '500',
+    transition: 'all 0.2s ease'
+  },
+  activeLink: {
+    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%)',
+    color: '#10B981',
+    boxShadow: '0 0 20px rgba(16, 185, 129, 0.3)',
+    fontWeight: '600'
+  }
+};
+
+// Navigation data
+const navItems = [
+  { path: '/', label: 'Overview', icon: '📊' },
+  { path: '/timeline', label: 'Timeline', icon: '📈' },
+  { path: '/analysis', label: 'Analysis', icon: '🔍' },
+  { path: '/events', label: 'Events', icon: '📰' },
+  { path: '/about', label: 'About', icon: 'ℹ️' }
+];
+
+// Header component
 export default function Header() {
-  // IMPLEMENTATION ICI
-  return null;
+  return (
+    <header style={headerStyles.header}>
+      <a href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+        <img src={logo} alt="Crypto Vision" style={{ height: '36px', marginRight: '12px' }} />
+        <h1 style={headerStyles.title}>Crypto Vision</h1>
+      </a>
+
+      <nav style={headerStyles.nav}>
+        {navItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            end={item.path === '/'}
+            style={({ isActive }) => ({
+              ...headerStyles.link,
+              ...(isActive ? headerStyles.activeLink : {})
+            })}
+          >
+            <span>{item.icon}</span>
+            {item.label}
+          </NavLink>
+        ))}
+      </nav>
+    </header>
+  );
 }

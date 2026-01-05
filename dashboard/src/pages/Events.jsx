@@ -1,277 +1,110 @@
-import { useState } from 'react';
-import {
-  eventsData,
-  cryptoFilters,
-  typeLabels,
-  formatDate,
-  COLORS
-} from '../data/mockData';
-import { sharedStyles } from '../styles/commonStyles';
+import { useState, useEffect } from 'react';
+import { MessageSquare, X, ChevronDown, ChevronUp, Calendar, Filter } from 'lucide-react';
+import { useCrypto } from '../store';
+import { cryptoFilters, typeLabels, formatDate } from '../data/mockData';
+import Chatbot from '../components/Chatbot';
+import '../styles/events.css';
 
-// ============================================
-// SOUS-COMPOSANT: EventCard
-// ============================================
+// Event Card Component
 const EventCard = ({ event, isExpanded, onToggle }) => {
-  const borderColor = COLORS[event.type];
+  const sentimentClass = event.type || 'neutral';
 
   return (
-    <div
-      onClick={onToggle}
-      style={{
-        ...sharedStyles.card,
-        borderLeft: `4px solid ${borderColor}`,
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-        ':hover': {
-          transform: 'translateX(4px)'
-        }
-      }}
-    >
-      {/* HEADER */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: '12px'
-      }}>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <span style={{
-            color: '#888',
-            fontSize: '0.875rem'
-          }}>
-            {formatDate(event.date)}
+    <div className={`event-card ${sentimentClass}`} onClick={onToggle}>
+      <div className="event-card-header">
+        <div className="event-meta">
+          <span className="event-date">
+            {formatDate ? formatDate(event.date) : event.date}
           </span>
-          <span style={{
-            padding: '2px 8px',
-            borderRadius: '4px',
-            backgroundColor: `${borderColor}22`,
-            color: borderColor,
-            fontSize: '0.75rem',
-            fontWeight: '600'
-          }}>
-            {typeLabels[event.type]}
+          <span className={`event-type-badge ${sentimentClass}`}>
+            {typeLabels?.[event.type] || event.type}
           </span>
-          <span style={{
-            padding: '2px 8px',
-            borderRadius: '4px',
-            backgroundColor: '#333',
-            color: '#fff',
-            fontSize: '0.75rem',
-            fontWeight: '600'
-          }}>
-            {event.crypto}
-          </span>
+          <span className="event-crypto-badge">{event.crypto}</span>
         </div>
-
-        <span style={{
-          fontSize: '1.25rem',
-          color: '#888',
-          fontWeight: 'bold'
-        }}>
-          {isExpanded ? '−' : '+'}
+        <span className="event-expand-icon">
+          {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </span>
       </div>
-
-      {/* TITLE */}
-      <h3 style={{
-        fontSize: '1.125rem',
-        color: '#fff',
-        marginBottom: '8px',
-        fontWeight: '600'
-      }}>
-        {event.title}
-      </h3>
-
-      {/* EXPANDED DETAILS */}
+      <h3 className="event-title">{event.title}</h3>
       {isExpanded && (
-        <div style={{
-          marginTop: '16px',
-          paddingTop: '16px',
-          borderTop: '1px solid #333'
-        }}>
-          <p style={{
-            color: '#ccc',
-            lineHeight: '1.6',
-            fontSize: '0.9375rem'
-          }}>
-            {event.description}
-          </p>
+        <div className="event-details">
+          <p className="event-description">{event.description}</p>
         </div>
       )}
     </div>
   );
 };
 
-// ============================================
-// SOUS-COMPOSANT: EventModal
-// ============================================
+// Event Modal Component
 const EventModal = ({ event, onClose }) => {
   if (!event) return null;
-
-  const borderColor = COLORS[event.type];
+  const sentimentClass = event.type || 'neutral';
 
   return (
-    <div
-      onClick={onClose}
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-        padding: '20px'
-      }}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          backgroundColor: '#0d0d0d',
-          borderRadius: '12px',
-          borderTop: `4px solid ${borderColor}`,
-          maxWidth: '600px',
-          width: '100%',
-          maxHeight: '80vh',
-          overflow: 'auto',
-          padding: '32px',
-          position: 'relative'
-        }}
-      >
-        {/* MODAL HEADER */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: '20px'
-        }}>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{
-              color: '#888',
-              fontSize: '0.875rem'
-            }}>
-              {formatDate(event.date)}
+    <div className="event-modal-overlay" onClick={onClose}>
+      <div className={`event-modal ${sentimentClass}`} onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <div className="event-meta">
+            <span className="event-date">
+              {formatDate ? formatDate(event.date) : event.date}
             </span>
-            <span style={{
-              padding: '4px 12px',
-              borderRadius: '4px',
-              backgroundColor: `${borderColor}22`,
-              color: borderColor,
-              fontSize: '0.875rem',
-              fontWeight: '600'
-            }}>
-              {typeLabels[event.type]}
+            <span className={`event-type-badge ${sentimentClass}`}>
+              {typeLabels?.[event.type] || event.type}
             </span>
-            <span style={{
-              padding: '4px 12px',
-              borderRadius: '4px',
-              backgroundColor: '#333',
-              color: '#fff',
-              fontSize: '0.875rem',
-              fontWeight: '600'
-            }}>
-              {event.crypto}
-            </span>
+            <span className="event-crypto-badge">{event.crypto}</span>
           </div>
-
-          <button
-            onClick={onClose}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#888',
-              fontSize: '1.5rem',
-              cursor: 'pointer',
-              padding: '0',
-              width: '32px',
-              height: '32px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '4px',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#333';
-              e.target.style.color = '#fff';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'transparent';
-              e.target.style.color = '#888';
-            }}
-          >
-            ×
+          <button className="modal-close" onClick={onClose}>
+            <X size={18} />
           </button>
         </div>
-
-        {/* TITLE */}
-        <h2 style={{
-          fontSize: '1.5rem',
-          color: '#fff',
-          marginBottom: '20px',
-          fontWeight: '700'
-        }}>
-          {event.title}
-        </h2>
-
-        {/* DESCRIPTION */}
-        <p style={{
-          color: '#ccc',
-          lineHeight: '1.8',
-          fontSize: '1rem',
-          marginBottom: '24px'
-        }}>
-          {event.description}
-        </p>
-
-        {/* FOOTER */}
-        <div style={{
-          paddingTop: '20px',
-          borderTop: '1px solid #333',
-          color: '#888',
-          fontSize: '0.875rem'
-        }}>
-          Impact: <span style={{ color: borderColor, fontWeight: '600' }}>
-            {typeLabels[event.type]}
-          </span>
+        <h2 className="modal-title">{event.title}</h2>
+        <p className="modal-description">{event.description}</p>
+        <div className="modal-footer">
+          Impact: <strong style={{ color: sentimentClass === 'positive' ? '#10b981' : sentimentClass === 'negative' ? '#ef4444' : '#6b7280' }}>
+            {typeLabels?.[event.type] || event.type}
+          </strong>
         </div>
       </div>
     </div>
   );
 };
 
-// ============================================
-// COMPOSANT PRINCIPAL: Events
-// ============================================
 export default function Events() {
-  // ============================================
-  // STATE
-  // ============================================
+  const { fetchEvents } = useCrypto();
   const [filter, setFilter] = useState('All');
+  const [sentimentFilter, setSentimentFilter] = useState('All');
   const [expandedId, setExpandedId] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [viewMode, setViewMode] = useState('expand');
+  const [events, setEvents] = useState([]);
+  const [stats, setStats] = useState({ total: 0, positive: 0, negative: 0, neutral: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // ============================================
-  // DONNÉES DÉRIVÉES
-  // ============================================
-  const filteredEvents = filter === 'All'
-    ? eventsData
-    : eventsData.filter(e => e.crypto === filter);
+  const sentimentOptions = [
+    { value: 'All', label: 'Tous' },
+    { value: 'positive', label: 'Positif' },
+    { value: 'negative', label: 'Negatif' },
+    { value: 'neutral', label: 'Neutre' }
+  ];
 
-  const stats = {
-    total: filteredEvents.length,
-    positive: filteredEvents.filter(e => e.type === 'positive').length,
-    negative: filteredEvents.filter(e => e.type === 'negative').length,
-    neutral: filteredEvents.filter(e => e.type === 'neutral').length
-  };
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      setError(null);
+      try {
+        const result = await fetchEvents(filter, sentimentFilter, 50);
+        setEvents(result.events);
+        setStats(result.stats);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, [filter, sentimentFilter, fetchEvents]);
 
-  // ============================================
-  // HANDLERS
-  // ============================================
   const handleEventClick = (event) => {
     if (viewMode === 'modal') {
       setSelectedEvent(event);
@@ -280,151 +113,112 @@ export default function Events() {
     }
   };
 
-  // ============================================
-  // RENDER
-  // ============================================
+  if (loading) {
+    return (
+      <div className="events-page">
+        <div className="events-loading">
+          <div className="loading-spinner"></div>
+          <p style={{ color: '#64748b' }}>Chargement des evenements...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="events-page">
+        <div className="events-error">
+          <p style={{ color: '#ef4444' }}>Erreur: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div style={sharedStyles.pageContainer}>
-      {/* TITRE */}
-      <h1 style={{ fontSize: '2rem', marginBottom: '24px', color: '#fff' }}>
-        Crypto Events
-      </h1>
+    <div className="events-page">
+      {/* Header */}
+      <header className="events-header">
+        <div className="events-title-section">
+          <h1>Evenements Crypto</h1>
+          <p>Posts et actualites des reseaux sociaux</p>
+        </div>
+      </header>
 
-      {/* HEADER */}
-      <div style={{ marginBottom: '32px' }}>
-        {/* FILTER ROW */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '16px',
-          marginBottom: '20px'
-        }}>
-          {/* Filter Selector */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <label style={{ color: '#fff', fontSize: '1rem' }}>
-              Filter by:
-            </label>
-            <select
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
-                border: '1px solid #333',
-                backgroundColor: '#1a1a1a',
-                color: '#fff',
-                fontSize: '1rem',
-                cursor: 'pointer'
-              }}
-            >
-              {cryptoFilters.map((crypto) => (
-                <option key={crypto} value={crypto}>
-                  {crypto}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* View Toggle */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <label style={{ color: '#fff', fontSize: '1rem' }}>
-              View:
-            </label>
-            <button
-              onClick={() => setViewMode('expand')}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
-                border: '1px solid #333',
-                backgroundColor: viewMode === 'expand' ? COLORS.primary : '#1a1a1a',
-                color: '#fff',
-                fontSize: '0.875rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              Expand
-            </button>
-            <button
-              onClick={() => setViewMode('modal')}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
-                border: '1px solid #333',
-                backgroundColor: viewMode === 'modal' ? COLORS.primary : '#1a1a1a',
-                color: '#fff',
-                fontSize: '0.875rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              Modal
-            </button>
-          </div>
+      {/* Filters */}
+      <div className="events-filters">
+        <div className="filter-group">
+          <label>Crypto:</label>
+          <select
+            className="filter-select"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          >
+            {cryptoFilters.map((crypto) => (
+              <option key={crypto.value} value={crypto.value}>
+                {crypto.label}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* STATS ROW */}
-        <div style={{
-          display: 'flex',
-          gap: '16px',
-          flexWrap: 'wrap',
-          padding: '16px',
-          backgroundColor: '#1a1a1a',
-          borderRadius: '8px'
-        }}>
-          <div style={{ color: '#fff' }}>
-            Total: <strong>{stats.total}</strong>
-          </div>
-          <div style={{ color: COLORS.positive }}>
-            Positive: <strong>{stats.positive}</strong>
-          </div>
-          <div style={{ color: COLORS.negative }}>
-            Negative: <strong>{stats.negative}</strong>
-          </div>
-          <div style={{ color: '#888' }}>
-            Neutral: <strong>{stats.neutral}</strong>
-          </div>
+        <div className="filter-group">
+          <label>Sentiment:</label>
+          <select
+            className="filter-select"
+            value={sentimentFilter}
+            onChange={(e) => setSentimentFilter(e.target.value)}
+          >
+            {sentimentOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="view-toggle">
+          <button
+            className={`view-btn ${viewMode === 'expand' ? 'active' : ''}`}
+            onClick={() => setViewMode('expand')}
+          >
+            Expand
+          </button>
+          <button
+            className={`view-btn ${viewMode === 'modal' ? 'active' : ''}`}
+            onClick={() => setViewMode('modal')}
+          >
+            Modal
+          </button>
         </div>
       </div>
 
-      {/* TIMELINE */}
-      <div style={{ position: 'relative', paddingLeft: '40px' }}>
-        {/* Timeline Line */}
-        <div style={{
-          position: 'absolute',
-          left: '16px',
-          top: '0',
-          bottom: '0',
-          width: '2px',
-          background: 'linear-gradient(to bottom, #333, #666, #333)'
-        }} />
+      {/* Stats */}
+      <div className="events-stats">
+        <div className="stat-badge total">
+          <span className="label">Total</span>
+          <span className="value">{stats.total || events.length}</span>
+        </div>
+        <div className="stat-badge positive">
+          <span className="label">Positifs</span>
+          <span className="value">{stats.positive || 0}</span>
+        </div>
+        <div className="stat-badge negative">
+          <span className="label">Negatifs</span>
+          <span className="value">{stats.negative || 0}</span>
+        </div>
+        <div className="stat-badge neutral">
+          <span className="label">Neutres</span>
+          <span className="value">{stats.neutral || 0}</span>
+        </div>
+      </div>
 
-        {/* Events */}
-        {filteredEvents.length > 0 ? (
-          filteredEvents.map((event, index) => (
-            <div
-              key={event.id}
-              style={{
-                position: 'relative',
-                marginBottom: '24px'
-              }}
-            >
-              {/* Timeline Dot */}
-              <div style={{
-                position: 'absolute',
-                left: '-34px',
-                top: '24px',
-                width: '12px',
-                height: '12px',
-                borderRadius: '50%',
-                backgroundColor: COLORS[event.type],
-                boxShadow: `0 0 0 4px #0d0d0d, 0 0 0 6px ${COLORS[event.type]}44`,
-                zIndex: 1
-              }} />
-
-              {/* Event Card */}
+      {/* Timeline */}
+      <div className="events-timeline">
+        <div className="timeline-line" />
+        {events.length > 0 ? (
+          events.map((event) => (
+            <div key={event.id} className="event-item">
+              <div className={`event-dot ${event.type || 'neutral'}`} />
               <EventCard
                 event={event}
                 isExpanded={expandedId === event.id}
@@ -433,24 +227,21 @@ export default function Events() {
             </div>
           ))
         ) : (
-          <div style={{
-            textAlign: 'center',
-            padding: '60px 20px',
-            color: '#888',
-            fontSize: '1.125rem'
-          }}>
-            No events found.
+          <div className="events-empty">
+            <div className="events-empty-icon">
+              <MessageSquare size={32} />
+            </div>
+            <p>Aucun evenement trouve</p>
           </div>
         )}
       </div>
 
-      {/* MODAL */}
+      {/* Modal */}
       {viewMode === 'modal' && selectedEvent && (
-        <EventModal
-          event={selectedEvent}
-          onClose={() => setSelectedEvent(null)}
-        />
+        <EventModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
       )}
+
+      <Chatbot />
     </div>
   );
 }
