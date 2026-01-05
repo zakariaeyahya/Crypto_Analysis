@@ -1,0 +1,42 @@
+[
+  {
+    "id": "fb_20260103_131902_0",
+    "message_id": "test_123",
+    "question": "Quel est le sentiment de Bitcoin?",
+    "answer": "Le sentiment de Bitcoin est positif.",
+    "feedback_type": "positive",
+    "session_id": "test_session",
+    "comment": null,
+    "timestamp": "2026-01-03T13:19:02.167951"
+  },
+  {
+    "id": "fb_20260103_132655_1",
+    "message_id": "1767443211369",
+    "question": "Quelle crypto a le meilleur sentiment actuellement?",
+    "answer": "Le meilleur sentiment actuellement est pour la crypto Bitcoin, avec un score moyen de 0,51, reflétant une tonalitérather positive. Les scores varient entre 0,475 et 0,53, indiquant une légère dominance de sentiments positifs. Cela suggère que le marché crypto a une vision plutôt optimiste pour le Bitcoin.",
+    "feedback_type": "positive",
+    "session_id": "session_1767443159408_0tgr6q2bi",
+    "comment": null,
+    "timestamp": "2026-01-03T13:26:55.023055"
+  },
+  {
+    "id": "fb_20260103_132710_2",
+    "message_id": "1767443228430",
+    "question": "Quelles sont les opinions sur Solana?",
+    "answer": "Les opinions sur Solana sont mitigées, avec des scores allant de 0,376 à 0,440. Les utilisateurs discutent de sujets tels que les partenariats avec des entreprises de technologie et les opinions sur l'avenir des cryptomonnaies. Il y a également des discussions sur les hard forks et les changements dans les constantes de la blockchain. Globalement, les opinions sur Solana sont plutôt neutres, avec une légère tendance positive.",
+    "feedback_type": "positive",
+    "session_id": "session_1767443222730_o3ppi909i",
+    "comment": null,
+    "timestamp": "2026-01-03T13:27:10.094759"
+  },
+  {
+    "id": "fb_20260103_133123_3",
+    "message_id": "1767443478591",
+    "question": "jai pas compris",
+    "answer": "Les opinions sur Solana sont mitigées, avec des scores allant de 0,376 à 0,440, indiquant une tendance plutôt neutre avec une légère orientation positive. Les utilisateurs discutent de sujets variés liés à Solana, mais les scores récents, comme 0,415, montrent une légère baisse par rapport aux scores précédents. Cela suggère que les opinions sur Solana sont en constante évolution.",
+    "feedback_type": "positive",
+    "session_id": "session_1767443222730_o3ppi909i",
+    "comment": null,
+    "timestamp": "2026-01-03T13:31:23.370284"
+  }
+]

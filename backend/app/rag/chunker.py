@@ -163,20 +163,20 @@ class DocumentChunker:
     def display_stats(self, chunks):
         """
         Affiche les statistiques de manière lisible
-        
+
         Args:
             chunks (list): Liste des chunks
         """
         stats = self.get_stats(chunks)
-        
-        print("\n" + "="*60)
-        print("📊 STATISTIQUES DES CHUNKS")
-        print("="*60)
-        print(f"Total chunks:        {stats['total_chunks']}")
-        print(f"Longueur moyenne:    {stats['avg_length']:.0f} caractères")
-        print(f"Longueur min:        {stats['min_length']} caractères")
-        print(f"Longueur max:        {stats['max_length']} caractères")
-        print("\nPar type de document:")
+
+        logger.info("=" * 60)
+        logger.info("STATISTIQUES DES CHUNKS")
+        logger.info("=" * 60)
+        logger.info(f"Total chunks:        {stats['total_chunks']}")
+        logger.info(f"Longueur moyenne:    {stats['avg_length']:.0f} caracteres")
+        logger.info(f"Longueur min:        {stats['min_length']} caracteres")
+        logger.info(f"Longueur max:        {stats['max_length']} caracteres")
+        logger.info("Par type de document:")
         for doc_type, count in stats['by_type'].items():
-            print(f"  - {doc_type}: {count} chunks")
-        print("="*60 + "\n")
+            logger.info(f"  - {doc_type}: {count} chunks")
+        logger.info("=" * 60)

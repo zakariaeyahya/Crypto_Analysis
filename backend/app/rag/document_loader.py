@@ -292,8 +292,8 @@ class DocumentLoader:
                         }
                         documents.append(doc)
 
-                    except (ValueError, KeyError) as e:
-                        logger.debug(f"Ligne invalide ignorée: {e}")
+                    closes = [float(row.get("price_close", 0)) for row in week if row.get("price_close")]
+                    if not closes:
                         continue
 
                 crypto_docs = len([d for d in documents if d['crypto'] == crypto])

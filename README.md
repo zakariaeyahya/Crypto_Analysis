@@ -2,6 +2,21 @@
 
 Project for extraction and analysis of cryptocurrency tweets.
 
+## Features
+
+- **Dashboard interactif** - Visualisation sentiment, prix, corrélations
+- **Chatbot RAG intelligent** - Questions/réponses sur les cryptos
+- **Mémoire conversationnelle** - Le chatbot garde le contexte (10 messages, 30 min)
+- **Reformulation automatique** - Requêtes vagues enrichies ("Pourquoi?" → question complète)
+- **Évaluation RAGAS** - Métriques de qualité du système RAG
+
+## Outils de Développement
+
+- **IDE** : VS Code avec extensions (Claude Code, Pylint, ESLint)
+- **Versioning** : Git + GitHub
+- **Gestion de projet** : Trello
+- **Communication** : Discord et Google Meet
+
 ## Quick Start
 
 ### 1. Activate virtual environment

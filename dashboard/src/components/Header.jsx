@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
+import logo from './logo.png';
 
-// Styles du header
+// Header styles
 const headerStyles = {
   header: {
     display: 'flex',
@@ -52,19 +53,23 @@ const headerStyles = {
   }
 };
 
-// Données de navigation
+// Navigation data
 const navItems = [
   { path: '/', label: 'Overview', icon: '📊' },
   { path: '/timeline', label: 'Timeline', icon: '📈' },
   { path: '/analysis', label: 'Analysis', icon: '🔍' },
-  { path: '/events', label: 'Events', icon: '📰' }
+  { path: '/events', label: 'Events', icon: '📰' },
+  { path: '/about', label: 'About', icon: 'ℹ️' }
 ];
 
-// Composant Header
+// Header component
 export default function Header() {
   return (
     <header style={headerStyles.header}>
-      <h1 style={headerStyles.title}>◈ Crypto Dashboard</h1>
+      <a href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+        <img src={logo} alt="Crypto Vision" style={{ height: '36px', marginRight: '12px' }} />
+        <h1 style={headerStyles.title}>Crypto Vision</h1>
+      </a>
 
       <nav style={headerStyles.nav}>
         {navItems.map((item) => (

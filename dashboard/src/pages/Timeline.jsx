@@ -7,67 +7,44 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
   ReferenceLine
 } from 'recharts';
+import { TrendingUp, Activity, Info, Lightbulb } from 'lucide-react';
 import { useCrypto } from '../store';
-import { cryptoOptions, COLORS } from '../data/mockData';
-import { sharedStyles } from '../styles/commonStyles';
+import { cryptoOptions } from '../data/mockData';
+import Chatbot from '../components/Chatbot';
+import '../styles/timeline.css';
 
-// ============================================
-// SOUS-COMPOSANT: CustomTooltip
-// ============================================
+// Custom Tooltip
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload) return null;
 
   return (
     <div style={{
-      backgroundColor: 'rgba(0, 0, 0, 0.9)',
-      padding: '12px',
-      border: '1px solid #333',
-      borderRadius: '8px'
+      background: 'rgba(15, 15, 25, 0.95)',
+      backdropFilter: 'blur(10px)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      borderRadius: '12px',
+      padding: '14px 18px',
+      boxShadow: '0 10px 40px rgba(0, 0, 0, 0.4)'
     }}>
-      <p style={{
-        color: '#fff',
-        marginBottom: '8px',
-        fontWeight: 'bold',
-        fontSize: '0.875rem'
-      }}>
-        {label}
-      </p>
+      <p style={{ color: '#fff', fontWeight: '600', marginBottom: '8px' }}>{label}</p>
       {payload.map((entry, index) => (
-        <p
-          key={index}
-          style={{
-            color: entry.color,
-            margin: '4px 0',
-            fontSize: '0.875rem'
-          }}
-        >
-          {entry.name}: {entry.value}
+        <p key={index} style={{ color: entry.color, margin: '4px 0', fontSize: '0.9rem' }}>
+          {entry.name}: <strong>{entry.value}</strong>
         </p>
       ))}
     </div>
   );
 };
 
-// ============================================
-// COMPOSANT PRINCIPAL: Timeline
-// ============================================
 export default function Timeline() {
   const { fetchTimeline } = useCrypto();
-
-  // ============================================
-  // STATE
-  // ============================================
   const [selectedCrypto, setSelectedCrypto] = useState('BTC');
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // ============================================
-  // FETCH DATA
-  // ============================================
   useEffect(() => {
     async function loadData() {
       setLoading(true);
@@ -84,223 +61,130 @@ export default function Timeline() {
     loadData();
   }, [selectedCrypto, fetchTimeline]);
 
-  // ============================================
-  // DONNÉES DÉRIVÉES
-  // ============================================
   const currentSentiment = data.length > 0 ? data[data.length - 1].sentiment : 0;
-
   const avgSentiment = data.length > 0
     ? Math.round(data.reduce((sum, item) => sum + item.sentiment, 0) / data.length)
     : 0;
+  const selectedCryptoLabel = cryptoOptions.find(opt => opt.value === selectedCrypto)?.label || selectedCrypto;
 
-  const selectedCryptoLabel = cryptoOptions.find(
-    opt => opt.value === selectedCrypto
-  )?.label || selectedCrypto;
-
-  // ============================================
-  // LOADING / ERROR STATES
-  // ============================================
   if (loading) {
     return (
-      <div style={{ ...sharedStyles.pageContainer, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <div style={{ color: '#888', fontSize: '1.25rem' }}>Loading timeline...</div>
+      <div className="timeline-page">
+        <div className="timeline-loading">
+          <div className="loading-spinner"></div>
+          <p style={{ color: '#64748b' }}>Chargement de la timeline...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={{ ...sharedStyles.pageContainer, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <div style={{ color: '#EF4444', fontSize: '1.25rem' }}>Error: {error}</div>
+      <div className="timeline-page">
+        <div className="timeline-error">
+          <p style={{ color: '#ef4444' }}>Erreur: {error}</p>
+        </div>
       </div>
     );
   }
 
-  // ============================================
-  // RENDER
-  // ============================================
   return (
-    <div style={sharedStyles.pageContainer}>
-      {/* PAGE TITLE */}
-      <h1 style={sharedStyles.pageTitle}>
-        Sentiment Timeline
-      </h1>
-
-      {/* HEADER */}
-      <div style={{
-        ...sharedStyles.flexBetween,
-        marginBottom: '32px',
-        flexWrap: 'wrap',
-        gap: '16px'
-      }}>
-        {/* SELECTOR CONTAINER */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px'
-        }}>
-          <label style={{
-            color: '#fff',
-            fontSize: '1rem',
-            fontWeight: '500'
-          }}>
-            Crypto:
-          </label>
-          <select
-            value={selectedCrypto}
-            onChange={(e) => setSelectedCrypto(e.target.value)}
-            style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              border: '1px solid #333',
-              backgroundColor: '#1a1a1a',
-              color: '#fff',
-              fontSize: '1rem',
-              cursor: 'pointer',
-              outline: 'none'
-            }}
-          >
-            {cryptoOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+    <div className="timeline-page">
+      {/* Header */}
+      <header className="timeline-header">
+        <div className="timeline-title-section">
+          <h1>Sentiment Timeline</h1>
+          <p>Evolution du sentiment sur les 30 derniers jours</p>
         </div>
 
-        {/* STATS ROW */}
-        <div style={{
-          display: 'flex',
-          gap: '16px',
-          flexWrap: 'wrap'
-        }}>
-          {/* Current Sentiment */}
-          <div style={{
-            padding: '12px 20px',
-            backgroundColor: '#1a1a1a',
-            borderRadius: '8px',
-            border: '1px solid #333'
-          }}>
-            <p style={{
-              color: '#888',
-              fontSize: '0.75rem',
-              marginBottom: '4px'
-            }}>
-              Current
-            </p>
-            <p style={{
-              color: currentSentiment >= 0 ? COLORS.positive : COLORS.negative,
-              fontSize: '1.25rem',
-              fontWeight: 'bold'
-            }}>
-              {currentSentiment}
-            </p>
-          </div>
-
-          {/* Average Sentiment */}
-          <div style={{
-            padding: '12px 20px',
-            backgroundColor: '#1a1a1a',
-            borderRadius: '8px',
-            border: '1px solid #333'
-          }}>
-            <p style={{
-              color: '#888',
-              fontSize: '0.75rem',
-              marginBottom: '4px'
-            }}>
-              Avg (30d)
-            </p>
-            <p style={{
-              color: avgSentiment >= 0 ? COLORS.positive : COLORS.negative,
-              fontSize: '1.25rem',
-              fontWeight: 'bold'
-            }}>
-              {avgSentiment}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* CHART CARD */}
-      <div style={sharedStyles.card}>
-        {/* TITLE */}
-        <h2 style={{
-          fontSize: '1.25rem',
-          color: '#fff',
-          marginBottom: '8px',
-          fontWeight: '600'
-        }}>
-          Sentiment Evolution - {selectedCryptoLabel}
-        </h2>
-
-        {/* SUBTITLE */}
-        <p style={{
-          color: '#888',
-          fontSize: '0.875rem',
-          marginBottom: '24px'
-        }}>
-          Last 30 days (score: -100 to +100)
-        </p>
-
-        {/* CHART WRAPPER */}
-        <div style={{ height: '400px' }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={data}
-              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+        <div className="timeline-controls">
+          <div className="crypto-selector">
+            <label>Crypto:</label>
+            <select
+              className="crypto-select"
+              value={selectedCrypto}
+              onChange={(e) => setSelectedCrypto(e.target.value)}
             >
-              {/* GRID */}
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              {cryptoOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
-              {/* X AXIS */}
+          <div className="timeline-stats">
+            <div className="stat-mini-card">
+              <div className="label">Actuel</div>
+              <div className={`value ${currentSentiment >= 0 ? 'positive' : 'negative'}`}>
+                {currentSentiment}
+              </div>
+            </div>
+            <div className="stat-mini-card">
+              <div className="label">Moyenne</div>
+              <div className={`value ${avgSentiment >= 0 ? 'positive' : 'negative'}`}>
+                {avgSentiment}
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Chart Card */}
+      <div className="chart-card">
+        <div className="chart-header">
+          <div className="chart-title">
+            <div className="chart-title-icon">
+              <Activity size={22} />
+            </div>
+            <div className="chart-title-text">
+              <h2>Evolution du Sentiment - {selectedCryptoLabel}</h2>
+              <span>Score: -100 (bearish) a +100 (bullish)</span>
+            </div>
+          </div>
+          <div className="chart-legend">
+            <div className="legend-item">
+              <span className="legend-dot sentiment"></span>
+              Sentiment
+            </div>
+            <div className="legend-item">
+              <span className="legend-dot ma"></span>
+              MA 7 jours
+            </div>
+          </div>
+        </div>
+
+        <div className="chart-container">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
               <XAxis
                 dataKey="date"
-                stroke="#888"
-                tick={{ fill: '#888', fontSize: 12 }}
+                stroke="#4b5563"
+                tick={{ fill: '#6b7280', fontSize: 12 }}
               />
-
-              {/* Y AXIS */}
               <YAxis
                 domain={[-100, 100]}
                 ticks={[-100, -50, 0, 50, 100]}
-                stroke="#888"
-                tick={{ fill: '#888', fontSize: 12 }}
+                stroke="#4b5563"
+                tick={{ fill: '#6b7280', fontSize: 12 }}
               />
-
-              {/* TOOLTIP */}
               <Tooltip content={<CustomTooltip />} />
-
-              {/* LEGEND */}
-              <Legend
-                wrapperStyle={{ paddingTop: '20px' }}
-                iconType="line"
-              />
-
-              {/* REFERENCE LINE AT 0 */}
-              <ReferenceLine
-                y={0}
-                stroke="#666"
-                strokeDasharray="3 3"
-              />
-
-              {/* SENTIMENT LINE */}
+              <ReferenceLine y={0} stroke="#374151" strokeDasharray="3 3" />
               <Line
                 type="monotone"
                 dataKey="sentiment"
                 name="Sentiment"
-                stroke={COLORS.positive}
-                strokeWidth={2}
-                dot={{ r: 3, fill: COLORS.positive }}
-                activeDot={{ r: 5 }}
+                stroke="#10b981"
+                strokeWidth={2.5}
+                dot={{ r: 3, fill: '#10b981' }}
+                activeDot={{ r: 5, fill: '#34d399' }}
               />
-
-              {/* MA 7 DAYS LINE */}
               <Line
                 type="monotone"
                 dataKey="ma7"
                 name="MA 7 jours"
-                stroke={COLORS.negative}
+                stroke="#ef4444"
                 strokeWidth={2}
                 strokeDasharray="5 5"
                 dot={false}
@@ -309,6 +193,40 @@ export default function Timeline() {
           </ResponsiveContainer>
         </div>
       </div>
+
+      {/* Info Cards */}
+      <div className="timeline-info">
+        <div className="info-card">
+          <div className="info-card-header">
+            <div className="info-card-icon">
+              <Info size={20} />
+            </div>
+            <h3>Comment lire ce graphique</h3>
+          </div>
+          <p>
+            Le score de sentiment varie de -100 (tres negatif) a +100 (tres positif).
+            La ligne verte represente le sentiment quotidien, tandis que la ligne rouge
+            pointillee montre la moyenne mobile sur 7 jours pour lisser les fluctuations.
+          </p>
+        </div>
+
+        <div className="info-card">
+          <div className="info-card-header">
+            <div className="info-card-icon">
+              <Lightbulb size={20} />
+            </div>
+            <h3>Interpretation</h3>
+          </div>
+          <p>
+            Un sentiment positif persistant peut indiquer une tendance haussiere,
+            tandis qu'un sentiment negatif prolonge peut signaler une pression
+            baissiere. La divergence entre le prix et le sentiment peut reveler
+            des opportunites.
+          </p>
+        </div>
+      </div>
+
+      <Chatbot />
     </div>
   );
 }
