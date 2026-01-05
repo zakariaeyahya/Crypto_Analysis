@@ -1,15 +1,17 @@
 """
 Dataset de test pour l'evaluation RAGAS du chatbot crypto.
 
-Ce dataset contient des questions types avec les reponses attendues
-pour mesurer la qualite du systeme RAG.
+Ce module charge le dataset depuis le fichier JSON externe test_dataset.json
+pour faciliter la modification et la visualisation des questions de test.
 
 Categories de questions:
-1. Sentiment general
-2. Comparaison de cryptos
-3. Correlation prix/sentiment
-4. Analyse temporelle
-5. Questions vagues (reformulation)
+1. sentiment_general - Questions sur le sentiment (BTC, ETH, SOL)
+2. comparison - Comparaisons entre cryptos
+3. correlation - Questions sur correlation sentiment-prix
+4. temporal - Analyse temporelle du sentiment
+5. detailed - Analyses completes
+6. vague - Questions vagues (test reformulation)
+7. faq - Questions frequentes
 
 Usage:
     from app.rag.evaluation.test_dataset import TEST_DATASET, get_test_samples
@@ -19,247 +21,79 @@ Usage:
 
     # Sous-ensemble aleatoire
     samples = get_test_samples(10)
+
+    # Par categorie
+    samples = get_test_samples(n=5, category="comparison")
 """
 
+import json
 import random
-from typing import List, Dict
+from pathlib import Path
+from typing import List, Dict, Optional
 
 from app.rag.logger import get_logger
 
 logger = get_logger("test_dataset")
 
 # =====================================================================
-# DATASET COMPLET
+# CHARGEMENT DU DATASET DEPUIS JSON
 # =====================================================================
 
-TEST_DATASET: List[Dict] = [
-    # ===================================================================
-    # CATEGORIE 1: SENTIMENT GENERAL
-    # ===================================================================
-    {
-        "question": "Quel est le sentiment actuel de Bitcoin?",
-        "expected_topics": ["sentiment", "bitcoin", "score"],
-        "category": "sentiment_general",
-        "difficulty": "easy",
-        "ground_truth": "Le sentiment de Bitcoin doit inclure un score numerique et une interpretation (positif/negatif/neutre)."
-    },
-    {
-        "question": "Comment se porte le sentiment d'Ethereum?",
-        "expected_topics": ["sentiment", "ethereum", "tendance"],
-        "category": "sentiment_general",
-        "difficulty": "easy",
-        "ground_truth": "Le sentiment d'Ethereum avec score et interpretation."
-    },
-    {
-        "question": "Parle-moi du sentiment de Solana",
-        "expected_topics": ["sentiment", "solana"],
-        "category": "sentiment_general",
-        "difficulty": "easy",
-        "ground_truth": "Analyse du sentiment Solana avec donnees chiffrees."
-    },
-    {
-        "question": "Le sentiment crypto est-il positif ou negatif en ce moment?",
-        "expected_topics": ["sentiment", "global", "marche"],
-        "category": "sentiment_general",
-        "difficulty": "medium",
-        "ground_truth": "Vue d'ensemble du sentiment du marche crypto avec les 3 cryptos."
-    },
-    {
-        "question": "Quelle est l'ambiance generale sur les reseaux sociaux pour les cryptos?",
-        "expected_topics": ["sentiment", "social", "global"],
-        "category": "sentiment_general",
-        "difficulty": "medium",
-        "ground_truth": "Analyse du sentiment social global."
-    },
+def _load_dataset() -> Dict:
+    """Charge le dataset depuis le fichier JSON"""
+    json_path = Path(__file__).parent / "test_dataset.json"
 
-    # ===================================================================
-    # CATEGORIE 2: COMPARAISON
-    # ===================================================================
-    {
-        "question": "Compare le sentiment de Bitcoin et Ethereum",
-        "expected_topics": ["bitcoin", "ethereum", "comparaison", "sentiment"],
-        "category": "comparison",
-        "difficulty": "medium",
-        "ground_truth": "Comparaison directe des scores de sentiment BTC vs ETH avec interpretation."
-    },
-    {
-        "question": "Quelle crypto a le meilleur sentiment actuellement?",
-        "expected_topics": ["meilleur", "sentiment", "crypto"],
-        "category": "comparison",
-        "difficulty": "medium",
-        "ground_truth": "Classement des 3 cryptos par score de sentiment avec le gagnant."
-    },
-    {
-        "question": "Entre BTC, ETH et SOL, lequel est le plus apprecie?",
-        "expected_topics": ["btc", "eth", "sol", "appreciation"],
-        "category": "comparison",
-        "difficulty": "medium",
-        "ground_truth": "Comparaison des 3 cryptos avec scores."
-    },
-    {
-        "question": "Compare le sentiment de toutes les cryptos",
-        "expected_topics": ["comparaison", "toutes", "sentiment"],
-        "category": "comparison",
-        "difficulty": "hard",
-        "ground_truth": "Tableau comparatif complet des 3 cryptos."
-    },
+    try:
+        with open(json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        logger.info(f"Dataset charge: {len(data.get('questions', []))} questions")
+        return data
+    except FileNotFoundError:
+        logger.error(f"Fichier non trouve: {json_path}")
+        return {"questions": [], "quick_eval_samples": [], "metadata": {}}
+    except json.JSONDecodeError as e:
+        logger.error(f"Erreur JSON: {e}")
+        return {"questions": [], "quick_eval_samples": [], "metadata": {}}
 
-    # ===================================================================
-    # CATEGORIE 3: CORRELATION PRIX/SENTIMENT
-    # ===================================================================
-    {
-        "question": "Y a-t-il une correlation entre le sentiment et le prix de Bitcoin?",
-        "expected_topics": ["correlation", "prix", "bitcoin", "pearson"],
-        "category": "correlation",
-        "difficulty": "hard",
-        "ground_truth": "Coefficient de correlation de Pearson avec interpretation."
-    },
-    {
-        "question": "Le sentiment influence-t-il le prix d'Ethereum?",
-        "expected_topics": ["influence", "prix", "ethereum", "sentiment"],
-        "category": "correlation",
-        "difficulty": "hard",
-        "ground_truth": "Analyse de la correlation sentiment-prix pour ETH."
-    },
-    {
-        "question": "Quelle crypto a la plus forte correlation sentiment-prix?",
-        "expected_topics": ["correlation", "forte", "crypto"],
-        "category": "correlation",
-        "difficulty": "hard",
-        "ground_truth": "Comparaison des correlations avec la crypto gagnante."
-    },
-    {
-        "question": "Explique-moi la relation entre sentiment et prix",
-        "expected_topics": ["relation", "sentiment", "prix", "explication"],
-        "category": "correlation",
-        "difficulty": "medium",
-        "ground_truth": "Explication pedagogique de la correlation avec exemples."
-    },
 
-    # ===================================================================
-    # CATEGORIE 4: ANALYSE TEMPORELLE
-    # ===================================================================
-    {
-        "question": "Comment a evolue le sentiment de Bitcoin cette semaine?",
-        "expected_topics": ["evolution", "bitcoin", "semaine", "tendance"],
-        "category": "temporal",
-        "difficulty": "medium",
-        "ground_truth": "Evolution du sentiment sur la semaine avec tendance."
-    },
-    {
-        "question": "Le sentiment d'Ethereum s'ameliore-t-il?",
-        "expected_topics": ["amelioration", "ethereum", "tendance"],
-        "category": "temporal",
-        "difficulty": "medium",
-        "ground_truth": "Analyse de la tendance du sentiment ETH."
-    },
-    {
-        "question": "Quel est le trend du sentiment crypto sur le dernier mois?",
-        "expected_topics": ["trend", "mois", "sentiment"],
-        "category": "temporal",
-        "difficulty": "hard",
-        "ground_truth": "Tendance mensuelle du sentiment global."
-    },
+# Charger le dataset au demarrage
+_DATASET = _load_dataset()
 
-    # ===================================================================
-    # CATEGORIE 5: QUESTIONS DETAILLEES
-    # ===================================================================
-    {
-        "question": "Donne-moi une analyse complete de Bitcoin",
-        "expected_topics": ["bitcoin", "analyse", "complete", "sentiment", "prix"],
-        "category": "detailed",
-        "difficulty": "hard",
-        "ground_truth": "Analyse complete: sentiment, prix, correlation, tendance."
-    },
-    {
-        "question": "Resume la situation d'Ethereum",
-        "expected_topics": ["ethereum", "resume", "situation"],
-        "category": "detailed",
-        "difficulty": "medium",
-        "ground_truth": "Resume concis de la situation ETH."
-    },
-    {
-        "question": "Que disent les gens sur Solana?",
-        "expected_topics": ["solana", "opinions", "social"],
-        "category": "detailed",
-        "difficulty": "medium",
-        "ground_truth": "Resume des opinions sociales sur Solana."
-    },
-
-    # ===================================================================
-    # CATEGORIE 6: QUESTIONS VAGUES (Test reformulation)
-    # ===================================================================
-    {
-        "question": "Et Solana?",
-        "expected_topics": ["solana"],
-        "category": "vague",
-        "difficulty": "easy",
-        "requires_context": True,
-        "ground_truth": "La question doit etre reformulee avec le contexte precedent."
-    },
-    {
-        "question": "Pourquoi?",
-        "expected_topics": ["explication"],
-        "category": "vague",
-        "difficulty": "easy",
-        "requires_context": True,
-        "ground_truth": "La question doit etre reformulee pour demander une explication."
-    },
-    {
-        "question": "Et les autres?",
-        "expected_topics": ["autres", "cryptos"],
-        "category": "vague",
-        "difficulty": "easy",
-        "requires_context": True,
-        "ground_truth": "La question doit etre reformulee pour inclure les autres cryptos."
-    },
-    {
-        "question": "Lequel?",
-        "expected_topics": ["comparaison"],
-        "category": "vague",
-        "difficulty": "easy",
-        "requires_context": True,
-        "ground_truth": "La question doit etre reformulee pour demander une comparaison."
-    },
-
-    # ===================================================================
-    # CATEGORIE 7: QUESTIONS FAQ
-    # ===================================================================
-    {
-        "question": "Comment fonctionne le score de sentiment?",
-        "expected_topics": ["score", "fonctionnement", "explication"],
-        "category": "faq",
-        "difficulty": "easy",
-        "ground_truth": "Explication du score entre -1 et +1."
-    },
-    {
-        "question": "Qu'est-ce que la correlation de Pearson?",
-        "expected_topics": ["pearson", "correlation", "definition"],
-        "category": "faq",
-        "difficulty": "easy",
-        "ground_truth": "Definition et explication du coefficient de Pearson."
-    },
-    {
-        "question": "D'ou viennent les donnees?",
-        "expected_topics": ["donnees", "source", "origine"],
-        "category": "faq",
-        "difficulty": "easy",
-        "ground_truth": "Explication des sources de donnees (Twitter, Reddit)."
-    },
-]
+# Export des donnees
+TEST_DATASET: List[Dict] = _DATASET.get("questions", [])
+QUICK_EVAL_SAMPLES: List[Dict] = _DATASET.get("quick_eval_samples", [])
+DATASET_METADATA: Dict = _DATASET.get("metadata", {})
 
 
 # =====================================================================
 # FONCTIONS UTILITAIRES
 # =====================================================================
 
-def get_test_samples(n: int = None, category: str = None, shuffle: bool = True) -> List[Dict]:
+def reload_dataset() -> None:
+    """Recharge le dataset depuis le fichier JSON"""
+    global _DATASET, TEST_DATASET, QUICK_EVAL_SAMPLES, DATASET_METADATA
+
+    _DATASET = _load_dataset()
+    TEST_DATASET = _DATASET.get("questions", [])
+    QUICK_EVAL_SAMPLES = _DATASET.get("quick_eval_samples", [])
+    DATASET_METADATA = _DATASET.get("metadata", {})
+
+    logger.info("Dataset recharge")
+
+
+def get_test_samples(
+    n: Optional[int] = None,
+    category: Optional[str] = None,
+    difficulty: Optional[str] = None,
+    shuffle: bool = True
+) -> List[Dict]:
     """
     Retourne un sous-ensemble du dataset de test.
 
     Args:
         n: Nombre de samples (None = tous)
-        category: Filtrer par categorie
+        category: Filtrer par categorie (sentiment_general, comparison, etc.)
+        difficulty: Filtrer par difficulte (easy, medium, hard)
         shuffle: Melanger les samples
 
     Returns:
@@ -270,6 +104,12 @@ def get_test_samples(n: int = None, category: str = None, shuffle: bool = True) 
     # Filtrer par categorie
     if category:
         samples = [s for s in samples if s.get("category") == category]
+        logger.debug(f"Filtre categorie '{category}': {len(samples)} samples")
+
+    # Filtrer par difficulte
+    if difficulty:
+        samples = [s for s in samples if s.get("difficulty") == difficulty]
+        logger.debug(f"Filtre difficulte '{difficulty}': {len(samples)} samples")
 
     # Melanger
     if shuffle:
@@ -295,9 +135,29 @@ def get_samples_by_difficulty(difficulty: str) -> List[Dict]:
     return [s for s in TEST_DATASET if s.get("difficulty") == difficulty]
 
 
+def get_samples_by_category(category: str) -> List[Dict]:
+    """
+    Retourne les samples par categorie.
+
+    Args:
+        category: Nom de la categorie
+
+    Returns:
+        Liste de samples
+    """
+    return [s for s in TEST_DATASET if s.get("category") == category]
+
+
 def get_categories() -> List[str]:
     """Retourne la liste des categories disponibles"""
-    return list(set(s.get("category", "other") for s in TEST_DATASET))
+    return DATASET_METADATA.get("categories", list(set(
+        s.get("category", "other") for s in TEST_DATASET
+    )))
+
+
+def get_difficulties() -> List[str]:
+    """Retourne la liste des niveaux de difficulte"""
+    return DATASET_METADATA.get("difficulties", ["easy", "medium", "hard"])
 
 
 def get_dataset_stats() -> Dict:
@@ -315,41 +175,52 @@ def get_dataset_stats() -> Dict:
     return {
         "total_samples": len(TEST_DATASET),
         "categories": categories,
-        "difficulties": difficulties
+        "difficulties": difficulties,
+        "metadata": DATASET_METADATA
     }
 
 
-# =====================================================================
-# QUICK EVAL SAMPLES (pour tests rapides)
-# =====================================================================
+def get_question_by_id(question_id: int) -> Optional[Dict]:
+    """
+    Retourne une question par son ID.
 
-QUICK_EVAL_SAMPLES = [
-    {
-        "question": "Quel est le sentiment actuel de Bitcoin?",
-        "category": "sentiment_general",
-    },
-    {
-        "question": "Compare le sentiment de Bitcoin et Ethereum",
-        "category": "comparison",
-    },
-    {
-        "question": "Y a-t-il une correlation entre sentiment et prix?",
-        "category": "correlation",
-    },
-    {
-        "question": "Quelle crypto a le meilleur sentiment?",
-        "category": "comparison",
-    },
-    {
-        "question": "Comment fonctionne le score de sentiment?",
-        "category": "faq",
-    },
-]
+    Args:
+        question_id: ID de la question
 
+    Returns:
+        Question ou None si non trouvee
+    """
+    for q in TEST_DATASET:
+        if q.get("id") == question_id:
+            return q
+    return None
+
+
+def get_vague_questions() -> List[Dict]:
+    """Retourne les questions vagues (pour tester la reformulation)"""
+    return [s for s in TEST_DATASET if s.get("requires_context", False)]
+
+
+# =====================================================================
+# MAIN - Affichage des stats
+# =====================================================================
 
 if __name__ == "__main__":
     # Afficher les stats du dataset
     stats = get_dataset_stats()
-    logger.info(f"Dataset RAGAS: {stats['total_samples']} samples")
-    logger.info(f"Categories: {stats['categories']}")
-    logger.info(f"Difficulties: {stats['difficulties']}")
+
+    print("=" * 50)
+    print("RAGAS TEST DATASET - STATISTICS")
+    print("=" * 50)
+    print(f"Total questions: {stats['total_samples']}")
+    print()
+    print("Categories:")
+    for cat, count in stats["categories"].items():
+        print(f"  - {cat}: {count}")
+    print()
+    print("Difficulties:")
+    for diff, count in stats["difficulties"].items():
+        print(f"  - {diff}: {count}")
+    print()
+    print("Quick eval samples:", len(QUICK_EVAL_SAMPLES))
+    print("=" * 50)
