@@ -17,8 +17,8 @@ class Settings(BaseSettings):
         "*" if os.getenv("ALLOW_ALL_ORIGINS", "false").lower() == "true" else "",
     ]
 
-    # Data paths
-    BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent.parent
+    # Data paths - support Docker et local
+    BASE_DIR: Path = Path(os.getenv("DATA_BASE_DIR", Path(__file__).resolve().parent.parent.parent.parent))
     DATA_GOLD_DIR: Path = BASE_DIR / "data" / "gold"
     DATA_SILVER_DIR: Path = BASE_DIR / "data" / "silver" / "enriched_data"
     DATA_BRONZE_DIR: Path = BASE_DIR / "data" / "bronze"
