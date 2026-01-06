@@ -9,8 +9,13 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api"
     PROJECT_NAME: str = "Crypto Dashboard API"
 
-    # CORS
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    # CORS - Ajouter ton domaine Vercel ici apres deploiement
+    CORS_ORIGINS: List[str] = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        os.getenv("FRONTEND_URL", ""),  # URL Vercel (ex: https://ton-app.vercel.app)
+        "*" if os.getenv("ALLOW_ALL_ORIGINS", "false").lower() == "true" else "",
+    ]
 
     # Data paths
     BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent.parent

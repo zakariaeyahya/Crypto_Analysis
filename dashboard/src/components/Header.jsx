@@ -67,8 +67,8 @@ export default function Header() {
   return (
     <header style={headerStyles.header}>
       <a href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-        <img src={logo} alt="Crypto Vision" style={{ height: '36px', marginRight: '12px' }} />
-        <h1 style={headerStyles.title}>Crypto Vision</h1>
+        <img src={logo} alt="CryptoVibe" style={{ height: '36px', marginRight: '12px' }} />
+        <h1 style={headerStyles.title}>Crypto Vibe</h1>
       </a>
 
       <nav style={headerStyles.nav}>
