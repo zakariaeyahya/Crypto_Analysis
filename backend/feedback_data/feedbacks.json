@@ -38,5 +38,85 @@
     "session_id": "session_1767443222730_o3ppi909i",
     "comment": null,
     "timestamp": "2026-01-03T13:31:23.370284"
+  },
+  {
+    "id": "fb_20260106_092919_4",
+    "message_id": "1767688149411",
+    "question": "parle moi de messi",
+    "answer": "Je ne trouve aucune information sur Messi dans les données disponibles. Il semble que les données soient principalement liées aux cryptomonnaies et à leurs sentiments sur les réseaux sociaux.",
+    "feedback_type": "negative",
+    "session_id": "session_1767687250009_zc7rxxfc9",
+    "comment": null,
+    "timestamp": "2026-01-06T09:29:19.461023"
+  },
+  {
+    "id": "fb_20260106_112807_5",
+    "message_id": "1767695284964",
+    "question": "\"Lequel est le meilleur?\"",
+    "answer": "Le sentiment actuel de Bitcoin est plutôt positif, avec des scores supérieurs à ceux d'Ethereum. En comparaison, le sentiment d'Ethereum est légèrement négatif, avec des scores inférieurs. Il semble que les utilisateurs soient plus optimistes quant au potentiel de Bitcoin. Par conséquent, Bitcoin semble être le meilleur choix en ce moment.",
+    "feedback_type": "positive",
+    "session_id": "session_1767695248483_4saayg1rx",
+    "comment": null,
+    "timestamp": "2026-01-06T11:28:07.879732"
+  },
+  {
+    "id": "fb_20260106_112809_6",
+    "message_id": "1767695280159",
+    "question": "Pourquoi?",
+    "answer": "Le sentiment actuel de Bitcoin est plutôt positif en raison de l'optimisme des utilisateurs quant à son potentiel et à sa révolution. Les utilisateurs expriment leur confiance en Bitcoin, considérant qu'il s'agit d'une bonne opportunité d'investissement, mais soulignent également les risques associés. Cela est évident à travers les tweets qui partagent des conseils d'investissement et des opinions positives sur le potentiel de Bitcoin.",
+    "feedback_type": "negative",
+    "session_id": "session_1767695248483_4saayg1rx",
+    "comment": null,
+    "timestamp": "2026-01-06T11:28:09.378085"
+  },
+  {
+    "id": "fb_20260106_112811_7",
+    "message_id": "1767695276540",
+    "question": "Et pour Ethereum?",
+    "answer": "Le sentiment actuel d'Ethereum est légèrement négatif, avec des scores allant de 0,514 à 0,530, indiquant une opinion globalement neutre à légèrement défavorable. Les utilisateurs expriment une certaine incertitude quant au potentiel d'Ethereum, avec des scores inférieurs à ceux de Bitcoin. Cela suggère que les utilisateurs sont moins optimistes quant à l'avenir d'Ethereum par rapport à Bitcoin.",
+    "feedback_type": "positive",
+    "session_id": "session_1767695248483_4saayg1rx",
+    "comment": null,
+    "timestamp": "2026-01-06T11:28:11.190408"
+  },
+  {
+    "id": "fb_20260106_112813_8",
+    "message_id": "1767695261503",
+    "question": "Quel est le sentiment actuel de Bitcoin?",
+    "answer": "Le sentiment actuel de Bitcoin est plutôt positif, avec des scores allant de 0,650 à 0,692, ce qui indique une opinion globalement favorable. Les utilisateurs expriment leur optimisme quant au potentiel de Bitcoin, le considérant comme une révolution et une bonne opportunité d'investissement. Cependant, certains utilisateurs soulignent également les risques associés à cette cryptomonnaie.",
+    "feedback_type": "positive",
+    "session_id": "session_1767695248483_4saayg1rx",
+    "comment": null,
+    "timestamp": "2026-01-06T11:28:13.361189"
+  },
+  {
+    "id": "fb_20260106_130622_9",
+    "message_id": "1767701180127",
+    "question": "Et pour Ethereum?",
+    "answer": "Le sentiment actuel d'Ethereum est légèrement négatif, avec des scores autour de 0,52, indiquant un manque de confiance. Les utilisateurs expriment des opinions mitigées, avec des commentaires qui soulignent les caractéristiques d'Ethereum, mais également des doutes sur son potentiel. La tendance est globalement stable, avec des fluctuations mineures dans les scores.",
+    "feedback_type": "positive",
+    "session_id": "session_1767701152894_u60knqooj",
+    "comment": null,
+    "timestamp": "2026-01-06T13:06:22.140907"
+  },
+  {
+    "id": "fb_20260106_130632_10",
+    "message_id": "1767701190932",
+    "question": "\"Lequel est le meilleur?\"",
+    "answer": "Le Bitcoin semble être le meilleur choix en ce moment, avec un sentiment généralement positif et un score élevé. En comparaison, Ethereum affiche un sentiment légèrement négatif, avec des scores plus bas. Le Bitcoin bénéficie d'une confiance modérée et d'une tendance haussière, ce qui le positionne comme le choix le plus prometteur pour le moment.",
+    "feedback_type": "positive",
+    "session_id": "session_1767701152894_u60knqooj",
+    "comment": null,
+    "timestamp": "2026-01-06T13:06:32.626477"
+  },
+  {
+    "id": "fb_20260106_130634_11",
+    "message_id": "1767701185740",
+    "question": "Pourquoi?",
+    "answer": "Le sentiment actuel de Bitcoin est généralement positif en raison de la confiance des utilisateurs dans son potentiel, même si des risques sont associés. Les utilisateurs expriment des opinions positives sur les conseils d'investissement et les caractéristiques uniques de Bitcoin. Cela est évident à travers les commentaires qui mettent en avant les avantages de l'investissement dans Bitcoin.",
+    "feedback_type": "negative",
+    "session_id": "session_1767701152894_u60knqooj",
+    "comment": null,
+    "timestamp": "2026-01-06T13:06:34.106449"
   }
 ]
