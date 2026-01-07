@@ -46,55 +46,32 @@ CryptoVibe est une plateforme complete d'analyse de sentiment du marche des cryp
 
 ## Architecture
 
-```
-+-----------------+     +------------------+     +------------------+
-|    Frontend     |     |     Backend      |     |    Data Layer    |
-|    React:3000   |<--->|   FastAPI:8000   |<--->|    JSON/CSV      |
-+-----------------+     +------------------+     +------------------+
-                               |
-                               v
-                  +------------------------+
-                  |      RAG Pipeline      |
-                  |  +------------------+  |
-                  |  | Memory Service   |  |
-                  |  | (10 msg, 30min)  |  |
-                  |  +------------------+  |
-                  |           |            |
-                  |           v            |
-                  |  +------------------+  |
-                  |  | Query Reformul.  |  |
-                  |  +------------------+  |
-                  |           |            |
-                  |           v            |
-                  |  +------------------+  |     +------------------+
-                  |  | Embeddings       |------>|    Pinecone      |
-                  |  | (MiniLM-L6-v2)   |  |     |   (~26k docs)    |
-                  |  +------------------+  |     +------------------+
-                  |           |            |
-                  |           v            |
-                  |  +------------------+  |
-                  |  | LLM (Groq)       |  |
-                  |  | Llama 3.3 70B    |  |
-                  |  +------------------+  |
-                  +------------------------+
-```
+### Architecture Globale
 
-### Diagrams
+<p align="center">
+  <img src="./diagrams/Architecture_Globale_CryptoVibe.png" width="800" alt="Architecture Globale"/>
+</p>
 
-| Architecture Globale | Flux de Donnees | Pipeline RAG |
-|:-------------------:|:---------------:|:------------:|
-| <img src="./diagrams/Architecture_Globale_CryptoVibe.png" width="280"> | <img src="./diagrams/Flux_Donnees_Pipeline.png" width="280"> | <img src="./diagrams/Sequence_Chatbot_RAG.png" width="280"> |
+### Diagrammes UML
 
-| Cas d'Utilisation | Diagramme de Classes | Sequence Collecte |
-|:-----------------:|:-------------------:|:-----------------:|
-| <img src="./diagrams/Cas_Utilisation_CryptoVibe.png" width="280"> | <img src="./diagrams/Diagramme_Classes_CryptoVibe.png" width="280"> | <img src="./diagrams/Sequence_Collecte_Donnees.png" width="280"> |
+| Cas d'Utilisation | Diagramme de Classes |
+|:-----------------:|:-------------------:|
+| <img src="./diagrams/Cas_Utilisation_CryptoVibe.png" width="400"> | <img src="./diagrams/Diagramme_Classes_CryptoVibe.png" width="400"> |
+
+| Flux de Donnees | Activite Dashboard |
+|:---------------:|:------------------:|
+| <img src="./diagrams/Flux_Donnees_Pipeline.png" width="400"> | <img src="./diagrams/Activite_Dashboard.png" width="400"> |
+
+| Sequence Chatbot RAG | Sequence Collecte Donnees |
+|:--------------------:|:-------------------------:|
+| <img src="./diagrams/Sequence_Chatbot_RAG.png" width="400"> | <img src="./diagrams/Sequence_Collecte_Donnees.png" width="400"> |
 
 ---
 
 ## Screenshots
 
-| Dashboard Overview | Sentiment Timeline | RAG Chatbot |
-|:------------------:|:------------------:|:-----------:|
+| Dashboard Overview | Fine-tuning | RAG Chatbot |
+|:------------------:|:-----------:|:-----------:|
 | <img src="./dashboard/src/assets/global_architectue.png" width="280"> | <img src="./dashboard/src/assets/fintuning.png" width="280"> | <img src="./dashboard/src/assets/Rag.png" width="280"> |
 
 ---
@@ -102,31 +79,35 @@ CryptoVibe est une plateforme complete d'analyse de sentiment du marche des cryp
 ## Tech Stack
 
 ### Backend
-| Technology | Usage |
-|------------|-------|
-| **FastAPI** | REST API framework |
-| **Python 3.10+** | Core language |
-| **Pydantic** | Data validation |
-| **sentence-transformers** | Embeddings (all-MiniLM-L6-v2) |
-| **Pinecone** | Vector database |
-| **Groq** | LLM provider (Llama 3.3 70B) |
-| **NLTK + VADER** | Sentiment analysis |
+
+| Technology | Logo | Usage |
+|------------|:----:|-------|
+| **Python 3.10+** | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" width="30"> | Core language |
+| **FastAPI** | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" width="30"> | REST API framework |
+| **Pydantic** | <img src="https://docs.pydantic.dev/latest/logo-white.svg" width="30"> | Data validation |
+| **Pinecone** | <img src="https://avatars.githubusercontent.com/u/54333248?s=200&v=4" width="30"> | Vector database |
+| **Groq** | <img src="https://groq.com/wp-content/uploads/2024/03/PBG-mark1-color.svg" width="30"> | LLM (Llama 3.3 70B) |
+| **HuggingFace** | <img src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg" width="30"> | Embeddings (MiniLM-L6-v2) |
+| **NLTK** | <img src="https://miro.medium.com/v2/resize:fit:592/1*YM2HXc7f4v02pZBEO8h-qw.png" width="30"> | VADER Sentiment |
 
 ### Frontend
-| Technology | Usage |
-|------------|-------|
-| **React 18** | UI framework |
-| **React Router v6** | SPA navigation |
-| **Recharts** | Data visualization |
-| **Lucide React** | Icons |
-| **CSS3** | Glassmorphism dark theme |
+
+| Technology | Logo | Usage |
+|------------|:----:|-------|
+| **React 18** | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="30"> | UI framework |
+| **React Router v6** | <img src="https://reactrouter.com/favicon-light.png" width="30"> | SPA navigation |
+| **Recharts** | <img src="https://recharts.org/favicon.ico" width="30"> | Data visualization |
+| **JavaScript** | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" width="30"> | Programming language |
+| **CSS3** | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" width="30"> | Glassmorphism dark theme |
 
 ### Infrastructure
-| Technology | Usage |
-|------------|-------|
-| **Docker** | Containerization |
-| **Apache Airflow** | Pipeline orchestration |
-| **GitHub Actions** | CI/CD |
+
+| Technology | Logo | Usage |
+|------------|:----:|-------|
+| **Docker** | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" width="30"> | Containerization |
+| **Apache Airflow** | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apacheairflow/apacheairflow-original.svg" width="30"> | Pipeline orchestration |
+| **GitHub Actions** | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" width="30"> | CI/CD |
+| **Git** | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" width="30"> | Version control |
 
 ---
 
@@ -283,15 +264,15 @@ docker run -p 8000:8000 cryptovibe-backend
 - **Feedback System**: Thumbs up/down pour amelioration continue
 - **Suggested Questions**: 6 questions aleatoires pour guider l'utilisateur
 
-### Pipeline
+### Pipeline RAG
 
-```
-Question --> Memory Check --> Reformulation --> Embedding --> Pinecone Search --> LLM --> Response
-                |                   |                              |
-                v                   v                              v
-         Context from          Enriched query              Top 5 documents
-         last 10 msgs          if vague                    (min score: 0.35)
-```
+<p align="center">
+  <img src="./diagrams/Sequence_Chatbot_RAG.png" width="700" alt="RAG Pipeline"/>
+</p>
+
+<p align="center">
+  <img src="./dashboard/src/assets/Rag.png" width="700" alt="RAG Architecture"/>
+</p>
 
 ### Query Reformulation Examples
 
