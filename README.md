@@ -561,21 +561,25 @@ python scripts/evaluate_rag.py --quick
     </td>
     <td align="center">
       <img src="./dashboard/src/assets/photo/KAYOUHSalaheddine.png" width="100px;" alt="KAYOUH Salaheddine"/><br />
-      <sub><b>KAYOUH Salaheddine</b></sub>
+      <sub><b>KAYOUH Salaheddine</b></sub><br />
+      <sub><a href="mailto:kayouh.salaheddine@etu.uae.ac.ma">kayouh.salaheddine@etu.uae.ac.ma</a></sub>
     </td>
     <td align="center">
       <img src="./dashboard/src/assets/photo/KHAILAImane.png" width="100px;" alt="KHAILA Imane"/><br />
-      <sub><b>KHAILA Imane</b></sub>
+      <sub><b>KHAILA Imane</b></sub><br />
+      <sub><a href="mailto:imane.khaila@etu.uae.ac.ma">imane.khaila@etu.uae.ac.ma</a></sub>
     </td>
     <td align="center">
       <img src="./dashboard/src/assets/photo/BROUKIAya.png" width="100px;" alt="BROUKI Aya"/><br />
-      <sub><b>BROUKI Aya</b></sub>
+      <sub><b>BROUKI Aya</b></sub><br />
+      <sub><a href="mailto:brouki.aya@etu.uae.ac.ma">brouki.aya@etu.uae.ac.ma</a></sub>
     </td>
   </tr>
   <tr>
     <td align="center">
       <img src="./dashboard/src/assets/photo/ELOUMNINora.png" width="100px;" alt="ELOUMNI Nora"/><br />
-      <sub><b>ELOUMNI Nora</b></sub>
+      <sub><b>ELOUMNI Nora</b></sub><br />
+      <sub><a href="mailto:eloumni.nora@etu.uae.ac.ma">eloumni.nora@etu.uae.ac.ma</a></sub>
     </td>
     <td align="center">
       <img src="./dashboard/src/assets/photo/KHARFASSEHiba.png" width="100px;" alt="KHARFASSE Hiba"/><br />
@@ -587,10 +591,25 @@ python scripts/evaluate_rag.py --quick
     </td>
     <td align="center">
       <img src="./dashboard/src/assets/photo/YAHYAZakariae.png" width="100px;" alt="YAHYA Zakariae"/><br />
-      <sub><b>YAHYA Zakariae</b></sub>
+      <sub><b>YAHYA Zakariae</b></sub><br />
+      <sub><a href="mailto:zakariae.yahya@etu.uae.ac.ma">zakariae.yahya@etu.uae.ac.ma</a></sub>
     </td>
   </tr>
 </table>
+
+---
+
+## Contact
+
+Pour toute question concernant le projet:
+
+| Membre | Email |
+|--------|-------|
+| KAYOUH Salaheddine | [kayouh.salaheddine@etu.uae.ac.ma](mailto:kayouh.salaheddine@etu.uae.ac.ma) |
+| KHAILA Imane | [imane.khaila@etu.uae.ac.ma](mailto:imane.khaila@etu.uae.ac.ma) |
+| BROUKI Aya | [brouki.aya@etu.uae.ac.ma](mailto:brouki.aya@etu.uae.ac.ma) |
+| ELOUMNI Nora | [eloumni.nora@etu.uae.ac.ma](mailto:eloumni.nora@etu.uae.ac.ma) |
+| YAHYA Zakariae | [zakariae.yahya@etu.uae.ac.ma](mailto:zakariae.yahya@etu.uae.ac.ma) |
 
 ---
 
